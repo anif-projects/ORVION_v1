@@ -14,12 +14,18 @@ const seed = async () => {
     await mongoose.connect();
     console.log('[Seed] Connected to Database...');
 
+    // Temporarily disable foreign key constraints to allow table truncation
+    await mongoose.query('SET FOREIGN_KEY_CHECKS = 0;');
+
     await User.deleteMany();
     await Category.deleteMany();
     await Course.deleteMany();
     await Module.deleteMany();
     await Lesson.deleteMany();
     await Settings.deleteMany();
+
+    // Re-enable foreign key constraints
+    await mongoose.query('SET FOREIGN_KEY_CHECKS = 1;');
 
     // Create Admin and Student
     const admin = await User.create({

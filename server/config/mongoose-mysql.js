@@ -3,6 +3,29 @@ const bcrypt = require('bcryptjs');
 
 let pool = null;
 
+function formatMySQLDate(date) {
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return null;
+  const pad = (n) => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function prepareDatabaseValue(val) {
+  if (val instanceof Date) {
+    return formatMySQLDate(val);
+  }
+  if (typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(val)) {
+    const parsedDate = new Date(val);
+    if (!isNaN(parsedDate.getTime())) {
+      return formatMySQLDate(parsedDate);
+    }
+  }
+  if (typeof val === 'object' && val !== null) {
+    return JSON.stringify(val);
+  }
+  return val;
+}
+
 // Connect function to initialize the MySQL pool
 const connect = async () => {
   if (pool) return pool;
@@ -232,10 +255,7 @@ class Document {
       if (key.startsWith('_') || typeof this[key] === 'function' || key === 'id') continue;
       
       let val = this[key];
-      // Convert arrays/objects to JSON strings for database compatibility
-      if (typeof val === 'object' && val !== null) {
-        val = JSON.stringify(val);
-      }
+      val = prepareDatabaseValue(val);
       dataToSave[key] = val;
       columns.push(key);
       values.push(val);
@@ -491,9 +511,7 @@ const createModel = (modelName, schema) => {
               if (key === 'id' || key === '_id') continue;
               setClauses.push(`\`${key}\` = ?`);
               let val = updateData[key];
-              if (typeof val === 'object' && val !== null) {
-                val = JSON.stringify(val);
-              }
+              val = prepareDatabaseValue(val);
               values.push(val);
             }
 
@@ -546,6 +564,10 @@ const createModel = (modelName, schema) => {
 // Exporting the Mock Mongoose Package API
 module.exports = {
   connect,
+  query: async (sql, params) => {
+    if (!pool) await connect();
+    return await pool.query(sql, params);
+  },
   Schema,
   model: (name, schema) => {
     if (modelsRegistry[name]) return modelsRegistry[name];

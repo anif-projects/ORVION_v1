@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, BookOpen, DollarSign, TrendingUp, Activity, ShieldCheck } from 'lucide-react';
+import { Users, BookOpen, DollarSign, TrendingUp, Activity, ShieldCheck, Calendar } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import api from '../../services/api';
 import { pageVariants } from '../../utils/animations';
@@ -10,6 +10,7 @@ export default function AdminDashboard() {
     totalStudents: 1420,
     totalCourses: 12,
     totalRevenue: 34850,
+    totalEvents: 0,
     monthlyRevenue: [
       { month: 'Jan', revenue: 4200, students: 120 },
       { month: 'Feb', revenue: 6800, students: 240 },
@@ -83,13 +84,13 @@ export default function AdminDashboard() {
 
         <div className="glass-card p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-2">
           <div className="flex items-center justify-between text-slate-500">
-            <span className="text-xs font-semibold uppercase">Platform Security</span>
-            <div className="w-9 h-9 rounded-xl bg-accent-success/10 text-accent-success flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5" />
+            <span className="text-xs font-semibold uppercase">Live Events</span>
+            <div className="w-9 h-9 rounded-xl bg-primary-600/10 text-primary-600 flex items-center justify-center">
+              <Calendar className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-3xl font-extrabold text-slate-900 dark:text-white">Active</div>
-          <span className="text-[11px] text-accent-success font-bold">Zero vulnerabilities detected</span>
+          <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.totalEvents}</div>
+          <span className="text-[11px] text-primary-600 font-bold">Scheduled webinars</span>
         </div>
       </div>
 

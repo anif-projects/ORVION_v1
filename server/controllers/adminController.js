@@ -3,17 +3,20 @@ const paymentRepo = require('../repositories/paymentRepo');
 const auditRepo = require('../repositories/auditRepo');
 const Course = require('../models/Course');
 const Category = require('../models/Category');
+const Event = require('../models/Event');
 const asyncHandler = require('../utils/asyncHandler');
 
 const getDashboardStats = asyncHandler(async (req, res) => {
   const totalStudents = await userRepo.findAll({ role: 'student' });
   const totalCourses = await Course.countDocuments();
+  const totalEvents = await Event.countDocuments({ status: { $ne: 'cancelled' } });
   const revenueStats = await paymentRepo.getRevenueStats();
 
   const analytics = {
     totalStudents: totalStudents.total,
     totalCourses,
     totalRevenue: revenueStats.totalAmount,
+    totalEvents,
     recentPayments: revenueStats.recentPayments,
     monthlyRevenue: [
       { month: 'Jan', revenue: 4200 },

@@ -25,4 +25,13 @@ const registerForEvent = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', message: 'Registered for event successfully' });
 });
 
-module.exports = { getUpcomingEvents, createEvent, registerForEvent };
+const getMyEvents = asyncHandler(async (req, res) => {
+  const allEvents = await Event.find({ status: { $ne: 'cancelled' } }).sort({ startTime: 1 });
+  const myEvents = allEvents.filter(event => {
+    const users = Array.isArray(event.registeredUsers) ? event.registeredUsers : [];
+    return users.map(String).includes(String(req.user._id));
+  });
+  res.status(200).json({ status: 'success', data: { events: myEvents } });
+});
+
+module.exports = { getUpcomingEvents, createEvent, registerForEvent, getMyEvents };

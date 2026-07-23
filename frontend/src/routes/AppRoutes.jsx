@@ -19,6 +19,8 @@ import MyCourses from '../pages/student/MyCourses';
 import LearningPlayer from '../pages/student/LearningPlayer';
 import StudentProfile from '../pages/student/StudentProfile';
 import CommunityBoard from '../pages/student/CommunityBoard';
+import Certifications from '../pages/student/Certifications';
+import MyEvents from '../pages/student/MyEvents';
 
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import CourseManager from '../pages/admin/CourseManager';
@@ -46,8 +48,10 @@ export default function AppRoutes() {
       <Route path="/student" element={<StudentLayout />}>
         <Route path="dashboard" element={<StudentDashboard />} />
         <Route path="my-courses" element={<MyCourses />} />
+        <Route path="events" element={<MyEvents />} />
         <Route path="profile" element={<StudentProfile />} />
         <Route path="community" element={<CommunityBoard />} />
+        <Route path="certifications" element={<Certifications />} />
       </Route>
 
       {/* Distraction-Free Learning Player */}

@@ -20,4 +20,10 @@ const verifyCertificate = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', data: { certificate } });
 });
 
-module.exports = { claimCertificate, verifyCertificate };
+const getMyCertificates = asyncHandler(async (req, res) => {
+  const certificates = await Certificate.find({ student: req.user._id })
+    .populate('course', 'title');
+  res.status(200).json({ status: 'success', data: { certificates } });
+});
+
+module.exports = { claimCertificate, verifyCertificate, getMyCertificates };

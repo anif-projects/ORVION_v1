@@ -5,15 +5,18 @@ import {
   BookOpen, 
   Users, 
   Settings, 
-  MessageSquare
+  MessageSquare,
+  User,
+  Calendar
 } from 'lucide-react';
 
 export default function Sidebar({ role = 'student' }) {
   const studentLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
     { name: 'My Courses', path: '/student/my-courses', icon: BookOpen },
+    { name: 'My Events', path: '/student/events', icon: Calendar },
     { name: 'Community Q&A', path: '/student/community', icon: MessageSquare },
-    { name: 'Profile & Settings', path: '/student/profile', icon: Settings },
+    { name: 'Profile', path: '/student/profile', icon: User },
   ];
 
   const adminLinks = [

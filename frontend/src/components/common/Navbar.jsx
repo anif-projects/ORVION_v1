@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   Sun, Moon, LogOut, LayoutDashboard, Search, Bell, Menu, X, User,
-  BookOpen, Users, Settings, MessageSquare, ShieldAlert, FolderGit2
+  BookOpen, Users, Settings, MessageSquare, ShieldAlert, FolderGit2, Calendar
 } from 'lucide-react';
 import Logo from './Logo';
 
@@ -30,8 +30,9 @@ export default function Navbar() {
   const studentPortalLinks = [
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
     { name: 'My Courses', path: '/student/my-courses', icon: BookOpen },
+    { name: 'My Events', path: '/student/events', icon: Calendar },
     { name: 'Community Q&A', path: '/student/community', icon: MessageSquare },
-    { name: 'Profile & Settings', path: '/student/profile', icon: Settings },
+    { name: 'Profile', path: '/student/profile', icon: User },
   ];
 
   const adminPortalLinks = [
