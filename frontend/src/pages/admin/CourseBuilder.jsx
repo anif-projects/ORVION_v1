@@ -245,8 +245,8 @@ export default function CourseBuilder() {
       }
       navigate('/admin/courses');
     } catch (err) {
-      toast.success(id ? 'Course updated in demo mode!' : 'Course created in demo mode!');
-      navigate('/admin/courses');
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to save course to database.');
     } finally {
       setLoading(false);
     }

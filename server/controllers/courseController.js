@@ -39,6 +39,7 @@ const createCourse = asyncHandler(async (req, res) => {
       : JSON.parse(req.body.learningOutcomes || '[]');
   }
 
+  delete courseData.modules;
   const course = await courseRepo.create(courseData);
 
   // Save child modules & lessons/quizzes
@@ -79,6 +80,7 @@ const updateCourse = asyncHandler(async (req, res) => {
       : JSON.parse(req.body.learningOutcomes || '[]');
   }
 
+  delete courseData.modules;
   const course = await courseRepo.update(req.params.id, courseData);
 
   if (req.body.modules && Array.isArray(req.body.modules)) {
