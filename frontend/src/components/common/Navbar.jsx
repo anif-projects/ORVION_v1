@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   Sun, Moon, LogOut, LayoutDashboard, Search, Bell, Menu, X, User,
-  BookOpen, Users, Settings, MessageSquare, ShieldAlert, FolderGit2, Calendar
+  BookOpen, Users, Settings, MessageSquare, ShieldAlert, FolderGit2, Calendar, Award
 } from 'lucide-react';
 import Logo from './Logo';
 
@@ -31,6 +31,7 @@ export default function Navbar() {
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
     { name: 'My Courses', path: '/student/my-courses', icon: BookOpen },
     { name: 'My Events', path: '/student/events', icon: Calendar },
+    { name: 'Certifications', path: '/student/certifications', icon: Award },
     { name: 'Community Q&A', path: '/student/community', icon: MessageSquare },
     { name: 'Profile', path: '/student/profile', icon: User },
   ];

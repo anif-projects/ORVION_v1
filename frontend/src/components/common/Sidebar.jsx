@@ -7,7 +7,8 @@ import {
   Settings, 
   MessageSquare,
   User,
-  Calendar
+  Calendar,
+  Award
 } from 'lucide-react';
 
 export default function Sidebar({ role = 'student' }) {
@@ -15,6 +16,7 @@ export default function Sidebar({ role = 'student' }) {
     { name: 'Dashboard', path: '/student/dashboard', icon: LayoutDashboard },
     { name: 'My Courses', path: '/student/my-courses', icon: BookOpen },
     { name: 'My Events', path: '/student/events', icon: Calendar },
+    { name: 'Certifications', path: '/student/certifications', icon: Award },
     { name: 'Community Q&A', path: '/student/community', icon: MessageSquare },
     { name: 'Profile', path: '/student/profile', icon: User },
   ];
