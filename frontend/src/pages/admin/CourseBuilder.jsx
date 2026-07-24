@@ -20,8 +20,10 @@ export default function CourseBuilder() {
     price: 499,
     level: 'all_levels',
     thumbnail: '',
-    category: '1', // default fallback category
+    category: '', // initialized empty, loaded dynamically
   });
+
+  const [categories, setCategories] = useState([]);
 
   const [learningOutcomes, setLearningOutcomes] = useState(['']);
   const [modules, setModules] = useState([
@@ -52,10 +54,26 @@ export default function CourseBuilder() {
   const [expandedQuizIndex, setExpandedQuizIndex] = useState(null); // moduleIndex-lessonIndex format
 
   useEffect(() => {
+    fetchCategories();
     if (id) {
       fetchCourseDetails();
     }
   }, [id]);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await api.get('/courses/categories');
+      if (res.data.data && res.data.data.categories) {
+        setCategories(res.data.data.categories);
+        // Default category to the first one if creating new course
+        if (!id && res.data.data.categories.length > 0) {
+          setCourseData(prev => ({ ...prev, category: res.data.data.categories[0]._id }));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch categories:', err);
+    }
+  };
 
   const fetchCourseDetails = async () => {
     setFetching(true);
@@ -310,7 +328,7 @@ export default function CourseBuilder() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Price (₹)</label>
               <input
@@ -331,6 +349,20 @@ export default function CourseBuilder() {
                 <option value="beginner">Beginner</option>
                 <option value="intermediate">Intermediate</option>
                 <option value="advanced">Advanced</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category</label>
+              <select
+                value={courseData.category}
+                onChange={(e) => setCourseData({ ...courseData, category: e.target.value })}
+                required
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none text-slate-700 dark:text-slate-200"
+              >
+                <option value="">Select Category</option>
+                {categories.map((cat) => (
+                  <option key={cat._id} value={cat._id}>{cat.name}</option>
+                ))}
               </select>
             </div>
             <div>
