@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { pageVariants, fadeInContainer, fadeInItem } from '../../utils/animations';
 import CourseCard from '../../components/common/CourseCard';
+import api from '../../services/api';
 
 import HeroSection from '../../components/hero/HeroSection';
 import WhyOrvionSection from '../../components/why-orvion/WhyOrvionSection';
@@ -10,7 +11,29 @@ import HowItWorksSection from '../../components/how-it-works/HowItWorksSection';
 import StudentSuccessStoriesSection from '../../components/testimonials/StudentSuccessStoriesSection';
 
 export default function LandingPage() {
-  const sampleCourses = [
+  const [featuredCourses, setFeaturedCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await api.get('/courses?isFeatured=true&limit=3');
+        if (res.data.data && res.data.data.courses && res.data.data.courses.length > 0) {
+          setFeaturedCourses(res.data.data.courses);
+        } else {
+          setFeaturedCourses(demoCourses);
+        }
+      } catch (err) {
+        console.error('Failed to fetch featured courses:', err);
+        setFeaturedCourses(demoCourses);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeatured();
+  }, []);
+
+  const demoCourses = [
     {
       _id: '1',
       title: 'Full-Stack React & Node.js Masterclass',
@@ -84,7 +107,7 @@ export default function LandingPage() {
           </div>
 
           <motion.div variants={fadeInContainer} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {sampleCourses.map((c) => (
+            {featuredCourses.map((c) => (
               <motion.div key={c._id} variants={fadeInItem}>
                 <CourseCard course={c} />
               </motion.div>
@@ -96,7 +119,7 @@ export default function LandingPage() {
       {/* 4. How It Works Section */}
       <HowItWorksSection />
 
-      {/* 5. Student Success Stories Section (Final Content Section Before Footer) */}
+      {/* 5. Testimonials Section */}
       <StudentSuccessStoriesSection />
     </motion.div>
   );

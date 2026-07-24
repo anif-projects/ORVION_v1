@@ -3,14 +3,16 @@ const videoService = require('../services/videoService');
 const Module = require('../models/Module');
 const Lesson = require('../models/Lesson');
 const Category = require('../models/Category');
+const Course = require('../models/Course');
 const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
 
 const getCourses = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 12, category, level, search, sort } = req.query;
+  const { page = 1, limit = 12, category, level, search, sort, isFeatured } = req.query;
   const filters = {};
   if (category) filters.category = category;
   if (level) filters.level = level;
+  if (isFeatured) filters.isFeatured = isFeatured === 'true';
   if (search) filters.title = { $regex: search, $options: 'i' };
 
   let sortOption = { createdAt: -1 };
@@ -138,6 +140,14 @@ const getCategories = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', data: { categories } });
 });
 
+const toggleFeatured = asyncHandler(async (req, res) => {
+  const course = await Course.findById(req.params.id);
+  if (!course) throw new AppError('Course not found', 404);
+
+  const updated = await courseRepo.update(req.params.id, { isFeatured: !course.isFeatured });
+  res.status(200).json({ status: 'success', data: { course: updated } });
+});
+
 module.exports = {
   getCourses,
   getCourseBySlug,
@@ -148,4 +158,5 @@ module.exports = {
   addLesson,
   getUploadSignature,
   getCategories,
+  toggleFeatured,
 };

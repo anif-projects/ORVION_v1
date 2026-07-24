@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plus, Edit3, Trash2, Eye, Copy, Layers } from 'lucide-react';
+import { Plus, Edit3, Trash2, Eye, Copy, Layers, Star } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { pageVariants } from '../../utils/animations';
@@ -46,6 +46,18 @@ export default function CourseManager() {
     }
   };
 
+  const handleToggleFeatured = async (id) => {
+    try {
+      const res = await api.patch(`/courses/${id}/toggle-featured`);
+      if (res.data.data) {
+        toast.success(res.data.data.course.isFeatured ? 'Course set as Featured!' : 'Course removed from Featured!');
+        fetchCourses();
+      }
+    } catch (err) {
+      toast.error('Failed to toggle featured status');
+    }
+  };
+
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -77,7 +89,18 @@ export default function CourseManager() {
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-sm">
             {courses.map((c) => (
               <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
-                <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{c.title}</td>
+                <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleToggleFeatured(c._id)} 
+                      className="p-1 hover:scale-110 transition text-slate-400 focus:outline-none"
+                      title={c.isFeatured ? "Unfeature Course" : "Feature Course"}
+                    >
+                      <Star className={`w-4 h-4 ${c.isFeatured ? 'fill-amber-400 text-amber-400' : 'text-slate-400 dark:text-slate-600'}`} />
+                    </button>
+                    <span>{c.title}</span>
+                  </div>
+                </td>
                 <td className="px-6 py-4">₹{c.price}</td>
                 <td className="px-6 py-4">{c.enrolledCount || 0}</td>
                 <td className="px-6 py-4">

@@ -226,6 +226,11 @@ const connect = async () => {
     } catch (e) {
       // Ignore duplicate column errors
     }
+    try {
+      await realPool.query("ALTER TABLE courses ADD COLUMN isFeatured BOOLEAN DEFAULT FALSE;");
+    } catch (e) {
+      // Ignore duplicate column errors
+    }
 
     conn.release();
     pool = realPool;
