@@ -4,6 +4,8 @@ const auditRepo = require('../repositories/auditRepo');
 const Course = require('../models/Course');
 const Category = require('../models/Category');
 const Event = require('../models/Event');
+const User = require('../models/User');
+const Payment = require('../models/Payment');
 const asyncHandler = require('../utils/asyncHandler');
 
 const getDashboardStats = asyncHandler(async (req, res) => {
@@ -12,28 +14,65 @@ const getDashboardStats = asyncHandler(async (req, res) => {
   const totalEvents = await Event.countDocuments({ status: { $ne: 'cancelled' } });
   const revenueStats = await paymentRepo.getRevenueStats();
 
+  // 1. Get dynamic monthly revenue growth from completed payments in the DB
+  const completedPayments = await Payment.find({ status: 'completed' });
+  const monthlyRevenueMap = {};
+  
+  const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const last6Months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const mName = monthsShort[d.getMonth()];
+    last6Months.push(mName);
+    monthlyRevenueMap[mName] = 0;
+  }
+
+  completedPayments.forEach(p => {
+    if (p.createdAt) {
+      const date = new Date(p.createdAt);
+      const mName = monthsShort[date.getMonth()];
+      if (monthlyRevenueMap[mName] !== undefined) {
+        monthlyRevenueMap[mName] += parseFloat(p.amount) || 0;
+      }
+    }
+  });
+
+  const monthlyRevenue = last6Months.map(month => ({
+    month,
+    revenue: monthlyRevenueMap[month]
+  }));
+
+  // 2. Get dynamic student registrations from users table in the DB
+  const allStudents = await User.find({ role: 'student' });
+  const enrollmentMap = {};
+  last6Months.forEach(m => {
+    enrollmentMap[m] = 0;
+  });
+
+  allStudents.forEach(s => {
+    if (s.createdAt) {
+      const date = new Date(s.createdAt);
+      const mName = monthsShort[date.getMonth()];
+      if (enrollmentMap[mName] !== undefined) {
+        enrollmentMap[mName]++;
+      }
+    }
+  });
+
+  const enrollmentGraph = last6Months.map(month => ({
+    month,
+    students: enrollmentMap[month]
+  }));
+
   const analytics = {
     totalStudents: totalStudents.total,
     totalCourses,
     totalRevenue: revenueStats.totalAmount,
     totalEvents,
     recentPayments: revenueStats.recentPayments,
-    monthlyRevenue: [
-      { month: 'Jan', revenue: 4200 },
-      { month: 'Feb', revenue: 6800 },
-      { month: 'Mar', revenue: 9500 },
-      { month: 'Apr', revenue: 11200 },
-      { month: 'May', revenue: 14800 },
-      { month: 'Jun', revenue: 18400 },
-    ],
-    enrollmentGraph: [
-      { month: 'Jan', students: 120 },
-      { month: 'Feb', students: 240 },
-      { month: 'Mar', students: 380 },
-      { month: 'Apr', students: 510 },
-      { month: 'May', students: 780 },
-      { month: 'Jun', students: 950 },
-    ],
+    monthlyRevenue,
+    enrollmentGraph,
   };
 
   res.status(200).json({ status: 'success', data: analytics });

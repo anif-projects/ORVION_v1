@@ -719,6 +719,68 @@ const createModel = (modelName, schema) => {
       q.updateData = updateData;
       return q;
     }
+
+    static async aggregate(pipeline = []) {
+      if (!pool) await connect();
+      
+      let selectClause = '*';
+      let whereClause = '1=1';
+      let params = [];
+      let groupByClause = '';
+
+      for (let stage of pipeline) {
+        if (stage.$match) {
+          const { clause, params: whereParams } = buildWhereClause(stage.$match);
+          whereClause = clause;
+          params.push(...whereParams);
+        } else if (stage.$group) {
+          const groupKeys = Object.keys(stage.$group);
+          const selectFields = [];
+          for (let key of groupKeys) {
+            if (key === '_id') {
+              if (stage.$group[key] !== null) {
+                let groupCol = stage.$group[key];
+                if (typeof groupCol === 'string' && groupCol.startsWith('$')) {
+                  groupCol = groupCol.substring(1);
+                  selectFields.push(`\`${groupCol}\` AS \`_id\``);
+                  groupByClause = ` GROUP BY \`${groupCol}\``;
+                }
+              }
+            } else {
+              const aggObj = stage.$group[key];
+              if (aggObj && typeof aggObj === 'object') {
+                const aggOp = Object.keys(aggObj)[0];
+                let aggCol = aggObj[aggOp];
+                if (typeof aggCol === 'string' && aggCol.startsWith('$')) {
+                  aggCol = aggCol.substring(1);
+                }
+                
+                if (aggOp === '$sum') {
+                  if (aggCol === 1 || aggCol === '1') {
+                    selectFields.push(`COUNT(*) AS \`${key}\``);
+                  } else {
+                    selectFields.push(`SUM(\`${aggCol}\`) AS \`${key}\``);
+                  }
+                } else if (aggOp === '$avg') {
+                  selectFields.push(`AVG(\`${aggCol}\`) AS \`${key}\``);
+                } else if (aggOp === '$min') {
+                  selectFields.push(`MIN(\`${aggCol}\`) AS \`${key}\``);
+                } else if (aggOp === '$max') {
+                  selectFields.push(`MAX(\`${aggCol}\`) AS \`${key}\``);
+                }
+              }
+            }
+          }
+          if (selectFields.length > 0) {
+            selectClause = selectFields.join(', ');
+          }
+        }
+      }
+
+      const sql = `SELECT ${selectClause} FROM \`${tableName}\` WHERE ${whereClause}${groupByClause}`;
+      const [rows] = await pool.query(sql, params);
+      return rows;
+    }
   }
 
   modelsRegistry[modelName] = Model;
