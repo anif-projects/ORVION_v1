@@ -12,6 +12,7 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     totalEvents: 0,
     monthlyRevenue: [],
+    enrollmentGraph: [],
     recentPayments: [],
   });
 
@@ -46,7 +47,7 @@ export default function AdminDashboard() {
               <DollarSign className="w-5 h-5" />
             </div>
           </div>
-          <div className="text-3xl font-extrabold text-slate-900 dark:text-white">${stats.totalRevenue.toLocaleString()}</div>
+          <div className="text-3xl font-extrabold text-slate-900 dark:text-white">${(stats.totalRevenue || 0).toLocaleString()}</div>
           <span className="text-[11px] text-slate-400 font-medium">Accumulated platform sales</span>
         </div>
 
@@ -113,7 +114,7 @@ export default function AdminDashboard() {
           <h3 className="font-bold text-slate-900 dark:text-white text-base">Student Registrations</h3>
           <div className="h-72 w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.monthlyRevenue}>
+              <BarChart data={stats.enrollmentGraph || []}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
                 <XAxis dataKey="month" stroke="#94a3b8" />
                 <YAxis stroke="#94a3b8" />

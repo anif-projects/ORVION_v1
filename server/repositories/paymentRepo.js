@@ -30,7 +30,7 @@ class PaymentRepository {
       .limit(10);
 
     return {
-      totalAmount: totalRevenue[0] ? totalRevenue[0].total : 0,
+      totalAmount: Number(totalRevenue[0] && totalRevenue[0].total ? totalRevenue[0].total : 0),
       recentPayments,
     };
   }
