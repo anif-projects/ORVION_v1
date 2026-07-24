@@ -1,11 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Shield, Award, Zap } from 'lucide-react';
 import { pageVariants, fadeInContainer, fadeInItem } from '../../utils/animations';
 import CourseCard from '../../components/common/CourseCard';
 
 import HeroSection from '../../components/hero/HeroSection';
+import WhyOrvionSection from '../../components/why-orvion/WhyOrvionSection';
+import HowItWorksSection from '../../components/how-it-works/HowItWorksSection';
+import StudentSuccessStoriesSection from '../../components/testimonials/StudentSuccessStoriesSection';
 
 export default function LandingPage() {
   const sampleCourses = [
@@ -57,80 +59,45 @@ export default function LandingPage() {
   ];
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-24 pb-16">
-      {/* Hero Section */}
+    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="w-full flex flex-col items-center">
+      {/* 1. Hero Section */}
       <HeroSection />
 
-      {/* Featured Courses Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
-              Featured Courses
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              Handcrafted curriculum designed by industry engineering leads.
-            </p>
-          </div>
-          <Link to="/courses" className="text-primary-600 dark:text-primary-400 font-semibold text-sm hover:underline">
-            View All Courses &rarr;
-          </Link>
-        </div>
+      {/* 2. Why Orvion Section */}
+      <WhyOrvionSection />
 
-        <motion.div variants={fadeInContainer} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {sampleCourses.map((c) => (
-            <motion.div key={c._id} variants={fadeInItem}>
-              <CourseCard course={c} />
-            </motion.div>
-          ))}
-        </motion.div>
-      </section>
-
-      {/* Feature Highlights Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="glass-panel rounded-3xl p-8 sm:p-12 border border-slate-200/80 dark:border-slate-800/80 space-y-12">
-          <div className="text-center space-y-3 max-w-2xl mx-auto">
-            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white">
-              Built for Enterprise Learning
-            </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">
-              Engineered with security, adaptive video chunk streaming, and RBAC permission models.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="space-y-3 p-4">
-              <div className="w-12 h-12 rounded-2xl bg-primary-600/10 text-primary-600 flex items-center justify-center">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">Adaptive Video Streaming</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Cloudinary signed tokens and HLS chunk streaming for zero-lag video playback across all devices.
+      {/* 3. Featured Courses Section */}
+      <section className="w-full min-h-screen flex flex-col items-center justify-center py-[48px] sm:py-[64px] lg:py-[80px] relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 w-full my-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
+                Featured Courses
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                Handcrafted curriculum designed by industry engineering leads.
               </p>
             </div>
-
-            <div className="space-y-3 p-4">
-              <div className="w-12 h-12 rounded-2xl bg-secondary-500/10 text-secondary-500 flex items-center justify-center">
-                <Shield className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">Stripe & Razorpay Integration</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Abstracted strategy design pattern handling multi-currency checkouts, webhooks, and invoice generation.
-              </p>
-            </div>
-
-            <div className="space-y-3 p-4">
-              <div className="w-12 h-12 rounded-2xl bg-accent-success/10 text-accent-success flex items-center justify-center">
-                <Award className="w-6 h-6" />
-              </div>
-              <h3 className="font-bold text-lg text-slate-900 dark:text-white">Verifiable QR Certificates</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                Automatic SHA-256 hash generation and public verification lookup portal for graduates.
-              </p>
-            </div>
+            <Link to="/courses" className="text-primary-600 dark:text-primary-400 font-semibold text-sm hover:underline">
+              View All Courses &rarr;
+            </Link>
           </div>
+
+          <motion.div variants={fadeInContainer} initial="hidden" animate="visible" className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {sampleCourses.map((c) => (
+              <motion.div key={c._id} variants={fadeInItem}>
+                <CourseCard course={c} />
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       </section>
+
+      {/* 4. How It Works Section */}
+      <HowItWorksSection />
+
+      {/* 5. Student Success Stories Section (Final Content Section Before Footer) */}
+      <StudentSuccessStoriesSection />
     </motion.div>
   );
 }

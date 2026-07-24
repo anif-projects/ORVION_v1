@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Youtube, ShieldCheck, Heart } from 'lucide-react';
+import { Mail, MapPin, Github, Twitter, Linkedin, Youtube } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Footer() {
@@ -11,79 +11,16 @@ export default function Footer() {
         {/* Main Footer Responsive Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-center sm:text-left">
           
-          {/* Column 1: Brand & Mission */}
+          {/* Brand & Mission Description */}
           <div className="space-y-4 flex flex-col items-center sm:items-start">
             <Link to="/" className="inline-block transition-transform hover:scale-105">
               <Logo className="h-10 sm:h-11 w-auto" />
             </Link>
             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-sm">
-              Empowering engineers and students with production-grade interactive learning, live workshops, and verifiable credentials.
+              Empowering the next generation of tech professionals with world-class education and career opportunities.
             </p>
-          </div>
-
-          {/* Column 2: Navigation & Explore */}
-          <div className="space-y-4">
-            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-              Explore
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
-              <li>
-                <Link to="/" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Course Catalog
-                </Link>
-              </li>
-              <li>
-                <Link to="/live-events" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Live Events
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Resources & Verification */}
-          <div className="space-y-4">
-            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-              Resources
-            </h4>
-            <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
-              <li>
-                <Link to="/verify-certificate/DEMO" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex items-center justify-center sm:justify-start gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                  <span>Verify Certificate</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/student/community" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Community Q&A
-                </Link>
-              </li>
-              <li>
-                <Link to="/student/dashboard" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Student Portal
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4: Connect & Social */}
-          <div className="space-y-4 flex flex-col items-center sm:items-start">
-            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-              Connect With Us
-            </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Join our community of global developers.
-            </p>
-            <div className="flex gap-2.5 text-slate-600 dark:text-slate-300">
+            {/* Social Media Links */}
+            <div className="flex gap-2.5 pt-1 text-slate-600 dark:text-slate-300">
               <a
                 href="#"
                 aria-label="GitHub"
@@ -114,14 +51,89 @@ export default function Footer() {
               </a>
             </div>
           </div>
+
+          {/* Column 1: Quick Links */}
+          <div className="space-y-4">
+            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+              Quick Links
+            </h4>
+            <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
+              <li>
+                <Link to="/about" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Programs
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Internship Tracks
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 2: Popular Programs */}
+          <div className="space-y-4">
+            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+              Popular Programs
+            </h4>
+            <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
+              <li>
+                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Cloud & DevOps
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  AI & Machine Learning
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  Cybersecurity
+                </Link>
+              </li>
+              <li>
+                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  UI/UX Design
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Contact */}
+          <div className="space-y-4 flex flex-col items-center sm:items-start">
+            <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+              Contact
+            </h4>
+            <ul className="space-y-3 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
+              <li className="flex items-center gap-2 justify-center sm:justify-start">
+                <Mail className="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0" />
+                <a href="mailto:info@orvionlearn.co.in" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  info@orvionlearn.co.in
+                </a>
+              </li>
+              <li className="flex items-start gap-2 justify-center sm:justify-start">
+                <MapPin className="w-4 h-4 text-primary-600 dark:text-primary-400 shrink-0 mt-0.5" />
+                <span>Ongole, Andhra Pradesh</span>
+              </li>
+            </ul>
+          </div>
+
         </div>
 
-        {/* Bottom Responsive Bar */}
+        {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-xs text-slate-500 dark:text-slate-400">
-          <p>© 2026 ORVION - Unlock The Future. All rights reserved.</p>
-          <p className="flex items-center gap-1">
-            Built with <Heart className="w-3.5 h-3.5 text-accent-danger fill-accent-danger" /> for learners worldwide
-          </p>
+          <p>© 2026 Orvion. All rights reserved.</p>
         </div>
       </div>
     </footer>
