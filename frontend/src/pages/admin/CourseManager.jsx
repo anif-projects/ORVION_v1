@@ -16,7 +16,7 @@ export default function CourseManager() {
 
   const fetchCourses = async () => {
     try {
-      const res = await api.get('/courses?limit=50');
+      const res = await api.get('/courses?limit=50&status=all');
       setCourses(res.data.data.courses || []);
     } catch (err) {
       console.error(err);

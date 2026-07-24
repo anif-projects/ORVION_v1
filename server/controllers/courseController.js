@@ -8,11 +8,18 @@ const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
 
 const getCourses = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 12, category, level, search, sort, isFeatured } = req.query;
+  const { page = 1, limit = 12, category, level, search, sort, isFeatured, status } = req.query;
   const filters = {};
   if (category) filters.category = category;
   if (level) filters.level = level;
   if (isFeatured) filters.isFeatured = isFeatured === 'true';
+  if (status) {
+    if (status === 'all') {
+      filters.status = { $in: ['draft', 'published', 'archived'] };
+    } else {
+      filters.status = status;
+    }
+  }
   if (search) filters.title = { $regex: search, $options: 'i' };
 
   let sortOption = { createdAt: -1 };

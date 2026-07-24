@@ -250,6 +250,7 @@ export default function CourseBuilder() {
     try {
       const payload = {
         ...courseData,
+        status: 'published',
         learningOutcomes: learningOutcomes.filter(o => o.trim() !== ''),
         modules,
       };
