@@ -109,9 +109,6 @@ export default function StudentDashboard() {
             <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
               Welcome back, <span className="text-amber-600 dark:text-amber-400">{user?.name || 'Student'}</span>! 👋
             </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl">
-              You are currently on a <strong className="text-amber-600 dark:text-amber-400 inline-flex items-center gap-1"><Flame className="w-4 h-4 fill-amber-500 text-amber-500" /> 7-day learning streak!</strong> Keep maintaining the momentum to unlock new certifications.
-            </p>
           </div>
 
           <div className="flex items-center gap-3">
