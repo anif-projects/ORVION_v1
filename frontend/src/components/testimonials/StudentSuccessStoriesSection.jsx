@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Star } from 'lucide-react';
+import { Star, StarHalf } from 'lucide-react';
 
 const REVIEWS_ROW_1 = [
   {
@@ -8,6 +8,7 @@ const REVIEWS_ROW_1 = [
     name: 'Arjun Sharma',
     initials: 'AS',
     role: 'DevOps & Cloud',
+    rating: 5.0,
     color: 'from-orange-500 to-amber-600',
     review: 'The DevOps & Cloud program gave me real hands-on exposure to tools companies actually use. I built and deployed a full project by the end of it.',
   },
@@ -16,6 +17,7 @@ const REVIEWS_ROW_1 = [
     name: 'Priya Reddy',
     initials: 'PR',
     role: 'Hackathon',
+    rating: 4.0,
     color: 'from-blue-500 to-indigo-600',
     review: 'Joining the hackathon was one of the best decisions I made this year. The problem statements were realistic and the mentors guided us at every step.',
   },
@@ -24,6 +26,7 @@ const REVIEWS_ROW_1 = [
     name: 'Rahul Kumar',
     initials: 'RK',
     role: 'UI/UX Design',
+    rating: 4.0,
     color: 'from-emerald-500 to-teal-600',
     review: 'The UI/UX Design course completely changed how I approach design. My portfolio looks so much stronger now.',
   },
@@ -32,6 +35,7 @@ const REVIEWS_ROW_1 = [
     name: 'Sneha Patel',
     initials: 'SP',
     role: 'AI & Machine Learning',
+    rating: 5.0,
     color: 'from-purple-500 to-violet-600',
     review: 'I attended one of the webinars expecting a basic overview, but it went deep into practical AI applications. Really valuable session.',
   },
@@ -40,6 +44,7 @@ const REVIEWS_ROW_1 = [
     name: 'Vikram Gupta',
     initials: 'VG',
     role: 'Cybersecurity',
+    rating: 4.0,
     color: 'from-red-500 to-rose-600',
     review: 'The Cybersecurity internship let me work on actual security assessments, not just theory. I learned more in 16 weeks than I expected.',
   },
@@ -48,6 +53,7 @@ const REVIEWS_ROW_1 = [
     name: 'Neha Singh',
     initials: 'NS',
     role: 'Cloud Computing',
+    rating: 4.5,
     color: 'from-amber-500 to-yellow-600',
     review: 'Workshops here are fast-paced and practical. No filler content, just skills you can use immediately.',
   },
@@ -56,6 +62,7 @@ const REVIEWS_ROW_1 = [
     name: 'Akhil Varma',
     initials: 'AV',
     role: 'Machine Learning',
+    rating: 5.0,
     color: 'from-cyan-500 to-blue-600',
     review: "The Machine Learning program's live sessions made complex algorithms easy to understand. The instructors were patient and thorough.",
   },
@@ -64,6 +71,7 @@ const REVIEWS_ROW_1 = [
     name: 'Rohan Mehta',
     initials: 'RM',
     role: 'Data Engineering',
+    rating: 4.0,
     color: 'from-indigo-500 to-purple-600',
     review: 'I was nervous about Quantum Computing being too advanced, but the course broke it down really well for beginners.',
   },
@@ -72,6 +80,7 @@ const REVIEWS_ROW_1 = [
     name: 'Ananya Rao',
     initials: 'AR',
     role: 'Internship Program',
+    rating: 5.0,
     color: 'from-teal-500 to-emerald-600',
     review: 'Our hackathon team built a working prototype in 48 hours with guidance from industry mentors. Great experience overall.',
   },
@@ -80,6 +89,7 @@ const REVIEWS_ROW_1 = [
     name: 'Karthik Reddy',
     initials: 'KR',
     role: 'Data Engineering',
+    rating: 4.5,
     color: 'from-orange-500 to-red-600',
     review: 'The Data Engineering internship gave me experience building real pipelines, something I couldn\'t find in a typical course.',
   },
@@ -91,6 +101,7 @@ const REVIEWS_ROW_2 = [
     name: 'Pooja Nair',
     initials: 'PN',
     role: 'AI & Data Science',
+    rating: 4.0,
     color: 'from-violet-500 to-purple-600',
     review: 'Loved the structure of the AI & Data Science program — from data wrangling to deploying models, it covered everything end to end.',
   },
@@ -99,6 +110,7 @@ const REVIEWS_ROW_2 = [
     name: 'Sai Charan',
     initials: 'SC',
     role: 'Career Mentorship',
+    rating: 5.0,
     color: 'from-blue-600 to-cyan-500',
     review: 'The career mentorship after the program helped me prepare for interviews and land a role faster than I expected.',
   },
@@ -107,6 +119,7 @@ const REVIEWS_ROW_2 = [
     name: 'Harsh Agarwal',
     initials: 'HA',
     role: 'UI/UX Design',
+    rating: 4.5,
     color: 'from-emerald-600 to-green-500',
     review: 'As someone switching careers, the UI/UX internship gave me the confidence and portfolio pieces I needed to get noticed.',
   },
@@ -115,6 +128,7 @@ const REVIEWS_ROW_2 = [
     name: 'Deepika Sharma',
     initials: 'DS',
     role: 'Cloud Computing',
+    rating: 5.0,
     color: 'from-amber-600 to-orange-500',
     review: 'The webinar on cloud architecture was packed with insights I still refer back to.',
   },
@@ -123,6 +137,7 @@ const REVIEWS_ROW_2 = [
     name: 'Nikhil Verma',
     initials: 'NV',
     role: 'DevOps & Cloud',
+    rating: 4.0,
     color: 'from-rose-500 to-pink-600',
     review: 'Real-time projects during the DevOps course meant I wasn\'t just watching tutorials — I was actually building and troubleshooting.',
   },
@@ -131,6 +146,7 @@ const REVIEWS_ROW_2 = [
     name: 'Aditya Rao',
     initials: 'AR',
     role: 'Cybersecurity',
+    rating: 5.0,
     color: 'from-red-600 to-orange-600',
     review: 'The cybersecurity workshop covered both offensive and defensive techniques, which gave me a well-rounded understanding.',
   },
@@ -139,6 +155,7 @@ const REVIEWS_ROW_2 = [
     name: 'Anusha Reddy',
     initials: 'AN',
     role: 'Internship Program',
+    rating: 4.5,
     color: 'from-indigo-600 to-blue-500',
     review: 'Mentors in the internship program were always available and gave detailed feedback on my work.',
   },
@@ -147,6 +164,7 @@ const REVIEWS_ROW_2 = [
     name: 'Ritika Jain',
     initials: 'RJ',
     role: 'Hackathon',
+    rating: 4.0,
     color: 'from-pink-500 to-rose-500',
     review: 'I appreciated how the hackathon judges gave constructive feedback, not just rankings.',
   },
@@ -155,6 +173,7 @@ const REVIEWS_ROW_2 = [
     name: 'Manoj Kumar',
     initials: 'MK',
     role: 'Machine Learning',
+    rating: 5.0,
     color: 'from-teal-600 to-cyan-600',
     review: 'The Machine Learning internship let me apply what I learned in the course to an actual dataset and use case.',
   },
@@ -163,10 +182,32 @@ const REVIEWS_ROW_2 = [
     name: 'Sanjana Patel',
     initials: 'SK',
     role: 'AI & Data Science',
+    rating: 4.5,
     color: 'from-amber-500 to-orange-600',
     review: 'Every session felt live and interactive—not pre-recorded content dumped on us. That made a big difference.',
   },
 ];
+
+// Helper to render star rating dynamically (Full, Half, Empty)
+const renderStars = (rating = 5.0) => {
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 !== 0;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  return (
+    <div className="flex items-center gap-1 text-amber-400">
+      {[...Array(fullStars)].map((_, i) => (
+        <Star key={`full-${i}`} className="w-4 h-4 fill-amber-400 text-amber-400" />
+      ))}
+      {hasHalfStar && (
+        <StarHalf key="half" className="w-4 h-4 fill-amber-400 text-amber-400" />
+      )}
+      {[...Array(emptyStars)].map((_, i) => (
+        <Star key={`empty-${i}`} className="w-4 h-4 text-slate-300 dark:text-slate-700" />
+      ))}
+    </div>
+  );
+};
 
 // Triplicate cards for seamless 60FPS loop
 const TRIPLE_ROW_1 = [...REVIEWS_ROW_1, ...REVIEWS_ROW_1, ...REVIEWS_ROW_1];
@@ -313,11 +354,7 @@ export default function StudentSuccessStoriesSection() {
                     } p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 select-none`}
                   >
                     {/* Star Rating */}
-                    <div className="flex items-center gap-1 text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
+                    {renderStars(item.rating)}
 
                     {/* Review Text (18px Medium) */}
                     <p className="text-[15px] sm:text-[18px] font-medium text-slate-900 dark:text-slate-100 leading-snug line-clamp-3 my-auto">
@@ -368,11 +405,7 @@ export default function StudentSuccessStoriesSection() {
                     } p-6 flex flex-col justify-between cursor-pointer transition-all duration-300 select-none`}
                   >
                     {/* Star Rating */}
-                    <div className="flex items-center gap-1 text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      ))}
-                    </div>
+                    {renderStars(item.rating)}
 
                     {/* Review Text (18px Medium) */}
                     <p className="text-[15px] sm:text-[18px] font-medium text-slate-900 dark:text-slate-100 leading-snug line-clamp-3 my-auto">
