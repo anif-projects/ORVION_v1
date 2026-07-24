@@ -131,8 +131,8 @@ export default function CourseDetail() {
 
           <div className="space-y-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900 dark:text-white">${course.discountPrice || course.price}</span>
-              {course.discountPrice > 0 && <span className="text-sm text-slate-400 line-through">${course.price}</span>}
+              <span className="text-3xl font-extrabold text-slate-900 dark:text-white">₹{course.discountPrice || course.price}</span>
+              {course.discountPrice > 0 && <span className="text-sm text-slate-400 line-through">₹{course.price}</span>}
             </div>
             <p className="text-xs text-accent-success font-semibold">30-Day Money-Back Guarantee</p>
           </div>
@@ -145,6 +145,21 @@ export default function CourseDetail() {
           </button>
         </div>
       </div>
+
+      {/* What you'll learn section */}
+      {course.learningOutcomes && course.learningOutcomes.length > 0 && (
+        <div className="border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-6 bg-slate-50/50 dark:bg-slate-900/50 space-y-4">
+          <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">What you'll learn</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+            {course.learningOutcomes.map((outcome, idx) => (
+              <div key={idx} className="flex items-start gap-2.5">
+                <Check className="w-4 h-4 text-accent-success shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-600 dark:text-slate-300 leading-normal">{outcome}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Curriculum Accordion */}
       <div className="space-y-6">

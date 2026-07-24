@@ -19,7 +19,8 @@ class CourseRepository {
   }
 
   async findBySlug(slug) {
-    const course = await Course.findOne({ slug })
+    const query = /^\d+$/.test(slug) ? { id: Number(slug) } : { slug };
+    const course = await Course.findOne(query)
       .populate('category', 'name slug')
       .populate('instructor', 'name avatar');
     

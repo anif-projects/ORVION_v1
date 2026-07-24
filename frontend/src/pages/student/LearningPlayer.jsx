@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import ReactPlayer from 'react-player';
-import { Play, CheckCircle, FileText, ChevronLeft, Award, BookOpen } from 'lucide-react';
+import { Play, CheckCircle, FileText, ChevronLeft, Award, BookOpen, HelpCircle } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { pageVariants } from '../../utils/animations';
@@ -15,6 +15,18 @@ export default function LearningPlayer() {
   const [streamUrl, setStreamUrl] = useState('');
   const [completedLessonIds, setCompletedLessonIds] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Quiz interactive state
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
+
+  // Reset quiz state on active lesson change
+  useEffect(() => {
+    setSelectedAnswers({});
+    setQuizSubmitted(false);
+    setQuizScore(0);
+  }, [activeLesson]);
 
   useEffect(() => {
     fetchCourseAndStream();
@@ -141,14 +153,106 @@ export default function LearningPlayer() {
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
           {/* React Player Container */}
           <div className="aspect-video rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-2xl border border-slate-800/80">
-            <ReactPlayer
-              url={streamUrl}
-              controls
-              width="100%"
-              height="100%"
-              playing
-              onEnded={handleMarkComplete}
-            />
+            {activeLesson?.type === 'quiz' ? (
+              <div className="w-full h-full p-6 sm:p-8 bg-slate-900 overflow-y-auto flex flex-col justify-between">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Practice Quiz</h3>
+                    {quizSubmitted && (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary-500/20 text-primary-400">
+                        Score: {quizScore} / {activeLesson.quizData?.questions?.length || 0}
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-6 text-left">
+                    {(activeLesson.quizData?.questions || []).map((q, qIdx) => (
+                      <div key={qIdx} className="space-y-3">
+                        <h4 className="text-sm sm:text-base font-bold text-white">
+                          {qIdx + 1}. {q.question}
+                        </h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {q.options.map((opt, optIdx) => {
+                            const isSelected = selectedAnswers[qIdx] === optIdx;
+                            const isCorrect = q.answer === optIdx;
+                            const showResult = quizSubmitted;
+                            
+                            let btnStyle = "border-slate-800 bg-slate-800/50 hover:bg-slate-800 text-slate-300";
+                            if (isSelected) {
+                              btnStyle = "border-primary-500 bg-primary-500/20 text-primary-300";
+                            }
+                            if (showResult) {
+                              if (isCorrect) {
+                                btnStyle = "border-accent-success bg-accent-success/20 text-accent-success font-bold";
+                              } else if (isSelected) {
+                                btnStyle = "border-accent-danger bg-accent-danger/20 text-accent-danger font-bold";
+                              }
+                            }
+
+                            return (
+                              <button
+                                key={optIdx}
+                                type="button"
+                                disabled={quizSubmitted}
+                                onClick={() => setSelectedAnswers({ ...selectedAnswers, [qIdx]: optIdx })}
+                                className={`w-full text-left p-3.5 rounded-xl text-xs font-semibold border transition flex items-center justify-between ${btnStyle}`}
+                              >
+                                <span>{opt}</span>
+                                {showResult && isCorrect && <span className="text-accent-success font-bold">✓</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-slate-800 flex justify-end">
+                  {!quizSubmitted ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        let score = 0;
+                        const questions = activeLesson.quizData?.questions || [];
+                        questions.forEach((q, idx) => {
+                          if (selectedAnswers[idx] === q.answer) {
+                            score++;
+                          }
+                        });
+                        setQuizScore(score);
+                        setQuizSubmitted(true);
+                        handleMarkComplete();
+                      }}
+                      className="px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs transition"
+                    >
+                      Submit Quiz
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedAnswers({});
+                        setQuizSubmitted(false);
+                        setQuizScore(0);
+                      }}
+                      className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition"
+                    >
+                      Retry Quiz
+                    </button>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <ReactPlayer
+                url={streamUrl}
+                controls
+                width="100%"
+                height="100%"
+                playing
+                onEnded={handleMarkComplete}
+              />
+            )}
           </div>
 
           {/* Lesson Header Controls */}
@@ -216,6 +320,8 @@ export default function LearningPlayer() {
                         <div className="flex items-center gap-2.5 truncate">
                           {isDone ? (
                             <CheckCircle className="w-4 h-4 text-accent-success shrink-0" />
+                          ) : les.type === 'quiz' ? (
+                            <HelpCircle className="w-3.5 h-3.5 text-primary-400 shrink-0" />
                           ) : (
                             <Play className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                           )}

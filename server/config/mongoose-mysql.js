@@ -214,6 +214,19 @@ const connect = async () => {
     // Test connection
     const conn = await realPool.getConnection();
     console.log(`[Database] MySQL Connection Pool Initialized. Connected to: mysql://${host}:${port}/${database}`);
+    
+    // Ensure lessons table supports type and quizData for Modules & Lessons quizzes
+    try {
+      await realPool.query("ALTER TABLE lessons ADD COLUMN type ENUM('video', 'quiz') DEFAULT 'video';");
+    } catch (e) {
+      // Ignore duplicate column errors
+    }
+    try {
+      await realPool.query("ALTER TABLE lessons ADD COLUMN quizData JSON;");
+    } catch (e) {
+      // Ignore duplicate column errors
+    }
+
     conn.release();
     pool = realPool;
     return pool;

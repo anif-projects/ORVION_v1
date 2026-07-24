@@ -78,7 +78,7 @@ export default function CourseManager() {
             {courses.map((c) => (
               <tr key={c._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                 <td className="px-6 py-4 font-bold text-slate-800 dark:text-white">{c.title}</td>
-                <td className="px-6 py-4">${c.price}</td>
+                <td className="px-6 py-4">₹{c.price}</td>
                 <td className="px-6 py-4">{c.enrolledCount || 0}</td>
                 <td className="px-6 py-4">
                   <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-accent-success/20 text-accent-success uppercase">

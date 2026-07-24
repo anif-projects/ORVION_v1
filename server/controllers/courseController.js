@@ -30,16 +30,84 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
 
 const createCourse = asyncHandler(async (req, res) => {
   const slug = req.body.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  const course = await courseRepo.create({
-    ...req.body,
-    slug,
-    instructor: req.user._id,
-  });
+  const courseData = { ...req.body, slug, instructor: req.user._id };
+  if (req.body.learningOutcomes) {
+    courseData.learningOutcomes = Array.isArray(req.body.learningOutcomes)
+      ? req.body.learningOutcomes
+      : JSON.parse(req.body.learningOutcomes || '[]');
+  }
+
+  const course = await courseRepo.create(courseData);
+
+  // Save child modules & lessons/quizzes
+  if (req.body.modules && Array.isArray(req.body.modules)) {
+    for (let mIdx = 0; mIdx < req.body.modules.length; mIdx++) {
+      const mod = req.body.modules[mIdx];
+      const moduleItem = await Module.create({
+        course: course._id,
+        title: mod.title,
+        order: mIdx + 1,
+      });
+
+      if (mod.lessons && Array.isArray(mod.lessons)) {
+        for (let lIdx = 0; lIdx < mod.lessons.length; lIdx++) {
+          const les = mod.lessons[lIdx];
+          await Lesson.create({
+            module: moduleItem._id,
+            course: course._id,
+            title: les.title,
+            type: les.type || 'video',
+            quizData: les.quizData || null,
+            duration: les.duration || 0,
+            order: lIdx + 1,
+          });
+        }
+      }
+    }
+  }
+
   res.status(201).json({ status: 'success', data: { course } });
 });
 
 const updateCourse = asyncHandler(async (req, res) => {
-  const course = await courseRepo.update(req.params.id, req.body);
+  const courseData = { ...req.body };
+  if (req.body.learningOutcomes) {
+    courseData.learningOutcomes = Array.isArray(req.body.learningOutcomes)
+      ? req.body.learningOutcomes
+      : JSON.parse(req.body.learningOutcomes || '[]');
+  }
+
+  const course = await courseRepo.update(req.params.id, courseData);
+
+  if (req.body.modules && Array.isArray(req.body.modules)) {
+    await Module.deleteMany({ course: course._id });
+    await Lesson.deleteMany({ course: course._id });
+
+    for (let mIdx = 0; mIdx < req.body.modules.length; mIdx++) {
+      const mod = req.body.modules[mIdx];
+      const moduleItem = await Module.create({
+        course: course._id,
+        title: mod.title,
+        order: mIdx + 1,
+      });
+
+      if (mod.lessons && Array.isArray(mod.lessons)) {
+        for (let lIdx = 0; lIdx < mod.lessons.length; lIdx++) {
+          const les = mod.lessons[lIdx];
+          await Lesson.create({
+            module: moduleItem._id,
+            course: course._id,
+            title: les.title,
+            type: les.type || 'video',
+            quizData: les.quizData || null,
+            duration: les.duration || 0,
+            order: lIdx + 1,
+          });
+        }
+      }
+    }
+  }
+
   res.status(200).json({ status: 'success', data: { course } });
 });
 

@@ -81,10 +81,10 @@ export default function CourseCard({ course }) {
           ) : (
             <>
               <span className="text-lg font-extrabold text-slate-900 dark:text-white">
-                ${discountPrice || price}
+                ₹{discountPrice || price}
               </span>
               {discountPrice > 0 && (
-                <span className="text-xs text-slate-400 line-through">${price}</span>
+                <span className="text-xs text-slate-400 line-through">₹{price}</span>
               )}
             </>
           )}
