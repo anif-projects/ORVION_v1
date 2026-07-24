@@ -40,7 +40,7 @@ export default function StudentProfile() {
       if (res.data.status === 'success') {
         const updatedUser = { ...user, name };
         setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
         toast.success('Profile updated successfully!');
       }
     } catch (err) {

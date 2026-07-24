@@ -73,7 +73,7 @@ export default function StudentDashboard() {
       if (res.data.status === 'success') {
         const updatedUser = { ...user, name: editName };
         setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
         toast.success('Profile details updated successfully!');
         setIsEditingProfile(false);
       }
