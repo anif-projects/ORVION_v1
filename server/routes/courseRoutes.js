@@ -14,7 +14,7 @@ router.use(protect, restrictTo('admin', 'super_admin', 'instructor'));
 router.post('/', auditLog('CREATE_COURSE'), courseController.createCourse);
 router.put('/:id', auditLog('UPDATE_COURSE'), courseController.updateCourse);
 router.delete('/:id', auditLog('DELETE_COURSE'), courseController.deleteCourse);
-router.patch('/:id/toggle-featured', auditLog('TOGGLE_FEATURED_COURSE'), courseController.toggleFeatured);
+router.patch('/:id/toggle-featured', restrictTo('admin', 'super_admin'), auditLog('TOGGLE_FEATURED_COURSE'), courseController.toggleFeatured);
 
 router.post('/modules', courseController.addModule);
 router.post('/lessons', courseController.addLesson);

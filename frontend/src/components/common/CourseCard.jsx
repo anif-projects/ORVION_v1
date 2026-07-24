@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Star, Clock, BookOpen, User } from 'lucide-react';
 import { cardHoverVariants } from '../../utils/animations';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 export default function CourseCard({ course }) {
   const {
+    _id,
     title,
     slug,
     thumbnail,
@@ -19,6 +23,23 @@ export default function CourseCard({ course }) {
     totalLessons,
     level,
   } = course;
+
+  const { user } = useAuth();
+  const [isFeaturedState, setIsFeaturedState] = useState(course.isFeatured || false);
+
+  const handleToggleFeatured = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const res = await api.patch(`/courses/${_id}/toggle-featured`);
+      if (res.data.data) {
+        setIsFeaturedState(res.data.data.course.isFeatured);
+        toast.success(res.data.data.course.isFeatured ? 'Course set as Featured!' : 'Course removed from Featured!');
+      }
+    } catch (err) {
+      toast.error('Failed to toggle featured status');
+    }
+  };
 
   return (
     <motion.div
@@ -42,6 +63,15 @@ export default function CourseCard({ course }) {
             >
               {category.name}
             </span>
+          )}
+          {(user?.role === 'admin' || user?.role === 'super_admin') && (
+            <button
+              onClick={handleToggleFeatured}
+              className="absolute top-3 right-3 p-1.5 rounded-full bg-black/60 backdrop-blur-md text-white hover:scale-110 transition shadow-sm z-10"
+              title={isFeaturedState ? "Remove from Featured" : "Mark as Featured"}
+            >
+              <Star className={`w-3.5 h-3.5 ${isFeaturedState ? 'fill-amber-400 text-amber-400' : 'text-slate-300 dark:text-slate-400'}`} />
+            </button>
           )}
           <span className="absolute bottom-3 right-3 px-2 py-0.5 text-[10px] font-semibold bg-black/60 backdrop-blur-md text-white rounded-md uppercase tracking-wider">
             {level ? level.replace('_', ' ') : 'All Levels'}
