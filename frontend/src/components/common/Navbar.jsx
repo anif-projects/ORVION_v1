@@ -45,7 +45,7 @@ export default function Navbar() {
   const portalLinks = isAdmin ? adminPortalLinks : studentPortalLinks;
 
   return (
-    <header className="sticky top-3 z-50 w-full px-3 sm:px-6 max-w-7xl mx-auto transition-all mb-4 sm:mb-6">
+    <header className="sticky top-3 z-50 w-full px-3 sm:px-6 max-w-7xl mx-auto transition-all">
       <div className="backdrop-blur-xl bg-white/85 dark:bg-slate-900/85 border border-slate-200/90 dark:border-slate-800/90 rounded-full shadow-lg shadow-slate-900/5 px-4 sm:px-6 h-16 flex items-center justify-between">
         
         {/* Logo */}

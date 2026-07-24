@@ -2,6 +2,9 @@ const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
 
 let pool = null;
+let isMemoryMode = false;
+const memoryStore = {};
+const autoIncrementIds = {};
 
 function formatMySQLDate(date) {
   const d = new Date(date);
@@ -26,7 +29,164 @@ function prepareDatabaseValue(val) {
   return val;
 }
 
-// Connect function to initialize the MySQL pool
+function filterRows(rows, whereStr, params) {
+  if (!whereStr || whereStr === '1=1') return rows;
+  if (whereStr === '1=0') return [];
+
+  const conds = whereStr.split(' AND ');
+  let paramIdx = 0;
+
+  return rows.filter(row => {
+    let currentParamIdx = paramIdx;
+    for (let cond of conds) {
+      cond = cond.trim();
+      if (cond === '1=1') continue;
+      if (cond === '1=0') return false;
+
+      const nullMatch = cond.match(/^`([^`]+)` IS NULL$/i);
+      if (nullMatch) {
+        if (row[nullMatch[1]] != null) return false;
+        continue;
+      }
+
+      const eqMatch = cond.match(/^`([^`]+)` = \?$/i);
+      if (eqMatch) {
+        const col = eqMatch[1];
+        const val = params[currentParamIdx++];
+        if (row[col] != val && String(row[col]) !== String(val)) return false;
+        continue;
+      }
+
+      const neMatch = cond.match(/^`([^`]+)` != \?$/i);
+      if (neMatch) {
+        const col = neMatch[1];
+        const val = params[currentParamIdx++];
+        if (row[col] == val || String(row[col]) === String(val)) return false;
+        continue;
+      }
+
+      const inMatch = cond.match(/^`([^`]+)` IN \(([^)]+)\)$/i);
+      if (inMatch) {
+        const col = inMatch[1];
+        const placeholders = inMatch[2].split(',').map(p => p.trim());
+        const inVals = [];
+        for (let i = 0; i < placeholders.length; i++) {
+          inVals.push(params[currentParamIdx++]);
+        }
+        const rowVal = row[col];
+        const matched = inVals.some(v => v == rowVal || String(v) === String(rowVal));
+        if (!matched) return false;
+        continue;
+      }
+    }
+    return true;
+  });
+}
+
+function sortRows(rows, orderStr) {
+  const parts = orderStr.split(',').map(p => p.trim());
+  return [...rows].sort((a, b) => {
+    for (let part of parts) {
+      const match = part.match(/`([^`]+)` (ASC|DESC)/i);
+      if (match) {
+        const col = match[1];
+        const dir = match[2].toUpperCase() === 'DESC' ? -1 : 1;
+        if (a[col] < b[col]) return -1 * dir;
+        if (a[col] > b[col]) return 1 * dir;
+      }
+    }
+    return 0;
+  });
+}
+
+class InMemoryPool {
+  async query(sql, params = []) {
+    const trimmed = sql.trim();
+    if (trimmed.startsWith('INSERT INTO')) {
+      const match = trimmed.match(/INSERT INTO `([^`]+)` \(([^)]+)\) VALUES \(([^)]+)\)/i);
+      if (match) {
+        const tableName = match[1];
+        const cols = match[2].split(',').map(c => c.trim().replace(/`/g, ''));
+        if (!memoryStore[tableName]) memoryStore[tableName] = [];
+        if (!autoIncrementIds[tableName]) autoIncrementIds[tableName] = 1;
+
+        const newId = autoIncrementIds[tableName]++;
+        const newRow = { id: newId };
+        cols.forEach((col, idx) => {
+          newRow[col] = params[idx];
+        });
+        memoryStore[tableName].push(newRow);
+        return [{ insertId: newId }];
+      }
+    } else if (trimmed.startsWith('SELECT COUNT(*) AS count FROM')) {
+      const match = trimmed.match(/SELECT COUNT\(\*\) AS count FROM `([^`]+)`(?: WHERE (.+))?/i);
+      const tableName = match ? match[1] : '';
+      const rows = memoryStore[tableName] || [];
+      const filtered = filterRows(rows, match ? match[2] : null, params);
+      return [[{ count: filtered.length }]];
+    } else if (trimmed.startsWith('SELECT')) {
+      const match = trimmed.match(/SELECT (.+) FROM `([^`]+)`(?: WHERE (.*?))?(?: ORDER BY (.*?))?(?: LIMIT (\d+))?(?: OFFSET (\d+))?$/i);
+      if (match) {
+        const selectFields = match[1];
+        const tableName = match[2];
+        const whereStr = match[3];
+        const orderStr = match[4];
+        const limitNum = match[5] ? parseInt(match[5]) : null;
+        const offsetNum = match[6] ? parseInt(match[6]) : 0;
+
+        let rows = [...(memoryStore[tableName] || [])];
+        if (whereStr) {
+          rows = filterRows(rows, whereStr, params);
+        }
+        if (orderStr) {
+          rows = sortRows(rows, orderStr);
+        }
+        if (limitNum !== null) {
+          rows = rows.slice(offsetNum, offsetNum + limitNum);
+        }
+        return [rows.map(r => ({ ...r }))];
+      }
+      return [[]];
+    } else if (trimmed.startsWith('UPDATE')) {
+      const match = trimmed.match(/UPDATE `([^`]+)` SET (.+?) WHERE (.+)/i);
+      if (match) {
+        const tableName = match[1];
+        const setStr = match[2];
+        const whereStr = match[3];
+        const rows = memoryStore[tableName] || [];
+
+        const setMatches = [...setStr.matchAll(/`([^`]+)` = \?/g)];
+        const setCols = setMatches.map(m => m[1]);
+        const setValCount = setCols.length;
+        const setValues = params.slice(0, setValCount);
+        const whereParams = params.slice(setValCount);
+
+        const filtered = filterRows(rows, whereStr, whereParams);
+        filtered.forEach(row => {
+          setCols.forEach((col, idx) => {
+            row[col] = setValues[idx];
+          });
+        });
+        return [{ affectedRows: filtered.length }];
+      }
+      return [{ affectedRows: 0 }];
+    } else if (trimmed.startsWith('DELETE FROM')) {
+      const match = trimmed.match(/DELETE FROM `([^`]+)`(?: WHERE (.+))?/i);
+      if (match) {
+        const tableName = match[1];
+        const whereStr = match[2];
+        const rows = memoryStore[tableName] || [];
+        const toDelete = filterRows(rows, whereStr, params);
+        const toDeleteIds = new Set(toDelete.map(r => r.id));
+        memoryStore[tableName] = rows.filter(r => !toDeleteIds.has(r.id));
+        return [{ affectedRows: toDelete.length }];
+      }
+      return [{ affectedRows: 0 }];
+    }
+
+    return [[]];
+  }
+}
 const connect = async () => {
   if (pool) return pool;
 
@@ -37,7 +197,7 @@ const connect = async () => {
   const database = process.env.MYSQL_DATABASE || 'lms_production';
 
   try {
-    pool = mysql.createPool({
+    const realPool = mysql.createPool({
       host,
       port,
       user,
@@ -48,16 +208,20 @@ const connect = async () => {
       queueLimit: 0,
       enableKeepAlive: true,
       keepAliveInitialDelay: 10000,
+      connectTimeout: 2000,
     });
 
     // Test connection
-    const conn = await pool.getConnection();
+    const conn = await realPool.getConnection();
     console.log(`[Database] MySQL Connection Pool Initialized. Connected to: mysql://${host}:${port}/${database}`);
     conn.release();
+    pool = realPool;
     return pool;
   } catch (err) {
-    console.error(`[Database Error] Failed to connect to MySQL database: ${err.message}`);
-    throw err;
+    console.warn(`[Database Warning] MySQL connection failed (${err.message}). Using In-Memory Database Fallback.`);
+    pool = new InMemoryPool();
+    isMemoryMode = true;
+    return pool;
   }
 };
 
