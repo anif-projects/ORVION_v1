@@ -7,22 +7,12 @@ import { pageVariants } from '../../utils/animations';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
-    totalStudents: 1420,
-    totalCourses: 12,
-    totalRevenue: 34850,
+    totalStudents: 0,
+    totalCourses: 0,
+    totalRevenue: 0,
     totalEvents: 0,
-    monthlyRevenue: [
-      { month: 'Jan', revenue: 4200, students: 120 },
-      { month: 'Feb', revenue: 6800, students: 240 },
-      { month: 'Mar', revenue: 9500, students: 380 },
-      { month: 'Apr', revenue: 11200, students: 510 },
-      { month: 'May', revenue: 14800, students: 780 },
-      { month: 'Jun', revenue: 18400, students: 950 },
-    ],
-    recentPayments: [
-      { _id: 'tx1', studentName: 'Alex Johnson', courseTitle: 'Full-Stack React Masterclass', amount: 49.99, createdAt: '2026-07-22' },
-      { _id: 'tx2', studentName: 'Elena Rostova', courseTitle: 'AI System Design', amount: 89.99, createdAt: '2026-07-21' },
-    ],
+    monthlyRevenue: [],
+    recentPayments: [],
   });
 
   useEffect(() => {
@@ -57,7 +47,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white">${stats.totalRevenue.toLocaleString()}</div>
-          <span className="text-[11px] text-accent-success font-bold">+24.5% from last month</span>
+          <span className="text-[11px] text-slate-400 font-medium">Accumulated platform sales</span>
         </div>
 
         <div className="glass-card p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-2">
@@ -68,7 +58,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.totalStudents}</div>
-          <span className="text-[11px] text-primary-600 font-bold">+18.2% growth rate</span>
+          <span className="text-[11px] text-slate-400 font-medium">Registered active learners</span>
         </div>
 
         <div className="glass-card p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-2">
@@ -79,7 +69,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.totalCourses}</div>
-          <span className="text-[11px] text-secondary-500 font-bold">100% Published</span>
+          <span className="text-[11px] text-slate-400 font-medium">Platform curriculum catalog</span>
         </div>
 
         <div className="glass-card p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-2">
@@ -90,7 +80,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white">{stats.totalEvents}</div>
-          <span className="text-[11px] text-primary-600 font-bold">Scheduled webinars</span>
+          <span className="text-[11px] text-slate-400 font-medium">Scheduled live seminars</span>
         </div>
       </div>
 
