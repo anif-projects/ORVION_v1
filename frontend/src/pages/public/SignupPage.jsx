@@ -18,11 +18,8 @@ export default function SignupPage() {
     setLoading(true);
     try {
       const res = await api.post('/auth/register', formData);
-      const serverOtp = res.data.data.otpCode;
-      if (serverOtp) {
-        setOtp(serverOtp);
-      }
-      toast.success(`OTP generated! Code: ${serverOtp || '123456'}`);
+      setOtp('');
+      toast.success(`Verification code successfully sent to ${formData.email}!`);
       setStep('otp');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed.');
@@ -106,8 +103,8 @@ export default function SignupPage() {
           <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div className="text-center p-3 rounded-xl bg-secondary-500/10 text-secondary-600 text-xs space-y-1">
               <ShieldCheck className="w-5 h-5 mx-auto text-secondary-500" />
-              <div>OTP Code sent to <strong>{formData.email}</strong></div>
-              <div className="text-[11px] font-mono text-primary-600 font-bold">Default Dev OTP Code: {otp || '123456'}</div>
+              <div>A 6-digit security code has been sent to <strong>{formData.email}</strong></div>
+              <div className="text-[10px] text-slate-400">Please check your email inbox (and spam folder) for the code.</div>
             </div>
 
             <div>
@@ -118,7 +115,7 @@ export default function SignupPage() {
                 maxLength={6}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                placeholder="123456"
+                placeholder="000000"
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none text-center font-mono text-xl tracking-widest"
               />
             </div>

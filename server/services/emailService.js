@@ -27,10 +27,10 @@ class EmailService {
         `,
       };
 
-      // Non-blocking mail attempt with 5s timeout
+      // Non-blocking mail attempt with 15s timeout
       await Promise.race([
         transporter.sendMail(mailOptions),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP Timeout')), 5000)),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('SMTP Timeout')), 15000)),
       ]);
       console.log(`[EmailService] OTP email sent successfully to ${toEmail}`);
     } catch (err) {

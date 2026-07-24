@@ -1,18 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Play, Award, Flame, BookOpen, Clock, CheckCircle2, ArrowRight, X } from 'lucide-react';
+import { Play, Award, Flame, BookOpen, Clock, CheckCircle2, ArrowRight, X, Settings, User, Phone, Save } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 import { pageVariants } from '../../utils/animations';
 
 export default function StudentDashboard() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const [enrollments, setEnrollments] = useState([]);
   const [certsCount, setCertsCount] = useState(0);
   const [eventsCount, setEventsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  
+  // Dashboard quick profile editing state
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editName, setEditName] = useState(user?.name || '');
+  const [editPhone, setEditPhone] = useState('');
 
   useEffect(() => {
     fetchDashboard();
@@ -20,15 +26,18 @@ export default function StudentDashboard() {
 
   const fetchDashboard = async () => {
     try {
-      const [learningRes, certsRes, eventsRes] = await Promise.all([
+      const [learningRes, certsRes, eventsRes, profileRes] = await Promise.all([
         api.get('/learning/my-courses'),
         api.get('/certificates/my-certificates').catch(() => ({ data: { data: { certificates: [] } } })),
-        api.get('/events/my-events').catch(() => ({ data: { data: { events: [] } } }))
+        api.get('/events/my-events').catch(() => ({ data: { data: { events: [] } } })),
+        api.get('/auth/profile').catch(() => ({ data: { data: { name: user?.name || '', phone: '' } } }))
       ]);
       
       setEnrollments(learningRes.data.data.enrollments || []);
       setCertsCount(certsRes.data.data.certificates?.length || 0);
       setEventsCount(eventsRes.data.data.events?.length || 0);
+      setEditName(profileRes.data.data.name || user?.name || '');
+      setEditPhone(profileRes.data.data.phone || '');
     } catch (err) {
       console.error(err);
       // Fallback state
@@ -57,13 +66,37 @@ export default function StudentDashboard() {
     }
   };
 
+  const handleSaveProfile = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await api.put('/auth/profile', { name: editName, phone: editPhone });
+      if (res.data.status === 'success') {
+        const updatedUser = { ...user, name: editName };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        toast.success('Profile details updated successfully!');
+        setIsEditingProfile(false);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to update details.');
+    }
+  };
+
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8 relative">
       {/* Welcome Banner */}
       <div className="glass-panel p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-gradient-to-r from-primary-600/10 via-secondary-500/5 to-transparent flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="space-y-2 text-center md:text-left">
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white flex items-center justify-center md:justify-start gap-2 flex-wrap">
             Welcome back, <span className="gradient-text">{user?.name || 'Student'}</span>! 👋
+            <button
+              onClick={() => setIsEditingProfile(true)}
+              className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary-600 transition shadow-sm border border-slate-200/40 dark:border-slate-700/40 inline-flex items-center justify-center"
+              title="Edit Profile Details Directly"
+            >
+              <Settings className="w-3.5 h-3.5" />
+            </button>
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
             You're on a <strong className="text-amber-500 inline-flex items-center gap-1"><Flame className="w-4 h-4 fill-amber-500" /> 7-day streak!</strong> Keep up the great progress.
@@ -211,6 +244,69 @@ export default function StudentDashboard() {
               </Link>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Quick Edit Profile Details Modal */}
+      {isEditingProfile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md shadow-2xl p-6 relative">
+            <button
+              onClick={() => setIsEditingProfile(false)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="font-extrabold text-xl text-slate-900 dark:text-white mb-1">Edit Account Profile</h3>
+            <p className="text-xs text-slate-500 mb-5">Change your basic account details directly from your dashboard.</p>
+
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingProfile(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 text-xs font-bold transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                >
+                  <Save className="w-4 h-4" /> Save Details
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
