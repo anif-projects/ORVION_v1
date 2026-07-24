@@ -75,15 +75,17 @@ export default function Navbar() {
           </nav>
         )}
 
-        {/* Compact Search Bar (Desktop) */}
-        <div className="hidden xl:flex items-center relative w-48 xl:w-56">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search courses..."
-            className="w-full pl-9 pr-3 py-1.5 text-xs rounded-full bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition"
-          />
-        </div>
+        {/* Compact Search Bar (Desktop) - Hide in portal */}
+        {!isLoggedInOrPortal && (
+          <div className="hidden xl:flex items-center relative w-48 xl:w-56">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search courses..."
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-full bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition"
+            />
+          </div>
+        )}
 
         {/* Right Navigation Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
