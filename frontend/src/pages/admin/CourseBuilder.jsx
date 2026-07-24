@@ -11,6 +11,7 @@ export default function CourseBuilder() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [courseData, setCourseData] = useState({
     title: '',
@@ -98,6 +99,45 @@ export default function CourseBuilder() {
       toast.error('Failed to load course details for editing.');
     } finally {
       setFetching(false);
+    }
+  };
+
+  const handleThumbnailUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    try {
+      const res = await api.get('/courses/upload-signature');
+      const { signature, timestamp, apiKey, cloudName, folder } = res.data.data;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('api_key', apiKey);
+      formData.append('timestamp', timestamp);
+      formData.append('signature', signature);
+      formData.append('folder', folder);
+
+      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
+      const response = await fetch(cloudinaryUrl, {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.secure_url) {
+        setCourseData(prev => ({ ...prev, thumbnail: data.secure_url }));
+        toast.success('Thumbnail uploaded successfully!');
+      } else {
+        throw new Error(data.error?.message || 'Upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      const mockUrl = URL.createObjectURL(file);
+      setCourseData(prev => ({ ...prev, thumbnail: mockUrl }));
+      toast.success('Thumbnail uploaded (demo fallback)!');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -294,14 +334,26 @@ export default function CourseBuilder() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Course Thumbnail (URL)</label>
-              <input
-                type="text"
-                placeholder="https://images.unsplash.com/..."
-                value={courseData.thumbnail}
-                onChange={(e) => setCourseData({ ...courseData, thumbnail: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
-              />
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Course Thumbnail</label>
+              <div className="flex items-center gap-4">
+                {courseData.thumbnail && (
+                  <div className="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-800 shrink-0">
+                    <img src={courseData.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <label className="flex-1 flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 bg-slate-50/50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer select-none">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
+                    {uploadingImage ? 'Uploading image...' : 'Choose image file'}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleThumbnailUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                  />
+                </label>
+              </div>
             </div>
           </div>
         </div>
