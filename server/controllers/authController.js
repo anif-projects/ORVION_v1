@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
 const asyncHandler = require('../utils/asyncHandler');
+const User = require('../models/User');
 
 const register = asyncHandler(async (req, res) => {
   const result = await authService.register(req.body);
@@ -18,53 +19,46 @@ const login = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', data: result });
 });
 
-const User = require('../models/User');
-const StudentProfile = require('../models/StudentProfile');
+const adminLogin = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  const result = await authService.adminLogin(email, password);
+  res.status(200).json({ status: 'success', data: result });
+});
 
 const getMe = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', data: { user: req.user } });
 });
 
 const getProfile = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
-  
-  let profile = await StudentProfile.findOne({ user: userId });
-  if (!profile && req.user.role === 'student') {
-    profile = await StudentProfile.create({ user: userId, phone: '', socials: {} });
-  }
-  
+  const user = req.user;
   res.status(200).json({
     status: 'success',
     data: {
-      name: req.user.name,
-      email: req.user.email,
-      phone: profile ? profile.phone : '',
+      name: user.name,
+      email: user.email,
+      phone: user.phone || '',
     }
   });
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user.id;
   const { name, phone } = req.body;
   
-  const user = await User.findById(userId);
-  if (user) {
-    user.name = name;
-    await user.save();
+  const student = await User.findById(userId);
+  if (!student) {
+    return res.status(404).json({ status: 'fail', message: 'Student not found' });
   }
   
-  let profile = await StudentProfile.findOne({ user: userId });
-  if (!profile) {
-    profile = new StudentProfile({ user: userId });
-  }
-  profile.phone = phone || '';
-  await profile.save();
+  student.name = name;
+  student.phone = phone || '';
+  await student.save();
   
   res.status(200).json({
     status: 'success',
     data: {
-      name,
-      phone,
+      name: student.name,
+      phone: student.phone,
     }
   });
 });
@@ -73,8 +67,8 @@ module.exports = {
   register,
   verifyOTP,
   login,
+  adminLogin,
   getMe,
   getProfile,
   updateProfile,
 };
-

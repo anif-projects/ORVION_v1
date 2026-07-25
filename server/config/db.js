@@ -7,86 +7,71 @@ const connectDB = async () => {
 
     // Auto-seed initial data for smooth out-of-the-box demo if database is blank
     try {
-      const User = require('../models/User');
+      const Admin = require('../models/Admin');
       const Course = require('../models/Course');
-      const Category = require('../models/Category');
-      const Module = require('../models/Module');
-      const Lesson = require('../models/Lesson');
-      const Settings = require('../models/Settings');
+      const Event = require('../models/Event');
+      const User = require('../models/User'); // Students
 
       // Check if admin exists in MySQL database
-      const adminExists = await User.findOne({ email: 'admin@lms.com' });
+      const adminExists = await Admin.findOne({ email: 'tothayeswanth052@gmail.com' });
       if (!adminExists) {
         console.log('[Database Seed] Seeding MySQL database with initial demo data...');
 
         // 1. Create Default Admin
-        const admin = await User.create({
+        await Admin.create({
           name: 'Super Admin',
-          email: 'admin@lms.com',
-          password: 'password123',
-          role: 'super_admin',
-          isVerified: true,
+          email: 'tothayeswanth052@gmail.com',
+          password: 'Yeshu@140306',
         });
 
-        // 2. Create Default Category
-        const catWeb = await Category.create({ 
-          name: 'Web Development', 
-          slug: 'web-development', 
-          color: '#4F46E5' 
-        });
+        // 2. Create Default Student for testing
+        const studentExists = await User.findOne({ email: 'student@lms.com' });
+        if (!studentExists) {
+          await User.create({
+            name: 'Demo Student',
+            email: 'student@lms.com',
+            password: 'password123',
+            isVerified: true,
+          });
+        }
 
-        // 3. Create Default Course
-        const course1 = await Course.create({
+        // 3. Create Default Courses
+        await Course.create({
           title: 'Full-Stack React & Node.js Masterclass',
-          slug: 'fullstack-react-nodejs-masterclass',
-          subtitle: 'Build scalable modern web applications with clean architecture',
-          description: 'Master frontend and backend web development using React, Node.js, Express, MySQL, and Redux Toolkit.',
+          description: 'Master frontend and backend web development using React, Node.js, Express, and MySQL.',
           thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-          previewVideo: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          category: catWeb.id,
-          instructor: admin.id,
-          price: 89.99,
-          discountPrice: 49.99,
-          level: 'all_levels',
-          status: 'published',
-          totalDuration: 420,
-          totalLessons: 8,
-          rating: 4.9,
-          enrolledCount: 1420,
+          price: 49.99,
+          isFeatured: true,
+          category: 'Web Development',
         });
 
-        // 4. Create Default Module
-        const mod1 = await Module.create({
-          course: course1.id,
-          title: 'Module 1: Foundations & Architecture',
-          order: 1,
+        await Course.create({
+          title: 'Introduction to Python programming',
+          description: 'Learn python from basics to advanced. Great for beginners!',
+          thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
+          price: 29.99,
+          isFeatured: false,
+          category: 'Programming',
         });
 
-        // 5. Create Default Lesson
-        await Lesson.create({
-          module: mod1.id,
-          course: course1.id,
-          title: 'Lesson 1: Introduction to Clean Architecture',
-          description: 'Understand controllers, services, repositories, and DTOs.',
-          videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-          duration: 600,
-          order: 1,
-          isPreview: true,
-          notes: 'Clean architecture decouples framework code from business rules.',
-          resources: [],
+        // 4. Create Default Live Events
+        await Event.create({
+          name: 'Tech Career & Resume Webinar',
+          description: 'Learn how to construct a stellar resume and prepare for technical interviews.',
+          thumbnail: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80',
+          paymentAmount: 0.00,
+          isPaymentEnabled: false,
         });
 
-        // 6. Create Initial Site Settings
-        await Settings.create({
-          siteName: 'Orvion LMS',
-          supportEmail: 'support@orvion.com',
-          paymentProvider: 'stripe',
-          enableSMTP: true,
-          themeColor: '#b45309',
-          maintenanceMode: false,
+        await Event.create({
+          name: 'React 19 Advanced Features Workshop',
+          description: 'Deep dive into server components, actions, and advanced state patterns in React 19.',
+          thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80',
+          paymentAmount: 499.00,
+          isPaymentEnabled: true,
         });
 
-        console.log('[Database Seed] Auto-seeded default admin (admin@lms.com / password123), courses, and settings into MySQL Database successfully!');
+        console.log('[Database Seed] Auto-seeded default admin (tothayeswanth052@gmail.com / Yeshu@140306) and demo courses/events successfully!');
       }
     } catch (seedErr) {
       console.warn('[Database Seed Warning] Auto-seeding skipped or failed:', seedErr.message);

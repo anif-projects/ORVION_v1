@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Plus, Edit3, Trash2, Eye, Copy, Layers, Star } from 'lucide-react';
+import { Plus, Edit3, Trash2, Eye, Copy, Layers, Star, Users, Smartphone, Mail, GraduationCap } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { pageVariants } from '../../utils/animations';
@@ -9,6 +9,12 @@ import { pageVariants } from '../../utils/animations';
 export default function CourseManager() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal State for Enrolled Students
+  const [enrolledStudents, setEnrolledStudents] = useState([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
+  const [isStudentsModalOpen, setIsStudentsModalOpen] = useState(false);
+  const [selectedCourseTitle, setSelectedCourseTitle] = useState('');
 
   useEffect(() => {
     fetchCourses();
@@ -58,12 +64,27 @@ export default function CourseManager() {
     }
   };
 
+  const handleViewStudents = async (courseId, courseTitle) => {
+    setSelectedCourseTitle(courseTitle);
+    setIsStudentsModalOpen(true);
+    setLoadingStudents(true);
+    try {
+      const res = await api.get(`/courses/${courseId}/students`);
+      setEnrolledStudents(res.data.data.students || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load enrolled students');
+    } finally {
+      setLoadingStudents(false);
+    }
+  };
+
   return (
     <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white">Course Management</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage, edit, publish, and order curriculum modules.</p>
+          <p className="text-sm text-slate-500 mt-1">Manage, edit, publish, and view enrolled students for each course.</p>
         </div>
 
         <Link
@@ -109,6 +130,13 @@ export default function CourseManager() {
                   </span>
                 </td>
                 <td className="px-6 py-4 text-right space-x-2">
+                  <button
+                    onClick={() => handleViewStudents(c._id, c.title)}
+                    className="p-2 text-slate-400 hover:text-secondary-600 transition"
+                    title="Enrolled Students"
+                  >
+                    <Users className="w-4 h-4 inline" />
+                  </button>
                   <Link to={`/admin/courses/builder/${c._id}`} className="p-2 text-slate-400 hover:text-primary-600 transition" title="Course Builder">
                     <Layers className="w-4 h-4 inline" />
                   </Link>
@@ -121,6 +149,64 @@ export default function CourseManager() {
           </tbody>
         </table>
       </div>
+
+      {/* Enrolled Students Modal */}
+      {isStudentsModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl glass-panel bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 space-y-6 relative border border-slate-200 dark:border-slate-800 shadow-2xl">
+            <button
+              onClick={() => setIsStudentsModalOpen(false)}
+              className="absolute top-4 right-4 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white text-xl font-bold"
+            >
+              ✕
+            </button>
+            
+            <div className="space-y-1">
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+                <GraduationCap className="w-6 h-6 text-primary-600" /> Enrolled Students
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">Course: {selectedCourseTitle}</p>
+            </div>
+
+            <div className="max-h-[350px] overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-2xl">
+              {loadingStudents ? (
+                <div className="text-center py-12 text-slate-500 text-sm">Loading enrolled students...</div>
+              ) : enrolledStudents.length === 0 ? (
+                <div className="text-center py-12 text-slate-500 text-sm">No students enrolled in this course yet.</div>
+              ) : (
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/50 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200 dark:border-slate-700">
+                      <th className="px-4 py-3">Student Name</th>
+                      <th className="px-4 py-3">Email Address</th>
+                      <th className="px-4 py-3">Phone Number</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-150 dark:divide-slate-800">
+                    {enrolledStudents.map((student) => (
+                      <tr key={student._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                        <td className="px-4 py-3 font-bold text-slate-800 dark:text-white">{student.name}</td>
+                        <td className="px-4 py-3 text-slate-500 flex items-center gap-1.5">
+                          <Mail className="w-3.5 h-3.5 text-slate-400" /> {student.email}
+                        </td>
+                        <td className="px-4 py-3 text-slate-500">
+                          {student.phone ? (
+                            <span className="flex items-center gap-1.5">
+                              <Smartphone className="w-3.5 h-3.5 text-slate-400" /> {student.phone}
+                            </span>
+                          ) : (
+                            'N/A'
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

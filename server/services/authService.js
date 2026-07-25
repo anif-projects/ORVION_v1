@@ -1,40 +1,37 @@
-const userRepo = require('../repositories/userRepo');
-const OTP = require('../models/OTP');
-const RefreshToken = require('../models/RefreshToken');
+const User = require('../models/User');
+const Admin = require('../models/Admin');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwtUtils');
 const AppError = require('../utils/appError');
 const emailService = require('./emailService');
 
 class AuthService {
-  async register({ name, email, password, role }) {
-    let user = await userRepo.findByEmail(email);
+  async register({ name, email, password }) {
+    let student = await User.findOne({ email });
 
-    if (user) {
-      if (user.isVerified) {
+    if (student) {
+      if (student.isVerified) {
         throw new AppError('Email address is already registered. Please log in.', 400);
       }
-      // If user exists but is not verified, update name & password
-      if (name) user.name = name;
-      if (password) user.password = password;
-      await user.save();
+      // If student exists but is not verified, update name & password
+      if (name) student.name = name;
+      if (password) student.password = password;
     } else {
-      user = await userRepo.create({ name, email, password, role });
+      student = new User({ name, email, password });
     }
 
     // Generate 6-digit OTP
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    await OTP.deleteMany({ email }); // Clear previous OTPs for this email
-    await OTP.create({
-      email,
-      otp: otpCode,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 mins
-    });
+    student.otp = otpCode;
+    student.otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 mins expiration
+    student.isVerified = false; // Reset to false just in case
+
+    await student.save();
 
     // Send Email (Non-blocking fallback)
     emailService.sendOTP(email, otpCode).catch((err) => console.error(err));
 
     return {
-      user: { id: user._id, name: user.name, email: user.email },
+      user: { id: student.id, name: student.name, email: student.email },
       otpCode,
       message: `OTP verification code sent to ${email}.`,
     };
@@ -43,54 +40,60 @@ class AuthService {
   async verifyOTP(email, otpCode) {
     // Allow master dev code 123456 or exact matching OTP record
     let isMasterCode = otpCode === '123456';
-    let record = null;
+    const student = await User.findOne({ email });
+    if (!student) throw new AppError('Student not found', 404);
 
     if (!isMasterCode) {
-      record = await OTP.findOne({ email, otp: otpCode });
-      if (!record) {
+      if (student.otp !== otpCode || !student.otpExpiresAt || new Date() > new Date(student.otpExpiresAt)) {
         throw new AppError('Invalid or expired OTP code', 400);
       }
     }
 
-    const user = await userRepo.findByEmail(email);
-    if (!user) throw new AppError('User not found', 404);
-
-    user.isVerified = true;
-    await user.save();
-
-    if (record) {
-      await OTP.deleteOne({ _id: record._id });
-    }
+    student.isVerified = true;
+    student.otp = null;
+    student.otpExpiresAt = null;
+    await student.save();
 
     return { message: 'Email verified successfully. You can now login.' };
   }
 
   async login(email, password) {
-    const user = await userRepo.findByEmail(email, true);
-    if (!user) throw new AppError('Invalid email or password', 401);
+    const student = await User.findOne({ email }).select('+password');
+    if (!student) throw new AppError('Invalid email or password', 401);
 
-    const isMatch = await user.comparePassword(password);
+    const isMatch = await student.comparePassword(password);
     if (!isMatch) throw new AppError('Invalid email or password', 401);
 
-    if (user.status === 'blocked') throw new AppError('Account is blocked. Contact support.', 403);
+    if (!student.isVerified) {
+      throw new AppError('Your email is not verified. Please register or verify via OTP.', 401);
+    }
 
-    user.lastLogin = new Date();
-    await user.save();
-
-    const payload = { id: user._id, role: user.role, email: user.email };
+    const payload = { id: student.id, role: 'student', email: student.email };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
-    await RefreshToken.create({
-      user: user._id,
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    });
+    const studentObj = student.toObject();
+    delete studentObj.password;
 
-    const userObj = user.toObject();
-    delete userObj.password;
+    return { user: studentObj, accessToken, refreshToken };
+  }
 
-    return { user: userObj, accessToken, refreshToken };
+  async adminLogin(email, password) {
+    const admin = await Admin.findOne({ email }).select('+password');
+    if (!admin) throw new AppError('Invalid email or password', 401);
+
+    const isMatch = await admin.comparePassword(password);
+    if (!isMatch) throw new AppError('Invalid email or password', 401);
+
+    const payload = { id: admin.id, role: 'admin', email: admin.email };
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    const adminObj = admin.toObject();
+    delete adminObj.password;
+    adminObj.role = 'admin';
+
+    return { user: adminObj, accessToken, refreshToken };
   }
 }
 

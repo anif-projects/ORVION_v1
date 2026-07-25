@@ -15,10 +15,27 @@ export default function CourseDetail() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isEnrolled, setIsEnrolled] = useState(false);
 
   useEffect(() => {
     fetchCourseDetail();
   }, [slug]);
+
+  useEffect(() => {
+    if (course && user) {
+      const checkEnrollment = async () => {
+        try {
+          const res = await api.get('/learning/my-courses');
+          const enrollments = res.data.data.enrollments || [];
+          const enrolled = enrollments.some(e => String(e.course?._id || e.course?.id) === String(course._id));
+          setIsEnrolled(enrolled);
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      checkEnrollment();
+    }
+  }, [course, user]);
 
   const fetchCourseDetail = async () => {
     try {
@@ -138,10 +155,10 @@ export default function CourseDetail() {
           </div>
 
           <button
-            onClick={handleEnroll}
+            onClick={isEnrolled ? () => navigate('/student/dashboard') : handleEnroll}
             className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow hover:scale-[1.02] transition"
           >
-            Enroll Now
+            {isEnrolled ? 'Access Granted (Go to Dashboard)' : 'Enroll Now'}
           </button>
         </div>
       </div>

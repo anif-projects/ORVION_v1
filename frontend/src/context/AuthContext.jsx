@@ -38,6 +38,15 @@ export const AuthProvider = ({ children }) => {
     return user;
   };
 
+  const adminLogin = async (email, password) => {
+    const res = await api.post('/auth/admin/login', { email, password });
+    const { user, accessToken } = res.data.data;
+    sessionStorage.setItem('accessToken', accessToken);
+    sessionStorage.setItem('user', JSON.stringify(user));
+    setUser(user);
+    return user;
+  };
+
   const logout = () => {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('user');
@@ -45,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, setUser }}>
+    <AuthContext.Provider value={{ user, loading, login, adminLogin, logout, setUser }}>
       {children}
     </AuthContext.Provider>
   );

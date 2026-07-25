@@ -11,6 +11,7 @@ import CourseDetail from '../pages/public/CourseDetail';
 import AboutPage from '../pages/public/AboutPage';
 import LiveEventsPage from '../pages/public/LiveEventsPage';
 import LoginPage from '../pages/public/LoginPage';
+import AdminLoginPage from '../pages/public/AdminLoginPage';
 import SignupPage from '../pages/public/SignupPage';
 import VerifyCertificate from '../pages/public/VerifyCertificate';
 
@@ -25,6 +26,7 @@ import MyEvents from '../pages/student/MyEvents';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import CourseManager from '../pages/admin/CourseManager';
 import CourseBuilder from '../pages/admin/CourseBuilder';
+import EventManager from '../pages/admin/EventManager';
 import StudentManager from '../pages/admin/StudentManager';
 import AuditLogsView from '../pages/admin/AuditLogsView';
 import PlatformSettings from '../pages/admin/PlatformSettings';
@@ -40,6 +42,8 @@ export default function AppRoutes() {
         <Route path="/courses/:slug" element={<CourseDetail />} />
         <Route path="/live-events" element={<LiveEventsPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
+        <Route path="/admin_login" element={<AdminLoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/verify-certificate/:hash" element={<VerifyCertificate />} />
       </Route>
@@ -63,6 +67,7 @@ export default function AppRoutes() {
         <Route path="courses" element={<CourseManager />} />
         <Route path="courses/builder" element={<CourseBuilder />} />
         <Route path="courses/builder/:id" element={<CourseBuilder />} />
+        <Route path="events" element={<EventManager />} />
         <Route path="students" element={<StudentManager />} />
         <Route path="audit-logs" element={<AuditLogsView />} />
         <Route path="settings" element={<PlatformSettings />} />

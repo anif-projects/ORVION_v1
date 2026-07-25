@@ -1,45 +1,28 @@
 const Enrollment = require('../models/Enrollment');
-const Course = require('../models/Course');
 
 class EnrollmentRepository {
   async findByStudentAndCourse(studentId, courseId) {
-    return await Enrollment.findOne({ student: studentId, course: courseId });
+    return await Enrollment.findOne({ studentId, courseId });
   }
 
-  async createEnrollment(studentId, courseId, paymentId = null) {
-    const enrollment = await Enrollment.create({
-      student: studentId,
-      course: courseId,
-      payment: paymentId,
+  async createEnrollment(studentId, courseId) {
+    // Check if already enrolled to prevent unique key constraint error
+    const exists = await this.findByStudentAndCourse(studentId, courseId);
+    if (exists) return exists;
+
+    return await Enrollment.create({
+      studentId,
+      courseId,
     });
-    await Course.findByIdAndUpdate(courseId, { $inc: { enrolledCount: 1 } });
-    return enrollment;
   }
 
   async getStudentEnrollments(studentId) {
-    return await Enrollment.find({ student: studentId })
-      .populate({
-        path: 'course',
-        populate: [
-          { path: 'category', select: 'name color' },
-          { path: 'instructor', select: 'name avatar' },
-        ],
-      })
-      .sort({ updatedAt: -1 });
-  }
-
-  async updateProgress(enrollmentId, progressPercentage, completedLessons) {
-    const isCompleted = progressPercentage >= 100;
-    return await Enrollment.findByIdAndUpdate(
-      enrollmentId,
-      {
-        progressPercentage,
-        completedLessons,
-        status: isCompleted ? 'completed' : 'active',
-        ...(isCompleted && { completedAt: new Date() }),
-      },
-      { new: true }
-    );
+    const enrollments = await Enrollment.find({ studentId }).populate('courseId');
+    return enrollments.map(e => {
+      const obj = e.toObject();
+      obj.course = obj.courseId; // Map courseId to course for frontend compatibility
+      return obj;
+    });
   }
 }
 

@@ -1,5 +1,4 @@
 const User = require('../models/User');
-const StudentProfile = require('../models/StudentProfile');
 
 class UserRepository {
   async findByEmail(email, selectPassword = false) {
@@ -13,11 +12,7 @@ class UserRepository {
   }
 
   async create(userData) {
-    const user = await User.create(userData);
-    if (user.role === 'student') {
-      await StudentProfile.create({ user: user._id });
-    }
-    return user;
+    return await User.create(userData);
   }
 
   async updateStatus(id, status) {

@@ -6,7 +6,5 @@ const { protect } = require('../middlewares/authMiddleware');
 router.use(protect);
 
 router.get('/my-courses', learningController.getMyEnrollments);
-router.post('/complete-lesson', learningController.markLessonComplete);
-router.get('/stream/:lessonId', learningController.getStreamUrl);
 
 module.exports = router;

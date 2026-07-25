@@ -215,22 +215,7 @@ const connect = async () => {
     const conn = await realPool.getConnection();
     console.log(`[Database] MySQL Connection Pool Initialized. Connected to: mysql://${host}:${port}/${database}`);
     
-    // Ensure lessons table supports type and quizData for Modules & Lessons quizzes
-    try {
-      await realPool.query("ALTER TABLE lessons ADD COLUMN type ENUM('video', 'quiz') DEFAULT 'video';");
-    } catch (e) {
-      // Ignore duplicate column errors
-    }
-    try {
-      await realPool.query("ALTER TABLE lessons ADD COLUMN quizData JSON;");
-    } catch (e) {
-      // Ignore duplicate column errors
-    }
-    try {
-      await realPool.query("ALTER TABLE courses ADD COLUMN isFeatured BOOLEAN DEFAULT FALSE;");
-    } catch (e) {
-      // Ignore duplicate column errors
-    }
+    // No-op for structural changes on startup since schema.sql handles it.
 
     conn.release();
     pool = realPool;
@@ -277,22 +262,12 @@ const modelsRegistry = {};
 // Helper to translate table name from Model name
 const getTableName = (modelName) => {
   const mapping = {
-    User: 'users',
-    StudentProfile: 'student_profiles',
-    Category: 'categories',
+    User: 'students',
+    Admin: 'admins',
     Course: 'courses',
-    Module: 'modules',
-    Lesson: 'lessons',
-    LessonProgress: 'lesson_progresses',
-    Enrollment: 'enrollments',
-    Certificate: 'certificates',
-    Discussion: 'discussions',
+    Enrollment: 'course_enrollments',
     Event: 'events',
-    OTP: 'otps',
-    RefreshToken: 'refresh_tokens',
-    AuditLog: 'audit_logs',
-    Settings: 'settings',
-    Payment: 'payments',
+    EventEnrollment: 'event_enrollments',
   };
   return mapping[modelName] || modelName.toLowerCase() + 's';
 };

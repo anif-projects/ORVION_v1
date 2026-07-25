@@ -1,5 +1,6 @@
 const { verifyAccessToken } = require('../utils/jwtUtils');
-const userRepo = require('../repositories/userRepo');
+const User = require('../models/User');
+const Admin = require('../models/Admin');
 const AppError = require('../utils/appError');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -15,14 +16,22 @@ const protect = asyncHandler(async (req, res, next) => {
 
   try {
     const decoded = verifyAccessToken(token);
-    const currentUser = await userRepo.findById(decoded.id);
+    let currentUser;
+
+    if (decoded.role === 'admin' || decoded.role === 'super_admin') {
+      currentUser = await Admin.findById(decoded.id);
+      if (currentUser) {
+        currentUser.role = 'admin';
+      }
+    } else {
+      currentUser = await User.findById(decoded.id);
+      if (currentUser) {
+        currentUser.role = 'student';
+      }
+    }
 
     if (!currentUser) {
       return next(new AppError('The user belonging to this token no longer exists.', 401));
-    }
-
-    if (currentUser.status === 'blocked') {
-      return next(new AppError('Your account has been blocked. Contact support.', 403));
     }
 
     req.user = currentUser;

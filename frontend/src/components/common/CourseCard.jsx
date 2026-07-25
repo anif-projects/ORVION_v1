@@ -11,7 +11,6 @@ export default function CourseCard({ course }) {
   const {
     _id,
     title,
-    slug,
     thumbnail,
     price,
     discountPrice,
@@ -23,6 +22,8 @@ export default function CourseCard({ course }) {
     totalLessons,
     level,
   } = course;
+
+  const slug = course.slug || course._id || course.id;
 
   const { user } = useAuth();
   const [isFeaturedState, setIsFeaturedState] = useState(course.isFeatured || false);

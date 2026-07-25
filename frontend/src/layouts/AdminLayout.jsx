@@ -16,7 +16,7 @@ export default function AdminLayout() {
   }
 
   if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin-login" replace />;
   }
 
   return (

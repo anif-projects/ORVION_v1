@@ -24,6 +24,7 @@ export default function Sidebar({ role = 'student' }) {
   const adminLinks = [
     { name: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
     { name: 'Course Manager', path: '/admin/courses', icon: BookOpen },
+    { name: 'Live Events', path: '/admin/events', icon: Calendar },
     { name: 'Student Directory', path: '/admin/students', icon: Users },
   ];
 

@@ -1,15 +1,13 @@
 const Course = require('../models/Course');
-const Module = require('../models/Module');
-const Lesson = require('../models/Lesson');
 
 class CourseRepository {
   async findPublished(filters = {}, pagination = { page: 1, limit: 12 }, sort = { createdAt: -1 }) {
     const skip = (pagination.page - 1) * pagination.limit;
-    const query = { status: 'published', ...filters };
-    
+    const query = { ...filters };
+
+    // Since we don't have tags or category relations in the simplified schema,
+    // we query courses directly and ignore relation populates.
     const courses = await Course.find(query)
-      .populate('category', 'name slug color icon')
-      .populate('instructor', 'name avatar')
       .skip(skip)
       .limit(pagination.limit)
       .sort(sort);
@@ -18,24 +16,11 @@ class CourseRepository {
     return { courses, total, page: pagination.page, pages: Math.ceil(total / pagination.limit) };
   }
 
-  async findBySlug(slug) {
-    const query = /^\d+$/.test(slug) ? { id: Number(slug) } : { slug };
-    const course = await Course.findOne(query)
-      .populate('category', 'name slug')
-      .populate('instructor', 'name avatar');
-    
+  async findBySlug(id) {
+    // Treat the slug parameter as the ID in the simplified schema
+    const course = await Course.findById(id);
     if (!course) return null;
-
-    const modules = await Module.find({ course: course._id }).sort({ order: 1 });
-    const moduleIds = modules.map((m) => m._id);
-    const lessons = await Lesson.find({ module: { $in: moduleIds } }).sort({ order: 1 });
-
-    const curriculum = modules.map((mod) => ({
-      ...mod.toObject(),
-      lessons: lessons.filter((les) => les.module.toString() === mod._id.toString()),
-    }));
-
-    return { ...course.toObject(), modules: curriculum };
+    return course.toObject();
   }
 
   async create(courseData) {
@@ -47,8 +32,6 @@ class CourseRepository {
   }
 
   async delete(id) {
-    await Module.deleteMany({ course: id });
-    await Lesson.deleteMany({ course: id });
     return await Course.findByIdAndDelete(id);
   }
 }

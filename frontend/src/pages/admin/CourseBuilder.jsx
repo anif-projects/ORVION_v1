@@ -23,7 +23,7 @@ export default function CourseBuilder() {
     category: '', // initialized empty, loaded dynamically
   });
 
-  const [categories, setCategories] = useState([]);
+
 
   const [learningOutcomes, setLearningOutcomes] = useState(['']);
   const [modules, setModules] = useState([
@@ -54,26 +54,12 @@ export default function CourseBuilder() {
   const [expandedQuizIndex, setExpandedQuizIndex] = useState(null); // moduleIndex-lessonIndex format
 
   useEffect(() => {
-    fetchCategories();
     if (id) {
       fetchCourseDetails();
     }
   }, [id]);
 
-  const fetchCategories = async () => {
-    try {
-      const res = await api.get('/courses/categories');
-      if (res.data.data && res.data.data.categories) {
-        setCategories(res.data.data.categories);
-        // Default category to the first one if creating new course
-        if (!id && res.data.data.categories.length > 0) {
-          setCourseData(prev => ({ ...prev, category: res.data.data.categories[0]._id }));
-        }
-      }
-    } catch (err) {
-      console.error('Failed to fetch categories:', err);
-    }
-  };
+
 
   const fetchCourseDetails = async () => {
     setFetching(true);
@@ -88,7 +74,7 @@ export default function CourseBuilder() {
           price: c.price || 0,
           level: c.level || 'all_levels',
           thumbnail: c.thumbnail || '',
-          category: c.category?.id || c.category || '1',
+          category: c.category || '',
         });
         
         if (c.learningOutcomes && Array.isArray(c.learningOutcomes)) {
@@ -354,17 +340,14 @@ export default function CourseBuilder() {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Category</label>
-              <select
+              <input
+                type="text"
+                required
+                placeholder="e.g. Web Development"
                 value={courseData.category}
                 onChange={(e) => setCourseData({ ...courseData, category: e.target.value })}
-                required
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none text-slate-700 dark:text-slate-200"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id} value={cat._id}>{cat.name}</option>
-                ))}
-              </select>
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Course Thumbnail</label>
