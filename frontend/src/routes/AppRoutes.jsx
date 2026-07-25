@@ -39,6 +39,7 @@ export default function AppRoutes() {
         <Route path="/courses" element={<CourseCatalog />} />
         <Route path="/courses/:slug" element={<CourseDetail />} />
         <Route path="/live-events" element={<LiveEventsPage />} />
+        <Route path="/live-hub" element={<LiveEventsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/verify-certificate/:hash" element={<VerifyCertificate />} />

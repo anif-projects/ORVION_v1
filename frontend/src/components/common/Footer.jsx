@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Github, Twitter, Linkedin, Youtube } from 'lucide-react';
+import { Mail, MapPin, Linkedin, Youtube } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Footer() {
@@ -21,20 +21,6 @@ export default function Footer() {
             </p>
             {/* Social Media Links */}
             <div className="flex gap-2.5 pt-1 text-slate-600 dark:text-slate-300">
-              <a
-                href="#"
-                aria-label="GitHub"
-                className="p-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 hover:bg-primary-600 hover:text-white dark:hover:bg-primary-600 transition-all hover:scale-110"
-              >
-                <Github className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                aria-label="Twitter"
-                className="p-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 hover:bg-primary-600 hover:text-white dark:hover:bg-primary-600 transition-all hover:scale-110"
-              >
-                <Twitter className="w-4 h-4" />
-              </a>
               <a
                 href="#"
                 aria-label="LinkedIn"
