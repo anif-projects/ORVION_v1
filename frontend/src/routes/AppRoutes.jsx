@@ -41,6 +41,7 @@ export default function AppRoutes() {
         <Route path="/courses" element={<CourseCatalog />} />
         <Route path="/courses/:slug" element={<CourseDetail />} />
         <Route path="/live-events" element={<LiveEventsPage />} />
+        <Route path="/live-hub" element={<LiveEventsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/admin_login" element={<AdminLoginPage />} />
