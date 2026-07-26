@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { 
   Sun, Moon, LogOut, LayoutDashboard, Search, Bell, Menu, X, User,
   BookOpen, Users, Settings, MessageSquare, ShieldAlert, FolderGit2, Calendar, Award,
-  Presentation, Video, Image, ArrowRight, ChevronDown
+  Image, ArrowRight, ChevronDown
 } from 'lucide-react';
 import Logo from './Logo';
 
@@ -76,7 +77,12 @@ export default function Navbar() {
   const portalLinks = isAdmin ? adminPortalLinks : studentPortalLinks;
 
   return (
-    <header className="sticky top-3 z-50 w-full px-3 sm:px-6 max-w-7xl mx-auto transition-all mb-4 sm:mb-6 relative">
+    <motion.header
+      initial={{ opacity: 0, y: -20, filter: 'blur(8px)' }}
+      animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="sticky top-3 z-50 w-full px-3 sm:px-6 max-w-7xl mx-auto transition-all mb-4 sm:mb-6 relative"
+    >
       {/* True Glassmorphism Floating Container */}
       <div 
         className="rounded-full px-4 sm:px-6 h-16 flex items-center justify-between transition-all duration-300 select-none"
@@ -270,7 +276,7 @@ export default function Navbar() {
         >
           <div className="grid grid-cols-12 gap-6">
             {/* COLUMN 1: Large Title & Description */}
-            <div className="col-span-3 rounded-2xl p-5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/15 flex flex-col justify-between relative overflow-hidden group">
+            <div className="col-span-4 rounded-2xl p-5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/15 flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-amber-500/10 blur-xl pointer-events-none" />
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#D97706]">Orvion Live</span>
@@ -289,10 +295,10 @@ export default function Navbar() {
               </Link>
             </div>
 
-            {/* COLUMN 2: Upcoming */}
-            <div className="col-span-3 space-y-1">
+            {/* COLUMN 2: Navigation Options */}
+            <div className="col-span-4 space-y-1">
               <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-3">
-                Upcoming
+                Explore
               </h4>
               
               <Link
@@ -322,55 +328,6 @@ export default function Navbar() {
                 className="group flex items-start gap-3 p-3 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-[#D97706] hover:bg-[#F8FAFC] dark:hover:bg-slate-800/60"
               >
                 <div className="p-2 rounded-lg bg-amber-500/10 text-[#D97706] shrink-0 mt-0.5">
-                  <Presentation className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#0F172A] dark:text-white group-hover:text-[#D97706] transition-colors">
-                      Webinars
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#D97706] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200" />
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
-                    Free expert sessions every month.
-                  </p>
-                </div>
-              </Link>
-            </div>
-
-            {/* COLUMN 3: Explore */}
-            <div className="col-span-3 space-y-1">
-              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-3">
-                Explore
-              </h4>
-
-              <Link
-                to="/live-hub"
-                onClick={() => setIsLiveHubOpen(false)}
-                className="group flex items-start gap-3 p-3 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-[#D97706] hover:bg-[#F8FAFC] dark:hover:bg-slate-800/60"
-              >
-                <div className="p-2 rounded-lg bg-amber-500/10 text-[#D97706] shrink-0 mt-0.5">
-                  <Video className="w-4 h-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#0F172A] dark:text-white group-hover:text-[#D97706] transition-colors">
-                      Past Events
-                    </span>
-                    <ArrowRight className="w-3.5 h-3.5 text-[#D97706] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200" />
-                  </div>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
-                    Watch recordings and event highlights.
-                  </p>
-                </div>
-              </Link>
-
-              <Link
-                to="/live-hub"
-                onClick={() => setIsLiveHubOpen(false)}
-                className="group flex items-start gap-3 p-3 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-[#D97706] hover:bg-[#F8FAFC] dark:hover:bg-slate-800/60"
-              >
-                <div className="p-2 rounded-lg bg-amber-500/10 text-[#D97706] shrink-0 mt-0.5">
                   <Image className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -381,14 +338,14 @@ export default function Navbar() {
                     <ArrowRight className="w-3.5 h-3.5 text-[#D97706] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-200" />
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug mt-0.5">
-                    Photos and memories from our community.
+                    Explore photos and highlights from our events.
                   </p>
                 </div>
               </Link>
             </div>
 
-            {/* COLUMN 4: Highlights */}
-            <div className="col-span-3 space-y-3">
+            {/* COLUMN 3: Highlights */}
+            <div className="col-span-4 space-y-3">
               <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-1">
                 Highlights
               </h4>
@@ -476,15 +433,7 @@ export default function Navbar() {
                       <div className="pl-6 space-y-1 py-1">
                         <Link to="/live-hub" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
                           <Calendar className="w-3.5 h-3.5 text-[#D97706]" />
-                          <span>Events</span>
-                        </Link>
-                        <Link to="/live-hub" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
-                          <Presentation className="w-3.5 h-3.5 text-[#D97706]" />
-                          <span>Webinars</span>
-                        </Link>
-                        <Link to="/live-hub" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
-                          <Video className="w-3.5 h-3.5 text-[#D97706]" />
-                          <span>Past Events</span>
+                          <span>Live Events</span>
                         </Link>
                         <Link to="/live-hub" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
                           <Image className="w-3.5 h-3.5 text-[#D97706]" />
@@ -575,6 +524,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </header>
+    </motion.header>
   );
 }

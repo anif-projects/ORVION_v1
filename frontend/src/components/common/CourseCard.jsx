@@ -7,7 +7,17 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 
-export default function CourseCard({ course }) {
+const cardAnimationVariants = {
+  initial: { opacity: 0, y: 50, scale: 0.95 },
+  animate: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+  hover: {
+    y: -8,
+    scale: 1.02,
+    transition: { duration: 0.25, ease: 'easeOut' },
+  },
+};
+
+export default function CourseCard({ course, index = 0 }) {
   const {
     _id,
     title,
@@ -44,10 +54,14 @@ export default function CourseCard({ course }) {
 
   return (
     <motion.div
-      variants={cardHoverVariants}
+      variants={cardAnimationVariants}
       initial="initial"
+      whileInView="animate"
       whileHover="hover"
-      className="glass-card rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between group transition-shadow hover:shadow-xl"
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ delay: index * 0.12 }}
+      className="glass-card rounded-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 flex flex-col justify-between group transition-shadow duration-250 hover:shadow-2xl"
+      style={{ willChange: 'transform, opacity' }}
     >
       <div>
         {/* Thumbnail Container */}
