@@ -103,7 +103,7 @@ export default function MyEvents() {
                       Registered
                     </div>
                     <div className="space-y-2">
-                      <h3 className="font-extrabold text-slate-800 dark:text-white text-base">{event.title}</h3>
+                      <h3 className="font-extrabold text-slate-800 dark:text-white text-base">{event.name || event.title}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{event.description}</p>
                     </div>
 
@@ -154,7 +154,7 @@ export default function MyEvents() {
                 {allEvents.filter(event => !isRegistered(event._id)).map((event) => (
                   <div key={event._id} className="glass-card p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-4 flex flex-col justify-between hover:shadow-md transition">
                     <div className="space-y-2">
-                      <h3 className="font-bold text-slate-800 dark:text-white text-base line-clamp-1">{event.title}</h3>
+                      <h3 className="font-bold text-slate-800 dark:text-white text-base line-clamp-1">{event.name || event.title}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">{event.description}</p>
                     </div>
 

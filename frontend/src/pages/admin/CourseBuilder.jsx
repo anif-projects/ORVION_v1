@@ -277,7 +277,7 @@ export default function CourseBuilder() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Course Info */}
-        <div className="glass-panel p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+        <div className="glass-panel p-4 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-4">
           <h3 className="font-bold text-slate-900 dark:text-white text-base">Course Information</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -375,7 +375,7 @@ export default function CourseBuilder() {
         </div>
 
         {/* What You'll Learn */}
-        <div className="glass-panel p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+        <div className="glass-panel p-4 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-bold text-slate-900 dark:text-white text-base">What You'll Learn</h3>
             <button type="button" onClick={addOutcome} className="text-xs font-bold text-primary-600 hover:underline">
@@ -414,7 +414,7 @@ export default function CourseBuilder() {
 
           <div className="space-y-6">
             {modules.map((m, mIdx) => (
-              <div key={mIdx} className="glass-panel p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-4 relative">
+              <div key={mIdx} className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-4 relative">
                 {/* Module Title Row */}
                 <div className="flex items-center gap-4">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Module {m.order}:</span>
@@ -436,37 +436,40 @@ export default function CourseBuilder() {
                 {/* Module Items (Lessons & Quizzes) */}
                 <div className="pl-4 border-l-2 border-slate-200 dark:border-slate-700 space-y-4">
                   {m.lessons.map((les, lIdx) => (
-                    <div key={lIdx} className="space-y-3 p-4 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
-                      <div className="flex items-center gap-3">
-                        {les.type === 'quiz' ? (
-                          <HelpCircle className="w-4 h-4 text-primary-600 shrink-0" />
-                        ) : (
-                          <Video className="w-4 h-4 text-secondary-500 shrink-0" />
-                        )}
-                        
-                        <input
-                          type="text"
-                          value={les.title}
-                          onChange={(e) => updateLessonField(mIdx, lIdx, 'title', e.target.value)}
-                          className="flex-1 font-semibold text-xs bg-transparent border-b border-slate-200 dark:border-slate-700 focus:outline-none text-slate-700 dark:text-slate-200 py-0.5"
-                          placeholder={les.type === 'quiz' ? 'Quiz Title' : 'Lesson Title'}
-                        />
+                    <div key={lIdx} className="space-y-3 p-3 sm:p-4 rounded-xl bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+                        <div className="flex-1 flex items-center gap-2 min-w-[140px]">
+                          {les.type === 'quiz' ? (
+                            <HelpCircle className="w-4 h-4 text-primary-600 shrink-0" />
+                          ) : (
+                            <Video className="w-4 h-4 text-secondary-500 shrink-0" />
+                          )}
+                          <input
+                            type="text"
+                            value={les.title}
+                            onChange={(e) => updateLessonField(mIdx, lIdx, 'title', e.target.value)}
+                            className="flex-1 font-semibold text-xs bg-transparent border-b border-slate-200 dark:border-slate-700 focus:outline-none text-slate-700 dark:text-slate-200 py-0.5 min-w-0"
+                            placeholder={les.type === 'quiz' ? 'Quiz Title' : 'Lesson Title'}
+                          />
+                        </div>
 
-                        {les.type === 'video' && (
-                          <label className="flex items-center gap-1.5 text-[10px] text-slate-400 cursor-pointer select-none">
-                            <input
-                              type="checkbox"
-                              checked={les.isPreview}
-                              onChange={(e) => updateLessonField(mIdx, lIdx, 'isPreview', e.target.checked)}
-                              className="rounded text-primary-600 focus:ring-0"
-                            />
-                            Previewable
-                          </label>
-                        )}
+                        <div className="flex items-center gap-3 shrink-0">
+                          {les.type === 'video' && (
+                            <label className="flex items-center gap-1.5 text-[10px] text-slate-400 cursor-pointer select-none">
+                              <input
+                                type="checkbox"
+                                checked={les.isPreview}
+                                onChange={(e) => updateLessonField(mIdx, lIdx, 'isPreview', e.target.checked)}
+                                className="rounded text-primary-600 focus:ring-0"
+                              />
+                              Previewable
+                            </label>
+                          )}
 
-                        <button type="button" onClick={() => deleteLesson(mIdx, lIdx)} className="p-1 text-slate-400 hover:text-accent-danger transition">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                          <button type="button" onClick={() => deleteLesson(mIdx, lIdx)} className="p-1 text-slate-400 hover:text-accent-danger transition">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Quiz Question Configuration */}

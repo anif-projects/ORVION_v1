@@ -74,6 +74,7 @@ class AuthService {
 
     const studentObj = student.toObject();
     delete studentObj.password;
+    studentObj.role = 'student';
 
     return { user: studentObj, accessToken, refreshToken };
   }

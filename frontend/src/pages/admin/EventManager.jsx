@@ -109,13 +109,13 @@ export default function EventManager() {
           </button>
         </div>
 
-        <div className="glass-panel rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80">
+        <div className="glass-panel rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-x-auto">
           {loadingEvents ? (
             <div className="text-center py-12 text-slate-500 text-sm">Loading live events...</div>
           ) : events.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-sm">No live events posted yet.</div>
           ) : (
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[700px] text-left border-collapse">
               <thead>
                 <tr className="bg-slate-100/70 dark:bg-slate-800/70 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                   <th className="px-6 py-4">Event Name</th>
@@ -168,13 +168,13 @@ export default function EventManager() {
           </button>
         </div>
 
-        <div className="glass-panel rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80">
+        <div className="glass-panel rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-x-auto">
           {loadingRegs ? (
             <div className="text-center py-12 text-slate-500 text-sm">Loading registrations...</div>
           ) : registrations.length === 0 ? (
             <div className="text-center py-12 text-slate-500 text-sm">No registrations found.</div>
           ) : (
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[700px] text-left border-collapse">
               <thead>
                 <tr className="bg-slate-100/70 dark:bg-slate-800/70 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
                   <th className="px-6 py-4">Student Details</th>

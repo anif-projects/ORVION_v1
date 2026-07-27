@@ -75,6 +75,7 @@ export default function Navbar() {
   const adminPortalLinks = [
     { name: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
     { name: 'Course Manager', path: '/admin/courses', icon: BookOpen },
+    { name: 'Live Events', path: '/admin/events', icon: Calendar },
     { name: 'Student Directory', path: '/admin/students', icon: Users },
   ];
 
@@ -111,7 +112,7 @@ export default function Navbar() {
         </Link>
 
         {/* Center Nav Links Capsule */}
-        {!isLoggedInOrPortal && (
+        {!isPortalRoute && (
           <nav 
             className="hidden lg:flex items-center gap-1 p-1.5 rounded-full transition-all duration-300"
             style={{
@@ -166,7 +167,7 @@ export default function Navbar() {
         )}
 
         {/* Compact Glass Search Bar (Desktop) - Hide in portal */}
-        {!isLoggedInOrPortal && (
+        {!isPortalRoute && (
           <div className="hidden xl:flex items-center relative w-48 xl:w-56">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
             <input
@@ -217,9 +218,12 @@ export default function Navbar() {
               </button>
 
               <div className="flex items-center gap-2 pl-2 border-l border-white/20 dark:border-white/10">
-                <span className="text-xs font-bold text-slate-800 dark:text-white max-w-[120px] truncate">
+                <Link
+                  to={user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/student/dashboard'}
+                  className="text-xs font-bold text-slate-800 dark:text-white max-w-[120px] truncate hover:text-[#D97706] dark:hover:text-amber-400 transition-colors"
+                >
                   {user?.name || 'Student'}
-                </span>
+                </Link>
                 <button
                   onClick={() => {
                     logout();
@@ -262,7 +266,7 @@ export default function Navbar() {
       </div>
 
       {/* Live Hub Premium 4-Column Mega Menu Dropdown */}
-      {!isLoggedInOrPortal && (
+      {!isPortalRoute && (
         <div
           onMouseEnter={handleLiveHubMouseEnter}
           onMouseLeave={handleLiveHubMouseLeave}
@@ -417,7 +421,7 @@ export default function Navbar() {
               {isLoggedInOrPortal ? (isAdmin ? 'Admin Navigation' : 'Student Navigation') : 'Public Menu'}
             </div>
 
-            {(isLoggedInOrPortal ? portalLinks : publicNavLinks).map((link) => {
+            {(isPortalRoute ? portalLinks : publicNavLinks).map((link) => {
               const isLiveHub = link.name === 'Live Hub';
 
               if (!isLoggedInOrPortal && isLiveHub) {
@@ -474,8 +478,12 @@ export default function Navbar() {
           <div className="pt-3 border-t border-white/20 dark:border-white/10 space-y-3">
             {/* User Badge if Logged In */}
             {isLoggedInOrPortal && (
-              <div className="flex items-center gap-3 px-3 py-2 rounded-2xl bg-white/20 dark:bg-white/10">
-                <div className="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-xs">
+              <Link
+                to={user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/student/dashboard'}
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-2xl bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 transition-all w-full"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
                   {(user?.name || 'S').charAt(0).toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -484,7 +492,7 @@ export default function Navbar() {
                   </p>
                   <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{user?.email || 'student@lms.com'}</p>
                 </div>
-              </div>
+              </Link>
             )}
 
             {/* Theme Toggle & Logout / Login Actions */}

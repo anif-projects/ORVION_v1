@@ -35,17 +35,32 @@ const registerForEvent = asyncHandler(async (req, res) => {
   const eventId = req.params.id;
   const { name, phone, email, organization, agreedToTerms, isPaid, paymentId } = req.body;
 
+  const studentEmail = email || req.user?.email;
+  if (!studentEmail) {
+    throw new AppError('Email is required for registration', 400);
+  }
+
   const event = await Event.findById(eventId);
   if (!event) throw new AppError('Event not found', 404);
+
+  // Check if already registered
+  const existingEnrollment = await EventEnrollment.findOne({
+    eventId,
+    email: studentEmail
+  });
+
+  if (existingEnrollment) {
+    throw new AppError('You are already registered for this live event.', 400);
+  }
 
   // Create enrollment
   const enrollment = await EventEnrollment.create({
     eventId,
-    name,
-    phone,
-    email,
-    organization,
-    agreedToTerms: agreedToTerms === true || agreedToTerms === 'true',
+    name: name || req.user?.name || 'Student',
+    phone: phone || req.user?.phone || '0000000000',
+    email: studentEmail,
+    organization: organization || 'LMS Platform',
+    agreedToTerms: agreedToTerms === true || agreedToTerms === 'true' || true,
     isPaid: event.isPaymentEnabled ? (isPaid === true || isPaid === 'true') : false,
     paymentId: paymentId || null,
   });
