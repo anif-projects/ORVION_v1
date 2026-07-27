@@ -148,7 +148,7 @@ export default function LearningPlayer() {
       </header>
 
       {/* Main Split Body */}
-      <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row-reverse overflow-hidden">
         {/* Video & Content Area */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
           {/* React Player Container */}
@@ -291,7 +291,7 @@ export default function LearningPlayer() {
         </div>
 
         {/* Lessons Sidebar Hierarchy */}
-        <div className="w-full lg:w-80 bg-slate-900/90 border-t lg:border-t-0 lg:border-l border-slate-800 p-4 space-y-4 overflow-y-auto shrink-0">
+        <div className="w-full lg:w-80 bg-slate-900/90 border-t lg:border-t-0 lg:border-r border-slate-800 p-4 space-y-4 overflow-y-auto shrink-0">
           <div className="flex items-center gap-2 text-primary-400">
             <BookOpen className="w-4 h-4" />
             <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-300">

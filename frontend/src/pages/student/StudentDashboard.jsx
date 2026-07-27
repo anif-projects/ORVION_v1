@@ -210,7 +210,7 @@ export default function StudentDashboard() {
                         Overview
                       </button>
                       <Link
-                        to={`/learning/player/${item.course?.slug || 'fullstack-react-nodejs-masterclass'}`}
+                        to={`/learning/player/${item.course?.id || item.course?._id || item.course?.slug || '1'}`}
                         className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 transition"
                       >
                         <Play className="w-3.5 h-3.5 fill-white" /> Resume
@@ -363,7 +363,7 @@ export default function StudentDashboard() {
                 Close Overview
               </button>
               <Link
-                to={`/learning/player/${selectedCourse.slug}`}
+                to={`/learning/player/${selectedCourse.id || selectedCourse._id || selectedCourse.slug}`}
                 onClick={() => setSelectedCourse(null)}
                 className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
               >

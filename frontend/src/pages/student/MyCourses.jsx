@@ -66,7 +66,7 @@ export default function MyCourses() {
                 </div>
               </div>
               <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
-                <Link to={`/learning/player/${item.course?.slug}`} className="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center gap-1.5">
+                <Link to={`/learning/player/${item.course?.id || item.course?._id || item.course?.slug}`} className="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center gap-1.5">
                   <Play className="w-3.5 h-3.5" /> Continue Learning
                 </Link>
               </div>
