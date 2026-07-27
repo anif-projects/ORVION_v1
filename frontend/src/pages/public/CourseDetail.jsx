@@ -18,6 +18,62 @@ import { pageVariants } from '../../utils/animations';
 const normalizeCourseData = (rawCourse = {}) => {
   const isWeb = (rawCourse.category?.name || rawCourse.category || '').toLowerCase().includes('web') || (rawCourse.title || '').toLowerCase().includes('react');
 
+  const modules = (rawCourse.modules && rawCourse.modules.length > 0)
+    ? rawCourse.modules
+    : [
+        {
+          _id: 'mod-1',
+          title: 'Module 1: Architecture, Setup & Core Foundations',
+          duration: '120 mins',
+          lessons: [
+            { _id: 'les-1', title: '1.1 Course Orientation & Enterprise Architecture Overview', duration: 15, isPreview: true },
+            { _id: 'les-2', title: '1.2 Setting Up Your Professional Developer Environment', duration: 25, isPreview: true },
+            { _id: 'les-3', title: '1.3 Deep Dive into Modern JavaScript & Async Patterns', duration: 45, isPreview: false },
+            { _id: 'les-4', title: '1.4 Building Clean Component Hierarchies & Layout Tokens', duration: 35, isPreview: false },
+          ],
+        },
+        {
+          _id: 'mod-2',
+          title: 'Module 2: Scalable Backend & REST API Development',
+          duration: '160 mins',
+          lessons: [
+            { _id: 'les-5', title: '2.1 Express.js Server Setup & Controller Pattern', duration: 30, isPreview: true },
+            { _id: 'les-6', title: '2.2 Database Schema Design & Normalization Best Practices', duration: 40, isPreview: false },
+            { _id: 'les-7', title: '2.3 Authentication Pipeline: Passwords, JWT & Refresh Tokens', duration: 50, isPreview: false },
+            { _id: 'les-8', title: '2.4 Middleware Validation, Rate-Limiting & Security Headers', duration: 40, isPreview: false },
+          ],
+        },
+        {
+          _id: 'mod-3',
+          title: 'Module 3: Frontend Mastery, State & Glassmorphism UI',
+          duration: '140 mins',
+          lessons: [
+            { _id: 'les-9', title: '3.1 Reactive State Management & Context API Architecture', duration: 35, isPreview: false },
+            { _id: 'les-10', title: '3.2 Crafting Premium Dark Mode & Glassmorphism Interfaces', duration: 40, isPreview: false },
+            { _id: 'les-11', title: '3.3 Integrating Axios Interceptors & React Query Caching', duration: 35, isPreview: false },
+            { _id: 'les-12', title: '3.4 Smooth Page Transitions & Micro-Animations with Framer Motion', duration: 30, isPreview: false },
+          ],
+        },
+        {
+          _id: 'mod-4',
+          title: 'Module 4: Deployment, CI/CD & Final Capstone Project',
+          duration: '180 mins',
+          lessons: [
+            { _id: 'les-13', title: '4.1 Containerizing Applications with Docker & Docker Compose', duration: 45, isPreview: false },
+            { _id: 'les-14', title: '4.2 Configuring Payment Gateways (Stripe & Razorpay Integration)', duration: 45, isPreview: false },
+            { _id: 'les-15', title: '4.3 Automated CI/CD Deployment to Cloud Services (AWS / Vercel)', duration: 50, isPreview: false },
+            { _id: 'les-16', title: '4.4 Final Capstone Code Review, Certification & Career Roadmap', duration: 40, isPreview: false },
+          ],
+        },
+      ];
+
+  let totalLessonsCount = 0;
+  modules.forEach(m => {
+    if (m.lessons && Array.isArray(m.lessons)) {
+      totalLessonsCount += m.lessons.length;
+    }
+  });
+
   return {
     _id: rawCourse._id || rawCourse.id || 'c-default',
     slug: rawCourse.slug || 'course-detail',
@@ -36,7 +92,7 @@ const normalizeCourseData = (rawCourse = {}) => {
     rating: rawCourse.rating !== undefined && rawCourse.rating !== null ? rawCourse.rating : 4.9,
     enrolledCount: rawCourse.enrolledCount !== undefined && rawCourse.enrolledCount !== null ? rawCourse.enrolledCount : 2480,
     totalDuration: rawCourse.totalDuration !== undefined && rawCourse.totalDuration !== null ? rawCourse.totalDuration : 480, // minutes
-    totalLessons: rawCourse.totalLessons || 24,
+    totalLessons: totalLessonsCount,
     language: rawCourse.language || 'English (Subtitles available)',
     updatedAt: rawCourse.updatedAt ? new Date(rawCourse.updatedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'July 2026',
     certificate: rawCourse.isCertificateIncluded !== undefined && rawCourse.isCertificateIncluded !== null ? Boolean(rawCourse.isCertificateIncluded) : true,
@@ -58,54 +114,7 @@ const normalizeCourseData = (rawCourse = {}) => {
         ],
 
     // Course Curriculum
-    modules: (rawCourse.modules && rawCourse.modules.length > 0)
-      ? rawCourse.modules
-      : [
-          {
-            _id: 'mod-1',
-            title: 'Module 1: Architecture, Setup & Core Foundations',
-            duration: '120 mins',
-            lessons: [
-              { _id: 'les-1', title: '1.1 Course Orientation & Enterprise Architecture Overview', duration: 15, isPreview: true },
-              { _id: 'les-2', title: '1.2 Setting Up Your Professional Developer Environment', duration: 25, isPreview: true },
-              { _id: 'les-3', title: '1.3 Deep Dive into Modern JavaScript & Async Patterns', duration: 45, isPreview: false },
-              { _id: 'les-4', title: '1.4 Building Clean Component Hierarchies & Layout Tokens', duration: 35, isPreview: false },
-            ],
-          },
-          {
-            _id: 'mod-2',
-            title: 'Module 2: Scalable Backend & REST API Development',
-            duration: '160 mins',
-            lessons: [
-              { _id: 'les-5', title: '2.1 Express.js Server Setup & Controller Pattern', duration: 30, isPreview: true },
-              { _id: 'les-6', title: '2.2 Database Schema Design & Normalization Best Practices', duration: 40, isPreview: false },
-              { _id: 'les-7', title: '2.3 Authentication Pipeline: Passwords, JWT & Refresh Tokens', duration: 50, isPreview: false },
-              { _id: 'les-8', title: '2.4 Middleware Validation, Rate-Limiting & Security Headers', duration: 40, isPreview: false },
-            ],
-          },
-          {
-            _id: 'mod-3',
-            title: 'Module 3: Frontend Mastery, State & Glassmorphism UI',
-            duration: '140 mins',
-            lessons: [
-              { _id: 'les-9', title: '3.1 Reactive State Management & Context API Architecture', duration: 35, isPreview: false },
-              { _id: 'les-10', title: '3.2 Crafting Premium Dark Mode & Glassmorphism Interfaces', duration: 40, isPreview: false },
-              { _id: 'les-11', title: '3.3 Integrating Axios Interceptors & React Query Caching', duration: 35, isPreview: false },
-              { _id: 'les-12', title: '3.4 Smooth Page Transitions & Micro-Animations with Framer Motion', duration: 30, isPreview: false },
-            ],
-          },
-          {
-            _id: 'mod-4',
-            title: 'Module 4: Deployment, CI/CD & Final Capstone Project',
-            duration: '180 mins',
-            lessons: [
-              { _id: 'les-13', title: '4.1 Containerizing Applications with Docker & Docker Compose', duration: 45, isPreview: false },
-              { _id: 'les-14', title: '4.2 Configuring Payment Gateways (Stripe & Razorpay Integration)', duration: 45, isPreview: false },
-              { _id: 'les-15', title: '4.3 Automated CI/CD Deployment to Cloud Services (AWS / Vercel)', duration: 50, isPreview: false },
-              { _id: 'les-16', title: '4.4 Final Capstone Code Review, Certification & Career Roadmap', duration: 40, isPreview: false },
-            ],
-          },
-        ],
+    modules,
   };
 };
 
