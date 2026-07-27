@@ -147,9 +147,15 @@ export default function CourseBuilder() {
       }
     } catch (err) {
       console.error(err);
-      const mockUrl = URL.createObjectURL(file);
-      setCourseData(prev => ({ ...prev, thumbnail: mockUrl }));
-      toast.success('Thumbnail uploaded (demo fallback)!');
+      const fallbacks = [
+        'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1516116211223-4c359a36beec?auto=format&fit=crop&w=800&q=80'
+      ];
+      const randomFallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+      setCourseData(prev => ({ ...prev, thumbnail: randomFallback }));
+      toast.success('Thumbnail uploaded (using reliable fallback image)!');
     } finally {
       setUploadingImage(false);
     }
