@@ -19,13 +19,15 @@ const protect = asyncHandler(async (req, res, next) => {
     let currentUser;
 
     if (decoded.role === 'admin' || decoded.role === 'super_admin') {
-      currentUser = await Admin.findById(decoded.id);
-      if (currentUser) {
+      const doc = await Admin.findById(decoded.id);
+      if (doc) {
+        currentUser = doc.toObject();
         currentUser.role = 'admin';
       }
     } else {
-      currentUser = await User.findById(decoded.id);
-      if (currentUser) {
+      const doc = await User.findById(decoded.id);
+      if (doc) {
+        currentUser = doc.toObject();
         currentUser.role = 'student';
       }
     }

@@ -3,6 +3,7 @@ CREATE DATABASE IF NOT EXISTS lms_production;
 USE lms_production;
 
 -- Drop tables in reverse dependency order to prevent constraint errors
+DROP TABLE IF EXISTS certificates;
 DROP TABLE IF EXISTS event_enrollments;
 DROP TABLE IF EXISTS course_enrollments;
 DROP TABLE IF EXISTS events;
@@ -90,6 +91,24 @@ CREATE TABLE event_enrollments (
     INDEX idx_event_enrollment_event (eventId)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 7. Seed Default Admin (email: tothayeswanth052@gmail.com, password: Yeshu@140306)
+-- 7. Certificates Table
+CREATE TABLE certificates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    certificateHash VARCHAR(255) NOT NULL UNIQUE,
+    student INT NOT NULL,
+    course INT NOT NULL,
+    issueDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    pdfUrl VARCHAR(255) DEFAULT '',
+    qrCodeUrl VARCHAR(255) DEFAULT '',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (student) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course) REFERENCES courses(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_student_course (student, course),
+    INDEX idx_certificate_student (student),
+    INDEX idx_certificate_course (course)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. Seed Default Admin (email: tothayeswanth052@gmail.com, password: Yeshu@140306)
 INSERT INTO admins (name, email, password) VALUES 
 ('Super Admin', 'tothayeswanth052@gmail.com', '$2a$12$DsBWqvrgqrSD.KDoNCktd.3KBgEFnjl83Ycs8YzkAhAGYRreC3RV2');

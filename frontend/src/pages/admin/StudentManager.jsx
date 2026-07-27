@@ -46,8 +46,8 @@ export default function StudentManager() {
         <p className="text-sm text-slate-500 mt-1">Audit student profiles, view registered courses, and manage verification states.</p>
       </div>
 
-      <div className="glass-panel rounded-3xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80">
-        <table className="w-full text-left border-collapse">
+      <div className="glass-panel rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-x-auto">
+        <table className="w-full min-w-[700px] text-left border-collapse">
           <thead>
             <tr className="bg-slate-100/70 dark:bg-slate-800/70 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
               <th className="px-6 py-4">Student</th>

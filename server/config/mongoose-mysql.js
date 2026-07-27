@@ -581,7 +581,9 @@ class Query {
         const selectClause = columns.length > 0 ? columns.map(c => `\`${c}\``).join(', ') : '*';
         
         const placeholders = idsToFetch.map(() => '?').join(', ');
-        const popSql = `SELECT id, ${selectClause === '*' ? '*' : selectClause} FROM \`${refModel.tableName}\` WHERE \`id\` IN (${placeholders})`;
+        const popSql = selectClause === '*'
+          ? `SELECT * FROM \`${refModel.tableName}\` WHERE \`id\` IN (${placeholders})`
+          : `SELECT \`id\`, ${selectClause} FROM \`${refModel.tableName}\` WHERE \`id\` IN (${placeholders})`;
         const [refRows] = await pool.query(popSql, idsToFetch);
 
         const refDocsMap = {};
