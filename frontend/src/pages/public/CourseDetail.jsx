@@ -408,10 +408,17 @@ export default function CourseDetail() {
               <div className="space-y-3.5 sm:space-y-4">
                 {course.modules.map((mod, idx) => {
                   const isOpen = openModuleIndex === idx;
+                  const hasAccess = isEnrolled || user?.role === 'admin' || user?.role === 'super_admin' || idx === 0;
                   return (
                     <div key={mod._id || idx} className="rounded-[20px] border border-slate-200/80 dark:border-slate-800/80 overflow-hidden bg-white dark:bg-slate-900/80 shadow-sm">
                       <button
-                        onClick={() => setOpenModuleIndex(isOpen ? null : idx)}
+                        onClick={() => {
+                          if (!hasAccess) {
+                            toast.error('Please enroll in the course to unlock this module.');
+                            return;
+                          }
+                          setOpenModuleIndex(isOpen ? null : idx);
+                        }}
                         className="w-full p-4 sm:p-5 text-left flex items-center justify-between bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/80 dark:hover:bg-slate-800 transition"
                       >
                         <div className="space-y-1 pr-2">
@@ -422,11 +429,20 @@ export default function CourseDetail() {
                             {mod.lessons?.length || 0} Lessons • {mod.duration || '45 mins'}
                           </p>
                         </div>
-                        {isOpen ? <ChevronUp className="w-5 h-5 text-amber-600 shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />}
+                        {!hasAccess ? (
+                          <div className="flex items-center gap-1.5 text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800/80 px-2.5 py-1.5 rounded-lg shrink-0 shadow-sm border border-slate-200/50 dark:border-slate-700/50">
+                            <span className="text-[10px] font-bold uppercase tracking-wider">Locked</span>
+                            <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                          </div>
+                        ) : (
+                          isOpen ? <ChevronUp className="w-5 h-5 text-amber-600 shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
+                        )}
                       </button>
 
                       <AnimatePresence>
-                        {isOpen && (
+                        {isOpen && hasAccess && (
                           <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
