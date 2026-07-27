@@ -21,6 +21,11 @@ export default function CourseBuilder() {
     level: 'all_levels',
     thumbnail: '',
     category: '', // initialized empty, loaded dynamically
+    rating: 4.8,
+    enrolledCount: 0,
+    totalDuration: 480,
+    language: 'English (Subtitles available)',
+    isCertificateIncluded: true,
   });
 
 
@@ -75,6 +80,11 @@ export default function CourseBuilder() {
           level: c.level || 'all_levels',
           thumbnail: c.thumbnail || '',
           category: c.category || '',
+          rating: c.rating !== undefined ? c.rating : 4.8,
+          enrolledCount: c.enrolledCount !== undefined ? c.enrolledCount : 0,
+          totalDuration: c.totalDuration !== undefined ? c.totalDuration : 480,
+          language: c.language || 'English (Subtitles available)',
+          isCertificateIncluded: c.isCertificateIncluded !== undefined ? Boolean(c.isCertificateIncluded) : true,
         });
         
         if (c.learningOutcomes && Array.isArray(c.learningOutcomes)) {
@@ -370,6 +380,59 @@ export default function CourseBuilder() {
                   />
                 </label>
               </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Rating (1-5)</label>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="5"
+                value={courseData.rating}
+                onChange={(e) => setCourseData({ ...courseData, rating: Number(e.target.value) })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Enrolled Count</label>
+              <input
+                type="number"
+                value={courseData.enrolledCount}
+                onChange={(e) => setCourseData({ ...courseData, enrolledCount: Number(e.target.value) })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Duration (mins)</label>
+              <input
+                type="number"
+                value={courseData.totalDuration}
+                onChange={(e) => setCourseData({ ...courseData, totalDuration: Number(e.target.value) })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Language</label>
+              <input
+                type="text"
+                value={courseData.language}
+                onChange={(e) => setCourseData({ ...courseData, language: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none text-slate-700 dark:text-slate-200"
+              />
+            </div>
+            <div className="flex flex-col justify-end pb-3">
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={courseData.isCertificateIncluded}
+                  onChange={(e) => setCourseData({ ...courseData, isCertificateIncluded: e.target.checked })}
+                  className="rounded text-primary-600 focus:ring-0"
+                />
+                Certificate Included
+              </label>
             </div>
           </div>
         </div>

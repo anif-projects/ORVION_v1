@@ -1,5 +1,5 @@
 -- Create Database if not exists
-CREATE DATABASE IF NOT EXISTS lms_production;
+
 USE lms_production;
 
 -- Drop tables in reverse dependency order to prevent constraint errors
@@ -41,11 +41,19 @@ CREATE TABLE admins (
 CREATE TABLE courses (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
+    subtitle TEXT,
     description TEXT NOT NULL,
     thumbnail VARCHAR(255) DEFAULT '',
     price DECIMAL(10, 2) DEFAULT 0.00,
     category VARCHAR(255) DEFAULT '',
     isFeatured BOOLEAN DEFAULT FALSE,
+    rating DECIMAL(3, 2) DEFAULT 4.80,
+    enrolledCount INT DEFAULT 0,
+    totalDuration INT DEFAULT 480,
+    language VARCHAR(255) DEFAULT 'English (Subtitles available)',
+    isCertificateIncluded BOOLEAN DEFAULT TRUE,
+    modules TEXT,
+    learningOutcomes TEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

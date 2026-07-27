@@ -27,28 +27,44 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
 });
 
 const createCourse = asyncHandler(async (req, res) => {
-  const { title, description, thumbnail, price, isFeatured, category } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes } = req.body;
   const course = await courseRepo.create({
     title,
+    subtitle: subtitle || '',
     description,
     thumbnail,
     price: Number(price) || 0,
     isFeatured: isFeatured === true || isFeatured === 'true',
     category: category || '',
+    rating: (rating !== undefined && rating !== '') ? Number(rating) : 4.80,
+    enrolledCount: (enrolledCount !== undefined && enrolledCount !== '') ? Number(enrolledCount) : 0,
+    totalDuration: (totalDuration !== undefined && totalDuration !== '') ? Number(totalDuration) : 480,
+    language: language || 'English (Subtitles available)',
+    isCertificateIncluded: isCertificateIncluded === true || isCertificateIncluded === 'true',
+    modules: modules || [],
+    learningOutcomes: learningOutcomes || [],
   });
 
   res.status(201).json({ status: 'success', data: { course } });
 });
 
 const updateCourse = asyncHandler(async (req, res) => {
-  const { title, description, thumbnail, price, isFeatured, category } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes } = req.body;
   const course = await courseRepo.update(req.params.id, {
     title,
+    subtitle: subtitle || '',
     description,
     thumbnail,
     price: Number(price) || 0,
     isFeatured: isFeatured === true || isFeatured === 'true',
     category: category || '',
+    rating: (rating !== undefined && rating !== '') ? Number(rating) : 4.80,
+    enrolledCount: (enrolledCount !== undefined && enrolledCount !== '') ? Number(enrolledCount) : 0,
+    totalDuration: (totalDuration !== undefined && totalDuration !== '') ? Number(totalDuration) : 480,
+    language: language || 'English (Subtitles available)',
+    isCertificateIncluded: isCertificateIncluded === true || isCertificateIncluded === 'true',
+    modules: modules || [],
+    learningOutcomes: learningOutcomes || [],
   });
 
   if (!course) throw new AppError('Course not found', 404);

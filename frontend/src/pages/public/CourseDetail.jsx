@@ -31,13 +31,13 @@ const normalizeCourseData = (rawCourse = {}) => {
     previewVideo: rawCourse.previewVideo || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     price: rawCourse.price !== undefined ? rawCourse.price : 99.99,
     discountPrice: rawCourse.discountPrice !== undefined ? rawCourse.discountPrice : 49.99,
-    rating: rawCourse.rating || 4.9,
-    enrolledCount: rawCourse.enrolledCount || 2480,
-    totalDuration: rawCourse.totalDuration || 480, // minutes
+    rating: rawCourse.rating !== undefined && rawCourse.rating !== null ? rawCourse.rating : 4.9,
+    enrolledCount: rawCourse.enrolledCount !== undefined && rawCourse.enrolledCount !== null ? rawCourse.enrolledCount : 2480,
+    totalDuration: rawCourse.totalDuration !== undefined && rawCourse.totalDuration !== null ? rawCourse.totalDuration : 480, // minutes
     totalLessons: rawCourse.totalLessons || 24,
     language: rawCourse.language || 'English (Subtitles available)',
     updatedAt: rawCourse.updatedAt ? new Date(rawCourse.updatedAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'July 2026',
-    certificate: true,
+    certificate: rawCourse.isCertificateIncluded !== undefined && rawCourse.isCertificateIncluded !== null ? Boolean(rawCourse.isCertificateIncluded) : true,
     level: rawCourse.level ? rawCourse.level.replace('_', ' ') : 'All Levels',
 
     // Section 2: About This Course
@@ -253,10 +253,12 @@ export default function CourseDetail() {
           <Check className="w-4 h-4 text-amber-600 shrink-0" />
           <span>Access on mobile, desktop, and tablet</span>
         </div>
-        <div className="flex items-center gap-2">
-          <Check className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>Official verifiable completion certificate</span>
-        </div>
+        {course.certificate && (
+          <div className="flex items-center gap-2">
+            <Check className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>Official verifiable completion certificate</span>
+          </div>
+        )}
       </div>
 
     </div>
@@ -338,10 +340,12 @@ export default function CourseDetail() {
                 <Calendar className="w-3.5 h-3.5" />
                 <span>Updated {course.updatedAt}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
-                <Award className="w-3.5 h-3.5" />
-                <span>Certificate Included</span>
-              </div>
+              {course.certificate && (
+                <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <Award className="w-3.5 h-3.5" />
+                  <span>Certificate Included</span>
+                </div>
+              )}
             </div>
 
             {/* 5. MOBILE & TABLET PURCHASE CARD (< 1024px: Appears directly after metadata specs, BEFORE About This Course) */}
