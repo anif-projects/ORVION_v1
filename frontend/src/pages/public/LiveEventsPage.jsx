@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Video, Clock, Users, ShieldAlert, Radio, DollarSign } from 'lucide-react';
+import { Calendar, Video, Clock, Users, ShieldAlert, Radio, DollarSign, Ticket, CalendarCheck, Loader2 } from 'lucide-react';
 import { pageVariants } from '../../utils/animations';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
+import PastEventsSection from '../../components/live-hub/PastEventsSection';
+import EventGallerySection from '../../components/live-hub/EventGallerySection';
 
 export default function LiveEventsPage() {
   const { user } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReservedSuccess, setIsReservedSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
     name: user?.name || '',
@@ -59,9 +63,13 @@ export default function LiveEventsPage() {
       return;
     }
 
+    setIsSubmitting(true);
+    setIsReservedSuccess(false);
+
     if (selectedEvent.isPaymentEnabled && selectedEvent.paymentAmount > 0) {
       const loaded = await loadRazorpayScript();
       if (!loaded) {
+        setIsSubmitting(false);
         toast.error('Failed to load Razorpay Payment Gateway. Check connection.');
         return;
       }
@@ -79,11 +87,22 @@ export default function LiveEventsPage() {
               isPaid: true,
               paymentId: response.razorpay_payment_id || `MOCK-PAY-${Date.now()}`,
             });
-            toast.success('Registration & Payment Successful!');
-            setSelectedEvent(null);
-            setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
+            setIsSubmitting(false);
+            setIsReservedSuccess(true);
+            toast.success('✅ Reserved Successfully!');
+            setTimeout(() => {
+              setSelectedEvent(null);
+              setIsReservedSuccess(false);
+              setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
+            }, 1200);
           } catch (err) {
+            setIsSubmitting(false);
             toast.error('Registration failed after payment. Contact support.');
+          }
+        },
+        modal: {
+          ondismiss: function() {
+            setIsSubmitting(false);
           }
         },
         prefill: {
@@ -106,10 +125,16 @@ export default function LiveEventsPage() {
           isPaid: false,
           paymentId: null,
         });
-        toast.success('Registration Successful!');
-        setSelectedEvent(null);
-        setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
+        setIsSubmitting(false);
+        setIsReservedSuccess(true);
+        toast.success('✅ Reserved Successfully!');
+        setTimeout(() => {
+          setSelectedEvent(null);
+          setIsReservedSuccess(false);
+          setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
+        }, 1200);
       } catch (err) {
+        setIsSubmitting(false);
         toast.error(err.response?.data?.message || 'Failed to register.');
       }
     }
@@ -121,21 +146,31 @@ export default function LiveEventsPage() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12"
+      className="w-full min-h-screen"
     >
-      {/* Page Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-secondary-500/30 text-xs font-semibold text-secondary-600 dark:text-secondary-400">
-          <Radio className="w-4 h-4 text-accent-danger animate-pulse" />
-          <span>Interactive Live Streams & Workshops</span>
+      {/* Top Container: Header & Upcoming Events */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-6 space-y-8">
+        {/* Page Header */}
+        <div className="text-center space-y-3 max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-panel border border-primary-500/30 text-xs font-semibold text-primary-600 dark:text-primary-400 uppercase tracking-[0.18em]"
+          >
+            <span className="w-2 h-2 rounded-full bg-primary-500 animate-pulse" />
+            <span>ORVION LIVE</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight"
+          >
+            Tech Events & <span className="gradient-text">Experiences</span>
+          </motion.h1>
         </div>
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Live Events & <span className="gradient-text">Webinars</span>
-        </h1>
-        <p className="text-base text-slate-600 dark:text-slate-300">
-          Join live code-alongs, Q&A sessions with senior engineers, and technology deep dives.
-        </p>
-      </div>
 
       {/* Events List */}
       {loading ? (
@@ -144,17 +179,23 @@ export default function LiveEventsPage() {
         <div className="text-center py-16 text-slate-500 font-semibold">No live events scheduled at the moment.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {events.map((event) => (
-            <div
+          {events.map((event, index) => (
+            <motion.div
               key={event._id}
-              className="glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-6 hover:shadow-xl transition-all flex flex-col justify-between"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.8, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -8, scale: 1.01 }}
+              className="group glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-6 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
             >
               <div className="space-y-4">
                 <div className="relative aspect-video rounded-2xl overflow-hidden bg-slate-900">
                   <img
                     src={event.thumbnail || 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80'}
                     alt={event.name}
-                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
                   <span className="absolute bottom-3 right-3 px-2.5 py-1 text-[11px] font-bold rounded-full text-white bg-primary-600/90 shadow-sm">
                     {event.isPaymentEnabled ? `₹${event.paymentAmount}` : 'FREE'}
@@ -171,22 +212,33 @@ export default function LiveEventsPage() {
                 </div>
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.25 }}
                 onClick={() => {
                   if (!user) {
-                    toast.error('Please log in to register for live events');
+                    toast.error('Please log in to reserve your place');
                     return;
                   }
                   setSelectedEvent(event);
                 }}
-                className="w-full py-3 rounded-full font-bold text-xs text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow hover:scale-[1.02] transition flex items-center justify-center gap-2"
+                className="group/btn w-full py-3 rounded-full font-bold text-xs text-white bg-gradient-to-r from-primary-600 via-orange-600 to-primary-700 shadow-glow hover:shadow-[0_10px_25px_rgba(249,115,22,0.4)] transition-all duration-250 flex items-center justify-center gap-2 cursor-pointer tracking-[0.2px] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900"
               >
-                <Video className="w-4 h-4" /> Enroll for Event
-              </button>
-            </div>
+                <Ticket className="w-4 h-4 text-white group-hover/btn:translate-x-1 transition-transform duration-200" />
+                <span>Reserve Your Place</span>
+              </motion.button>
+            </motion.div>
           ))}
         </div>
       )}
+      </div>
+
+      {/* SECTION 1 — PAST EVENTS */}
+      <PastEventsSection />
+
+      {/* SECTION 2 — EVENT GALLERY WITH LIGHTBOX */}
+      <EventGallerySection />
 
       {/* Registration Modal Form */}
       {selectedEvent && (
@@ -267,9 +319,21 @@ export default function LiveEventsPage() {
 
               <button
                 type="submit"
-                className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow hover:scale-[1.01] transition flex items-center justify-center gap-2 mt-4"
+                disabled={isSubmitting}
+                className="w-full py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 via-orange-600 to-primary-700 shadow-glow hover:shadow-[0_10px_25px_rgba(249,115,22,0.4)] hover:scale-[1.01] transition-all duration-200 flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:cursor-not-allowed tracking-[0.2px] focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                {selectedEvent.isPaymentEnabled ? `Pay ₹${selectedEvent.paymentAmount} & Submit` : 'Register For Event'}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Reserving...</span>
+                  </>
+                ) : isReservedSuccess ? (
+                  <span>✅ Reserved Successfully</span>
+                ) : selectedEvent.isPaymentEnabled ? (
+                  `Pay ₹${selectedEvent.paymentAmount} & Reserve`
+                ) : (
+                  'Reserve Your Place'
+                )}
               </button>
             </form>
           </div>

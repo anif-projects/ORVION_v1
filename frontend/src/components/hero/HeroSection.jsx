@@ -10,13 +10,20 @@ export default function HeroSection() {
 
   // Subtle Mouse Parallax tracking for background gradient ONLY (max 12px)
   useEffect(() => {
+    let ticking = false;
     const handleMouseMove = (e) => {
-      const { innerWidth, innerHeight } = window;
-      const x = (e.clientX - innerWidth / 2) / (innerWidth / 2);
-      const y = (e.clientY - innerHeight / 2) / (innerHeight / 2);
-      setMousePos({ x, y });
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const { innerWidth, innerHeight } = window;
+          const x = (e.clientX - innerWidth / 2) / (innerWidth / 2);
+          const y = (e.clientY - innerHeight / 2) / (innerHeight / 2);
+          setMousePos({ x, y });
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
@@ -46,8 +53,8 @@ export default function HeroSection() {
 
           </div>
 
-          {/* Right Column Logo Visual (Hidden on Mobile, Static Tree with Background Parallax) */}
-          <div className="hidden sm:flex lg:col-span-5 justify-center items-center relative w-full -mt-4 lg:-mt-8">
+          {/* Right Column Visual (Centered below text on Mobile, 40-45% width on Desktop, shifted upward 48px on Desktop) */}
+          <div className="flex lg:col-span-5 justify-center items-center relative w-full mt-6 lg:mt-0 lg:-translate-y-12">
             <HeroVisual mousePos={mousePos} />
           </div>
 

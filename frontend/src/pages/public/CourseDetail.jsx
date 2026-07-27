@@ -149,6 +149,7 @@ export default function CourseDetail() {
       setCourse(normalizeCourseData({ slug, title: slug ? slug.replace(/-/g, ' ').toUpperCase() : 'Full-Stack Masterclass' }));
     } finally {
       setLoading(false);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     }
   };
 
