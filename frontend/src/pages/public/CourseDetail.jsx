@@ -29,8 +29,10 @@ const normalizeCourseData = (rawCourse = {}) => {
     },
     thumbnail: rawCourse.thumbnail || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80',
     previewVideo: rawCourse.previewVideo || 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    price: rawCourse.price !== undefined ? rawCourse.price : 99.99,
-    discountPrice: rawCourse.discountPrice !== undefined ? rawCourse.discountPrice : 49.99,
+    price: rawCourse.price !== undefined && rawCourse.price !== null ? rawCourse.price : 99.99,
+    discountPrice: rawCourse.discountPrice !== undefined && rawCourse.discountPrice !== null 
+      ? rawCourse.discountPrice 
+      : (rawCourse.price !== undefined && rawCourse.price !== null ? rawCourse.price : 49.99),
     rating: rawCourse.rating !== undefined && rawCourse.rating !== null ? rawCourse.rating : 4.9,
     enrolledCount: rawCourse.enrolledCount !== undefined && rawCourse.enrolledCount !== null ? rawCourse.enrolledCount : 2480,
     totalDuration: rawCourse.totalDuration !== undefined && rawCourse.totalDuration !== null ? rawCourse.totalDuration : 480, // minutes
@@ -207,12 +209,12 @@ export default function CourseDetail() {
           <span className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] dark:text-white">
             ₹{course.discountPrice || course.price}
           </span>
-          {course.discountPrice > 0 && (
+          {course.discountPrice > 0 && course.price > course.discountPrice && (
             <span className="text-base text-slate-400 line-through font-medium">
               ₹{course.price}
             </span>
           )}
-          {course.discountPrice > 0 && (
+          {course.discountPrice > 0 && course.price > course.discountPrice && (
             <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-extrabold text-xs">
               SAVE {Math.round(((course.price - course.discountPrice) / course.price) * 100)}%
             </span>
