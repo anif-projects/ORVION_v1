@@ -8,8 +8,16 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorMiddleware');
+const path = require('path');
+const fs = require('fs');
 
 const app = express();
+
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
 
 // Connect Database
 connectDB();
@@ -19,6 +27,8 @@ app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+app.use('/uploads', express.static(uploadsDir));
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
