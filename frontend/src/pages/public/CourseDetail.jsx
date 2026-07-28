@@ -491,7 +491,7 @@ export default function CourseDetail() {
 
       {/* VIDEO PREVIEW MODAL */}
       {isPreviewOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="w-full max-w-4xl glass-card rounded-[24px] p-4 space-y-4 relative bg-slate-900 text-white border border-slate-800 shadow-2xl">
             <div className="flex items-center justify-between px-2">
               <h3 className="text-base font-bold text-white truncate">{course.title} - Video Preview</h3>
