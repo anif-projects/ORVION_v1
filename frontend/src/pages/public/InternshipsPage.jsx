@@ -109,41 +109,8 @@ export default function InternshipsPage() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12"
     >
-      {/* 1. Hero Header */}
-      <div className="text-center space-y-6 max-w-4xl mx-auto">
-        <span className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-bold text-amber-600 dark:text-amber-400">
-          Orvion Career Accelerator
-        </span>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
-          Accelerate Your Career with <br className="hidden sm:inline" />
-          <span className="gradient-text bg-gradient-to-r from-amber-600 to-amber-700">Industry-Grade Internships</span>
-        </h1>
-        <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto font-medium">
-          Bridge the gap between academic learning and industry engineering. Work on production-level projects under direct mentorship of senior engineers.
-        </p>
-      </div>
-
-      {/* 2. Program Benefits Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { title: 'Live Mentorship', desc: 'Interactive weekly sessions with senior industry developers.', icon: Briefcase, color: 'text-amber-600 bg-amber-500/10' },
-          { title: 'Real Projects', desc: 'Deploy production applications and build a stellar GitHub portfolio.', icon: BookOpen, color: 'text-blue-600 bg-blue-500/10' },
-          { title: 'Placement Aid', desc: 'Resume building workshops, LinkedIn audits, and partner referrals.', icon: Award, color: 'text-emerald-600 bg-emerald-500/10' },
-          { title: 'Completion Certificate', desc: 'Verifiable cryptographically signed certificate of experience.', icon: CheckCircle2, color: 'text-purple-600 bg-purple-500/10' },
-        ].map((benefit, i) => (
-          <div key={i} className="glass-panel p-6 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 space-y-3.5 shadow-sm">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${benefit.color}`}>
-              <benefit.icon className="w-5 h-5" />
-            </div>
-            <h3 className="font-extrabold text-slate-900 dark:text-white text-base">{benefit.title}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{benefit.desc}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* 3. Domains Grid */}
       <div className="space-y-8">
         <div className="text-center md:text-left space-y-2">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Available Domains</h2>
