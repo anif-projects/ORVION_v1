@@ -52,9 +52,9 @@ export default function Navbar() {
   };
 
   // Check if current route is inside Student or Admin portal
-  const isPortalRoute = location.pathname.startsWith('/student') || location.pathname.startsWith('/admin');
+  const isPortalRoute = location.pathname === '/student' || location.pathname.startsWith('/student/') || location.pathname === '/admin' || location.pathname.startsWith('/admin/');
   const isLoggedInOrPortal = Boolean(user) || isPortalRoute;
-  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || location.pathname.startsWith('/admin');
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || location.pathname === '/admin' || location.pathname.startsWith('/admin/');
 
   const publicNavLinks = [
     { name: 'About', path: '/about' },
