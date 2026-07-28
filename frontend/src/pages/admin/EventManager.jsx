@@ -53,6 +53,41 @@ export default function EventManager() {
     }
   };
 
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleEventImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const loadingToast = toast.loading('Uploading event image...');
+    try {
+      const base64Data = await fileToBase64(file);
+      const res = await api.post('/upload', { base64Data });
+      if (res.data.status === 'success' && res.data.data.url) {
+        setEventForm(prev => ({ ...prev, thumbnail: res.data.data.url }));
+        toast.success('Event image uploaded successfully!', { id: loadingToast });
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to upload image. Using fallback.', { id: loadingToast });
+      const eventFallbacks = [
+        'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80'
+      ];
+      const fallback = eventFallbacks[Math.floor(Math.random() * eventFallbacks.length)];
+      setEventForm(prev => ({ ...prev, thumbnail: fallback }));
+    }
+  };
+
   const handlePostEvent = async (e) => {
     e.preventDefault();
     if (!eventForm.name || !eventForm.description) {
@@ -267,14 +302,25 @@ export default function EventManager() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Thumbnail URL</label>
-                <input
-                  type="text"
-                  value={eventForm.thumbnail}
-                  onChange={(e) => setEventForm(prev => ({ ...prev, thumbnail: e.target.value }))}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                />
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Event Thumbnail</label>
+                <div className="flex gap-2.5 items-center">
+                  <input
+                    type="text"
+                    value={eventForm.thumbnail}
+                    onChange={(e) => setEventForm(prev => ({ ...prev, thumbnail: e.target.value }))}
+                    placeholder="Paste image URL or upload →"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  />
+                  <label className="px-4 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-200 transition shrink-0 select-none border border-slate-300/40 dark:border-slate-700/45">
+                    Upload
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleEventImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
 
               <div>

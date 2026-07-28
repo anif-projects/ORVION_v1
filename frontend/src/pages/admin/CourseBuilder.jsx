@@ -116,34 +116,28 @@ export default function CourseBuilder() {
     }
   };
 
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleThumbnailUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setUploadingImage(true);
     try {
-      const res = await api.get('/courses/upload-signature');
-      const { signature, timestamp, apiKey, cloudName, folder } = res.data.data;
-
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('api_key', apiKey);
-      formData.append('timestamp', timestamp);
-      formData.append('signature', signature);
-      formData.append('folder', folder);
-
-      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`;
-      const response = await fetch(cloudinaryUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      if (data.secure_url) {
-        setCourseData(prev => ({ ...prev, thumbnail: data.secure_url }));
+      const base64Data = await fileToBase64(file);
+      const res = await api.post('/upload', { base64Data });
+      if (res.data.status === 'success' && res.data.data.url) {
+        setCourseData(prev => ({ ...prev, thumbnail: res.data.data.url }));
         toast.success('Thumbnail uploaded successfully!');
       } else {
-        throw new Error(data.error?.message || 'Upload failed');
+        throw new Error('Upload failed');
       }
     } catch (err) {
       console.error(err);
