@@ -200,12 +200,12 @@ export default function InternshipsPage() {
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div
+             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.2 }}
-              className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[32px] p-6 sm:p-8 space-y-6 relative border border-slate-200 dark:border-slate-800 shadow-2xl overflow-y-auto max-h-[90vh]"
+              className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[32px] p-6 sm:p-8 pb-10 sm:pb-8 space-y-6 relative border border-slate-200 dark:border-slate-800 shadow-2xl overflow-y-auto max-h-[80vh] sm:max-h-[90vh]"
             >
               <button
                 onClick={() => setIsModalOpen(false)}
