@@ -120,3 +120,18 @@ CREATE TABLE certificates (
 -- 8. Seed Default Admin (email: tothayeswanth052@gmail.com, password: Yeshu@140306)
 INSERT INTO admins (name, email, password) VALUES 
 ('Super Admin', 'tothayeswanth052@gmail.com', '$2a$12$DsBWqvrgqrSD.KDoNCktd.3KBgEFnjl83Ycs8YzkAhAGYRreC3RV2');
+
+-- 9. Internship Applications Table
+CREATE TABLE IF NOT EXISTS internship_applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(50) NOT NULL,
+    college VARCHAR(255) NOT NULL,
+    domain VARCHAR(255) NOT NULL,
+    resumeLink VARCHAR(555),
+    statement TEXT,
+    status VARCHAR(50) DEFAULT 'applied',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

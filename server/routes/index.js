@@ -9,6 +9,7 @@ const learningRoutes = require('./learningRoutes');
 const certificateRoutes = require('./certificateRoutes');
 const eventRoutes = require('./eventRoutes');
 const discussionRoutes = require('./discussionRoutes');
+const internshipRoutes = require('./internshipRoutes');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,6 +21,7 @@ router.use('/learning', learningRoutes);
 router.use('/certificates', certificateRoutes);
 router.use('/events', eventRoutes);
 router.use('/discussions', discussionRoutes);
+router.use('/internships', internshipRoutes);
 
 router.post('/upload', (req, res) => {
   try {

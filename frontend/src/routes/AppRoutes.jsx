@@ -14,6 +14,7 @@ import LoginPage from '../pages/public/LoginPage';
 import AdminLoginPage from '../pages/public/AdminLoginPage';
 import SignupPage from '../pages/public/SignupPage';
 import VerifyCertificate from '../pages/public/VerifyCertificate';
+import InternshipsPage from '../pages/public/InternshipsPage';
 
 import StudentDashboard from '../pages/student/StudentDashboard';
 import MyCourses from '../pages/student/MyCourses';
@@ -42,6 +43,7 @@ export default function AppRoutes() {
         <Route path="/courses/:slug" element={<CourseDetail />} />
         <Route path="/live-events" element={<LiveEventsPage />} />
         <Route path="/live-hub" element={<LiveEventsPage />} />
+        <Route path="/internships" element={<InternshipsPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/admin_login" element={<AdminLoginPage />} />
