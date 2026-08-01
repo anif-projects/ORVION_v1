@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactPlayer from 'react-player';
-import { Play, CheckCircle, FileText, ChevronLeft, Award, BookOpen, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Play, Pause, RotateCcw, RotateCw, Maximize, Minimize, CheckCircle, FileText, ChevronLeft, Award, BookOpen, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { pageVariants } from '../../utils/animations';
@@ -22,12 +22,145 @@ export default function LearningPlayer() {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
   const [quizScore, setQuizScore] = useState(0);
 
-  // Reset quiz state on active lesson change
+  const playerRef = React.useRef(null);
+  const containerRef = React.useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  // Monitor fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  // Poll current time when playing
+  useEffect(() => {
+    let interval;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        if (playerRef.current && playerRef.current.getCurrentTime) {
+          setCurrentTime(playerRef.current.getCurrentTime());
+          setDuration(playerRef.current.getDuration() || 0);
+        }
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
+  // Reset states on active lesson change
   useEffect(() => {
     setSelectedAnswers({});
     setQuizSubmitted(false);
     setQuizScore(0);
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
   }, [activeLesson]);
+
+  // Load YouTube Iframe API once
+  useEffect(() => {
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+  }, []);
+
+  // Bind YouTube Player API to the iframe node
+  const iframeRef = React.useCallback((node) => {
+    if (node) {
+      const checkAndInit = () => {
+        if (window.YT && window.YT.Player) {
+          playerRef.current = new window.YT.Player(node, {
+            events: {
+              onReady: () => {
+                if (playerRef.current && playerRef.current.playVideo) {
+                  playerRef.current.playVideo();
+                }
+                if (playerRef.current && playerRef.current.getDuration) {
+                  setDuration(playerRef.current.getDuration() || 0);
+                }
+              },
+              onStateChange: (event) => {
+                const state = event.data;
+                if (state === 1) { // PLAYING
+                  setIsPlaying(true);
+                } else {
+                  setIsPlaying(false);
+                }
+                if (state === 0) { // ENDED
+                  handleMarkComplete();
+                }
+              }
+            }
+          });
+        } else {
+          setTimeout(checkAndInit, 100);
+        }
+      };
+      checkAndInit();
+    }
+  }, [streamUrl]);
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.error("Error attempting to enable fullscreen:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  const handleOverlayClick = () => {
+    if (playerRef.current) {
+      if (isPlaying) {
+        playerRef.current.pauseVideo();
+      } else {
+        playerRef.current.playVideo();
+      }
+    }
+  };
+
+  const formatTime = (seconds) => {
+    if (isNaN(seconds) || seconds === null) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Disable inspect elements and view-source hotkeys
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'F12') {
+        e.preventDefault();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'u') {
+        e.preventDefault();
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'c', 'j'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     fetchCourseAndStream();
@@ -37,12 +170,55 @@ export default function LearningPlayer() {
     try {
       const res = await api.get(`/courses/slug/${slug}`);
       const courseData = res.data.data.course;
+      
+      // Ensure all lessons have a stable _id (handles legacy course data)
+      if (courseData.modules && Array.isArray(courseData.modules)) {
+        courseData.modules.forEach(mod => {
+          if (mod.lessons && Array.isArray(mod.lessons)) {
+            mod.lessons.forEach((les, idx) => {
+              if (!les._id) {
+                les._id = `les-fallback-${mod.order || 1}-${idx}`;
+              }
+            });
+          }
+        });
+      }
+
       setCourse(courseData);
 
-      const firstLesson = courseData.modules?.[0]?.lessons?.[0];
-      if (firstLesson) {
-        setActiveLesson(firstLesson);
-        loadStreamUrl(firstLesson._id);
+      // Load completed lessons progress from backend
+      let completedIds = [];
+      try {
+        const progressRes = await api.get(`/learning/progress/${courseData._id}`);
+        completedIds = progressRes.data.data.completedLessonIds || [];
+        setCompletedLessonIds(completedIds);
+      } catch (progressErr) {
+        console.error('Failed to load progress from server:', progressErr);
+      }
+
+      // Find first uncompleted lesson to continue from
+      let nextActiveLesson = null;
+      if (courseData.modules && Array.isArray(courseData.modules)) {
+        for (const mod of courseData.modules) {
+          if (mod.lessons && Array.isArray(mod.lessons)) {
+            for (const les of mod.lessons) {
+              if (!completedIds.includes(les._id)) {
+                nextActiveLesson = les;
+                break;
+              }
+            }
+          }
+          if (nextActiveLesson) break;
+        }
+      }
+
+      if (!nextActiveLesson) {
+        nextActiveLesson = courseData.modules?.[0]?.lessons?.[0];
+      }
+
+      if (nextActiveLesson) {
+        setActiveLesson(nextActiveLesson);
+        loadStreamUrl(nextActiveLesson._id);
       }
     } catch (err) {
       console.error(err);
@@ -163,7 +339,7 @@ export default function LearningPlayer() {
         {/* Video & Content Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
           {/* React Player Container */}
-          <div className="aspect-video rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-lg border border-slate-200">
+          <div ref={containerRef} onContextMenu={(e) => e.preventDefault()} className="aspect-video rounded-2xl sm:rounded-3xl overflow-hidden bg-black shadow-lg border border-slate-200 max-w-4xl mx-auto w-full relative">
             {activeLesson?.type === 'quiz' ? (
               <div className="w-full h-full p-6 sm:p-8 bg-slate-50 overflow-y-auto flex flex-col justify-between">
                 <div className="space-y-6">
@@ -255,14 +431,142 @@ export default function LearningPlayer() {
                 </div>
               </div>
             ) : (
-              <ReactPlayer
-                url={streamUrl}
-                controls
-                width="100%"
-                height="100%"
-                playing
-                onEnded={handleMarkComplete}
-              />
+              streamUrl && (streamUrl.includes('youtube') || streamUrl.includes('youtube-nocookie')) ? (
+                <div className="w-full h-full overflow-hidden relative bg-black select-none" onContextMenu={(e) => e.preventDefault()}>
+                  <iframe
+                    ref={iframeRef}
+                    src={streamUrl}
+                    style={isMobile ? {
+                      position: 'absolute',
+                      width: '126%',
+                      height: '142%',
+                      top: '-16%',
+                      left: '-13%',
+                    } : {
+                      position: 'absolute',
+                      width: '112%',
+                      height: '124%',
+                      top: '-9%',
+                      left: '-6%',
+                    }}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                  {/* Transparent Click & Context Menu Shield Overlay */}
+                  <div 
+                    className="absolute inset-0 bg-transparent z-10 cursor-pointer pointer-events-auto"
+                    onClick={handleOverlayClick}
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+
+                  {/* Top Blocker Mask */}
+                  <div className="absolute top-0 left-0 w-full h-[22%] sm:h-[14%] bg-black z-15 pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+                  {/* Bottom Blocker Mask */}
+                  <div className="absolute bottom-0 left-0 w-full h-[24%] sm:h-[16%] bg-black z-15 pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+
+                  {/* Custom Controls overlay (only visible for YouTube embeds) */}
+                  <div className="absolute bottom-0 left-0 w-full z-20 bg-gradient-to-t from-black/90 via-black/75 to-transparent p-3 flex flex-col gap-2 pointer-events-auto text-left">
+                    {/* Slider Progress Bar */}
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="0"
+                        max={duration || 100}
+                        value={currentTime}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setCurrentTime(val);
+                          if (playerRef.current && playerRef.current.seekTo) {
+                            playerRef.current.seekTo(val, true);
+                          }
+                        }}
+                        className="w-full accent-amber-500 h-1 bg-slate-600 rounded-lg cursor-pointer appearance-none hover:h-1.5 transition-all"
+                      />
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="flex items-center justify-between text-white">
+                      <div className="flex items-center gap-4">
+                        {/* Play/Pause */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (playerRef.current) {
+                              if (isPlaying) {
+                                playerRef.current.pauseVideo();
+                              } else {
+                                playerRef.current.playVideo();
+                              }
+                            }
+                          }}
+                          className="p-1 rounded-full hover:bg-white/10 transition text-white w-7 h-7 flex items-center justify-center"
+                        >
+                          {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white ml-0.5" />}
+                        </button>
+
+                        {/* Seek Backward 10s */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTime = Math.max(0, currentTime - 10);
+                            setCurrentTime(newTime);
+                            if (playerRef.current && playerRef.current.seekTo) {
+                              playerRef.current.seekTo(newTime, true);
+                            }
+                          }}
+                          className="p-1 rounded-lg hover:bg-white/10 transition text-slate-300 hover:text-white flex items-center gap-0.5"
+                          title="Backward 10s"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span className="text-[9px] font-bold">10s</span>
+                        </button>
+
+                        {/* Seek Forward 10s */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newTime = Math.min(duration, currentTime + 10);
+                            setCurrentTime(newTime);
+                            if (playerRef.current && playerRef.current.seekTo) {
+                              playerRef.current.seekTo(newTime, true);
+                            }
+                          }}
+                          className="p-1 rounded-lg hover:bg-white/10 transition text-slate-300 hover:text-white flex items-center gap-0.5"
+                          title="Forward 10s"
+                        >
+                          <span className="text-[9px] font-bold">10s</span>
+                          <RotateCw className="w-3.5 h-3.5" />
+                        </button>
+
+                        {/* Time Display */}
+                        <div className="text-[10px] font-semibold text-slate-300 ml-1">
+                          {formatTime(currentTime)} / {formatTime(duration)}
+                        </div>
+                      </div>
+
+                      {/* Fullscreen Button */}
+                      <button
+                        type="button"
+                        onClick={toggleFullscreen}
+                        className="p-1 rounded-lg hover:bg-white/10 transition text-slate-300 hover:text-white"
+                        title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                      >
+                        {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <ReactPlayer
+                  url={streamUrl}
+                  controls
+                  width="100%"
+                  height="100%"
+                  playing
+                  onEnded={handleMarkComplete}
+                />
+              )
             )}
           </div>
 
@@ -272,9 +576,6 @@ export default function LearningPlayer() {
               <h2 className="text-base sm:text-xl font-extrabold text-slate-800 leading-snug">
                 {activeLesson?.title}
               </h2>
-              <p className="text-[11px] sm:text-xs text-slate-500">
-                Cloudinary Adaptive Streaming Token Activated
-              </p>
             </div>
 
             <button

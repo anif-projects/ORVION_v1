@@ -8,6 +8,11 @@
     "dev": "nodemon server.js",
     "seed": "node utils/seedData.js"
   },
+  "nodemonConfig": {
+    "ignore": [
+      "uploads/*"
+    ]
+  },
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cloudinary": "^1.41.0",
@@ -21,6 +26,7 @@
     "morgan": "^1.10.0",
     "mysql2": "^3.23.1",
     "nodemailer": "^6.9.13",
+    "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.3",
     "razorpay": "^2.9.3",
     "stripe": "^15.6.0"

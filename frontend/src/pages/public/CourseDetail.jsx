@@ -454,18 +454,20 @@ export default function CourseDetail() {
                             {mod.lessons?.map((les) => (
                               <div key={les._id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900 text-xs sm:text-sm gap-2">
                                 <div className="flex items-center gap-3 min-w-0">
-                                  <Play className="w-4 h-4 text-amber-600 shrink-0" />
+                                  {les.isPreview ? (
+                                    <button
+                                      onClick={() => setIsPreviewOpen(true)}
+                                      className="p-1 rounded-full hover:bg-amber-500/20 text-amber-600 hover:scale-110 transition shrink-0"
+                                      title="Play Preview"
+                                    >
+                                      <Play className="w-3.5 h-3.5 fill-amber-600" />
+                                    </button>
+                                  ) : (
+                                    <Play className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                  )}
                                   <span className="font-medium text-slate-700 dark:text-slate-200 truncate">{les.title}</span>
                                 </div>
                                 <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
-                                  {les.isPreview && (
-                                    <button 
-                                      onClick={(e) => { e.stopPropagation(); setIsPreviewOpen(true); }}
-                                      className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 transition"
-                                    >
-                                      Preview
-                                    </button>
-                                  )}
                                   <span className="text-[11px] sm:text-xs text-slate-400">{Math.round((les.duration || 300) / 60)}m</span>
                                 </div>
                               </div>

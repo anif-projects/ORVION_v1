@@ -186,21 +186,6 @@ export default function Navbar() {
 
         {/* Right Navigation Controls */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {/* Glass Moon/Sun Theme Toggle Button */}
-          <button
-            onClick={toggleTheme}
-            className="hidden md:flex p-2.5 rounded-full text-slate-700 dark:text-slate-200 transition-all duration-200 hover:scale-105"
-            style={{
-              background: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.18)',
-              backdropFilter: 'blur(18px)',
-              WebkitBackdropFilter: 'blur(18px)',
-              border: darkMode ? '1px solid rgba(255, 255, 255, 0.10)' : '1px solid rgba(255, 255, 255, 0.20)',
-            }}
-            title="Toggle theme"
-          >
-            {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-          </button>
-
           {/* Portal Controls (Hidden on mobile < md to prevent layout overflow) */}
           {isLoggedInOrPortal ? (
             <div className="hidden md:flex items-center gap-2">
@@ -495,22 +480,8 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Theme Toggle & Logout / Login Actions */}
-            <div className="flex items-center justify-between pt-1 gap-2">
-              <button
-                onClick={toggleTheme}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold text-slate-800 dark:text-slate-200"
-                style={{
-                  background: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.18)',
-                  backdropFilter: 'blur(18px)',
-                  WebkitBackdropFilter: 'blur(18px)',
-                  border: darkMode ? '1px solid rgba(255, 255, 255, 0.10)' : '1px solid rgba(255, 255, 255, 0.20)',
-                }}
-              >
-                {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
-                <span>{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
-              </button>
-
+            {/* Logout / Login Actions */}
+            <div className="flex items-center justify-end pt-1 gap-2">
               {isLoggedInOrPortal ? (
                 <button
                   onClick={() => {

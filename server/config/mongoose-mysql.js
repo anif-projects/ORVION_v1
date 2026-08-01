@@ -268,6 +268,7 @@ const getTableName = (modelName) => {
     Enrollment: 'course_enrollments',
     Event: 'events',
     EventEnrollment: 'event_enrollments',
+    LessonProgress: 'lesson_progress',
   };
   return mapping[modelName] || modelName.toLowerCase() + 's';
 };
