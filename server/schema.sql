@@ -4,6 +4,7 @@ USE lms_production;
 
 -- Drop tables in reverse dependency order to prevent constraint errors
 DROP TABLE IF EXISTS certificates;
+DROP TABLE IF EXISTS lesson_progress;
 DROP TABLE IF EXISTS event_enrollments;
 DROP TABLE IF EXISTS course_enrollments;
 DROP TABLE IF EXISTS events;
@@ -43,7 +44,7 @@ CREATE TABLE courses (
     title VARCHAR(255) NOT NULL,
     subtitle TEXT,
     description TEXT NOT NULL,
-    thumbnail VARCHAR(255) DEFAULT '',
+    thumbnail MEDIUMTEXT,
     price DECIMAL(10, 2) DEFAULT 0.00,
     category VARCHAR(255) DEFAULT '',
     isFeatured BOOLEAN DEFAULT FALSE,
@@ -54,6 +55,8 @@ CREATE TABLE courses (
     isCertificateIncluded BOOLEAN DEFAULT TRUE,
     modules TEXT,
     learningOutcomes TEXT,
+    certificateTemplate LONGTEXT,
+    certificateLayout TEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -76,7 +79,7 @@ CREATE TABLE events (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    thumbnail VARCHAR(255) DEFAULT '',
+    thumbnail MEDIUMTEXT,
     paymentAmount DECIMAL(10, 2) DEFAULT 0.00,
     isPaymentEnabled BOOLEAN DEFAULT FALSE,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -107,7 +110,7 @@ CREATE TABLE certificates (
     course INT NOT NULL,
     issueDate DATETIME DEFAULT CURRENT_TIMESTAMP,
     pdfUrl VARCHAR(255) DEFAULT '',
-    qrCodeUrl VARCHAR(255) DEFAULT '',
+    qrCodeUrl MEDIUMTEXT,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (student) REFERENCES students(id) ON DELETE CASCADE,
@@ -134,4 +137,22 @@ CREATE TABLE IF NOT EXISTS internship_applications (
     status VARCHAR(50) DEFAULT 'applied',
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. Lesson Progress Table
+CREATE TABLE IF NOT EXISTS lesson_progress (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student INT NOT NULL,
+    course INT NOT NULL,
+    lesson VARCHAR(255) NOT NULL,
+    isCompleted BOOLEAN DEFAULT FALSE,
+    watchPosition INT DEFAULT 0,
+    lastWatchedAt DATETIME DEFAULT NULL,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (student) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course) REFERENCES courses(id) ON DELETE CASCADE,
+    UNIQUE KEY uq_student_course_lesson (student, course, lesson),
+    INDEX idx_progress_student (student),
+    INDEX idx_progress_course (course)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

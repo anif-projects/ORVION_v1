@@ -73,7 +73,7 @@ export default function VerifyCertificate() {
                 <img src={cert.qrCodeUrl} alt="QR Verification" className="w-24 h-24 rounded-xl border border-slate-200" />
                 <div className="space-y-1">
                   <p className="text-xs text-slate-500">Scan QR code using any mobile camera to independently re-verify hash on Orvion LMS server.</p>
-                  <button onClick={() => window.print()} className="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-primary-700 transition">
+                  <button onClick={() => window.location.href = `/api/v1/certificates/download/${hash}`} className="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center gap-1.5 hover:bg-primary-700 transition">
                     <Download className="w-4 h-4" /> Download PDF Certificate
                   </button>
                 </div>

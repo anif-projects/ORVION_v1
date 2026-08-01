@@ -17,12 +17,38 @@ class EnrollmentRepository {
   }
 
   async getStudentEnrollments(studentId) {
+    const LessonProgress = require('../models/LessonProgress');
     const enrollments = await Enrollment.find({ studentId }).populate('courseId');
-    return enrollments.map(e => {
+    
+    const results = [];
+    for (const e of enrollments) {
       const obj = e.toObject();
       obj.course = obj.courseId; // Map courseId to course for frontend compatibility
-      return obj;
-    });
+      
+      let totalLessons = 0;
+      let completedCount = 0;
+
+      if (obj.course) {
+        if (obj.course.modules && Array.isArray(obj.course.modules)) {
+          obj.course.modules.forEach(mod => {
+            if (mod.lessons && Array.isArray(mod.lessons)) {
+              totalLessons += mod.lessons.length;
+            }
+          });
+        }
+        
+        completedCount = await LessonProgress.countDocuments({
+          student: studentId,
+          course: obj.course.id || obj.course._id,
+          isCompleted: true
+        });
+      }
+      
+      obj.progressPercentage = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+      results.push(obj);
+    }
+    
+    return results;
   }
 }
 

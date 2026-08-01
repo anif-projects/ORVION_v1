@@ -16,6 +16,8 @@ const courseSchema = new mongoose.Schema(
     isCertificateIncluded: { type: Boolean, default: true },
     modules: { type: mongoose.Schema.Types.Mixed, default: [] },
     learningOutcomes: { type: mongoose.Schema.Types.Mixed, default: [] },
+    certificateTemplate: { type: String, default: '' },
+    certificateLayout: { type: mongoose.Schema.Types.Mixed, default: null }
   },
   { timestamps: true }
 );

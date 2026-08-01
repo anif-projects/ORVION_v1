@@ -20,14 +20,49 @@ const getCourses = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', data: result });
 });
 
+const parseOptionalUser = async (req) => {
+  let token;
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+  if (!token) return null;
+  try {
+    const { verifyAccessToken } = require('../utils/jwtUtils');
+    const decoded = verifyAccessToken(token);
+    return decoded;
+  } catch (err) {
+    return null;
+  }
+};
+
 const getCourseBySlug = asyncHandler(async (req, res) => {
   const course = await courseRepo.findBySlug(req.params.slug);
   if (!course) throw new AppError('Course not found', 404);
+
+  const user = await parseOptionalUser(req);
+  const isAdmin = user && (user.role === 'admin' || user.role === 'super_admin' || user.role === 'instructor');
+
+  if (!isAdmin) {
+    const courseObj = course.toObject ? course.toObject() : course;
+    const modules = typeof courseObj.modules === 'string' ? JSON.parse(courseObj.modules) : courseObj.modules;
+    if (modules && Array.isArray(modules)) {
+      modules.forEach(mod => {
+        if (mod.lessons && Array.isArray(mod.lessons)) {
+          mod.lessons.forEach(les => {
+            delete les.videoUrl;
+          });
+        }
+      });
+      courseObj.modules = modules;
+    }
+    return res.status(200).json({ status: 'success', data: { course: courseObj } });
+  }
+
   res.status(200).json({ status: 'success', data: { course } });
 });
 
 const createCourse = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
   const course = await courseRepo.create({
     title,
     subtitle: subtitle || '',
@@ -43,13 +78,15 @@ const createCourse = asyncHandler(async (req, res) => {
     isCertificateIncluded: isCertificateIncluded === true || isCertificateIncluded === 'true',
     modules: modules || [],
     learningOutcomes: learningOutcomes || [],
+    certificateTemplate: certificateTemplate || '',
+    certificateLayout: certificateLayout || null,
   });
 
   res.status(201).json({ status: 'success', data: { course } });
 });
 
 const updateCourse = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
   const course = await courseRepo.update(req.params.id, {
     title,
     subtitle: subtitle || '',
@@ -65,6 +102,8 @@ const updateCourse = asyncHandler(async (req, res) => {
     isCertificateIncluded: isCertificateIncluded === true || isCertificateIncluded === 'true',
     modules: modules || [],
     learningOutcomes: learningOutcomes || [],
+    certificateTemplate: certificateTemplate !== undefined ? certificateTemplate : '',
+    certificateLayout: certificateLayout !== undefined ? certificateLayout : null,
   });
 
   if (!course) throw new AppError('Course not found', 404);

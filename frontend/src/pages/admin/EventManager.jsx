@@ -66,25 +66,14 @@ export default function EventManager() {
     const file = e.target.files[0];
     if (!file) return;
 
-    const loadingToast = toast.loading('Uploading event image...');
+    const loadingToast = toast.loading('Reading event image...');
     try {
       const base64Data = await fileToBase64(file);
-      const res = await api.post('/upload', { base64Data });
-      if (res.data.status === 'success' && res.data.data.url) {
-        setEventForm(prev => ({ ...prev, thumbnail: res.data.data.url }));
-        toast.success('Event image uploaded successfully!', { id: loadingToast });
-      } else {
-        throw new Error('Upload failed');
-      }
+      setEventForm(prev => ({ ...prev, thumbnail: base64Data }));
+      toast.success('Event image uploaded successfully!', { id: loadingToast });
     } catch (err) {
       console.error(err);
-      toast.error('Failed to upload image. Using fallback.', { id: loadingToast });
-      const eventFallbacks = [
-        'https://images.unsplash.com/photo-1515187029135-18ee286d815b?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80'
-      ];
-      const fallback = eventFallbacks[Math.floor(Math.random() * eventFallbacks.length)];
-      setEventForm(prev => ({ ...prev, thumbnail: fallback }));
+      toast.error('Failed to read event image.', { id: loadingToast });
     }
   };
 

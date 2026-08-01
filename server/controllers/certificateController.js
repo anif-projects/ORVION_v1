@@ -26,4 +26,19 @@ const getMyCertificates = asyncHandler(async (req, res) => {
   res.status(200).json({ status: 'success', data: { certificates } });
 });
 
-module.exports = { claimCertificate, verifyCertificate, getMyCertificates };
+const downloadCertificate = asyncHandler(async (req, res) => {
+  const { hash } = req.params;
+  const certificate = await Certificate.findOne({ certificateHash: hash })
+    .populate('student', 'name email')
+    .populate('course', 'title certificateTemplate certificateLayout');
+
+  if (!certificate) throw new AppError('Invalid certificate verification hash', 404);
+
+  const pdfBuffer = await certificateService.generatePdf(certificate);
+
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="Certificate-${hash}.pdf"`);
+  res.status(200).send(pdfBuffer);
+});
+
+module.exports = { claimCertificate, verifyCertificate, getMyCertificates, downloadCertificate };

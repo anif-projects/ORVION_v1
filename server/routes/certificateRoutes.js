@@ -6,5 +6,6 @@ const { protect } = require('../middlewares/authMiddleware');
 router.post('/claim', protect, certificateController.claimCertificate);
 router.get('/my-certificates', protect, certificateController.getMyCertificates);
 router.get('/verify/:hash', certificateController.verifyCertificate);
+router.get('/download/:hash', certificateController.downloadCertificate);
 
 module.exports = router;
