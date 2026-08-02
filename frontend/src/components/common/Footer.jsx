@@ -5,8 +5,15 @@ import Logo from './Logo';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-200/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur-md pt-12 sm:pt-16 pb-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <footer className="relative overflow-hidden border-t border-slate-200/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur-md pt-12 sm:pt-16 pb-8">
+      {/* Refined Background Typography Watermark (Shifted 40-60px downward, full word visibility, 1.5px blur, 5% opacity) */}
+      <div className="absolute inset-0 flex items-center justify-center translate-y-12 sm:translate-y-14 lg:translate-y-16 pointer-events-none select-none z-0 overflow-hidden px-4">
+        <span className="font-serif font-bold text-[90px] sm:text-[160px] md:text-[220px] lg:text-[270px] xl:text-[290px] tracking-[6px] sm:tracking-[10px] leading-none text-slate-900/[0.05] dark:text-white/[0.05] uppercase whitespace-nowrap blur-[1.5px]">
+          ORVION
+        </span>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Main Footer Responsive Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 text-center sm:text-left">

@@ -27,7 +27,6 @@ export default function InternshipsPage() {
       description: 'Master modern web architectures using React, Node.js, Express, and databases. Work on real-world collaborative sprints and production deployments.',
       requirements: ['Basic JavaScript', 'HTML & CSS knowledge', 'Familiarity with Git'],
       skills: ['React & Next.js', 'Node.js & REST APIs', 'MySQL / MongoDB', 'CI/CD Pipelines'],
-      icon: BookOpen,
       badge: 'Popular',
     },
     {
@@ -37,7 +36,6 @@ export default function InternshipsPage() {
       description: 'Build and deploy Machine Learning models, analyze complex datasets, and work on Generative AI integrations using Python and popular deep learning frameworks.',
       requirements: ['Python programming', 'Basic Linear Algebra', 'Analytical mindset'],
       skills: ['Python & Pandas', 'Supervised / Unsupervised ML', 'Generative AI & LLMs', 'Model Deployment'],
-      icon: Star,
       badge: 'Trending',
     },
     {
@@ -47,7 +45,6 @@ export default function InternshipsPage() {
       description: 'Bridge the gap between design and development. Design high-fidelity Figma mockups, user research maps, and convert designs into responsive React interfaces.',
       requirements: ['Interest in visual design', 'Basic CSS/JS', 'Attention to detail'],
       skills: ['Figma Mastery', 'User Research & Wireframes', 'TailwindCSS & React', 'Micro-interactions'],
-      icon: Briefcase,
       badge: 'Highly Creative',
     },
     {
@@ -57,7 +54,6 @@ export default function InternshipsPage() {
       description: 'Gain hands-on expertise in cloud infrastructure, containerization, automated pipelines, security auditing, and server administration.',
       requirements: ['Basic Linux commands', 'Understanding of web servers', 'Problem solving'],
       skills: ['Docker & Kubernetes', 'AWS / Google Cloud', 'CI/CD & Jenkins', 'Infrastructure as Code'],
-      icon: HelpCircle,
       badge: 'Enterprise Focus',
     },
   ];
@@ -109,91 +105,185 @@ export default function InternshipsPage() {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12"
+      className="relative min-h-screen py-12 px-4 sm:px-6 lg:px-8 space-y-12 overflow-hidden bg-[#FFFDF9]"
     >
-      <div className="space-y-8">
+      {/* PREMIUM MINIMAL ANIMATED BACKGROUND LAYER */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Ultra-Light Dotted Grid Texture (2% Opacity) */}
+        <div className="absolute inset-0 opacity-[0.02] bg-[radial-gradient(#F97316_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+
+        {/* 3 LARGE FLOATING GRADIENT BLOBS (4% Opacity, 160px Blur, 22s Float) */}
+        <motion.div
+          animate={{
+            x: [-15, 20, -15],
+            y: [-15, 15, -15]
+          }}
+          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-24 -left-24 w-[600px] h-[600px] rounded-full bg-[#F97316] opacity-[0.04] blur-[160px] pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            x: [20, -15, 20],
+            y: [15, -15, 15]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/2 -right-24 w-[550px] h-[550px] rounded-full bg-[#FFF6EB] opacity-[0.05] blur-[160px] pointer-events-none"
+        />
+        <motion.div
+          animate={{
+            x: [-10, 15, -10],
+            y: [15, -10, 15]
+          }}
+          transition={{ duration: 24, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -bottom-24 left-1/3 w-[580px] h-[580px] rounded-full bg-[#F5E7D6] opacity-[0.04] blur-[160px] pointer-events-none"
+        />
+
+        {/* THIN OUTLINE CIRCLES (4 Large Circles: 1px Stroke, Brand Orange, 4% Opacity, 45s Rotation) */}
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
+          className="absolute -top-20 right-10 w-[420px] h-[420px] rounded-full border border-[#F97316]/[0.04] pointer-events-none"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 45, repeat: Infinity, ease: 'linear' }}
+          className="absolute bottom-10 -left-20 w-[460px] h-[460px] rounded-full border border-[#F97316]/[0.04] pointer-events-none"
+        />
+
+        {/* TINY FLOATING PARTICLES (18 Dots, 2-3px, 6% Opacity, Float Upward) */}
+        {[...Array(18)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{
+              y: [-15, 15, -15],
+              opacity: [0.02, 0.06, 0.02]
+            }}
+            transition={{
+              duration: 12 + (i % 4) * 2,
+              repeat: Infinity,
+              ease: 'easeInOut',
+              delay: i * 0.5
+            }}
+            className="absolute rounded-full bg-[#F97316]/[0.06]"
+            style={{
+              width: `${(i % 2) + 2}px`,
+              height: `${(i % 2) + 2}px`,
+              left: `${(i * 5.5) % 94}%`,
+              top: `${(i * 7.1) % 88}%`
+            }}
+          />
+        ))}
+
+        {/* SOFT AMBIENT GLOW BEHIND CARDS (Scale breathing 100% -> 103%, 12s, 3% Opacity, Blur 120px) */}
+        <motion.div
+          animate={{ scale: [1, 1.03, 1], opacity: [0.02, 0.04, 0.02] }}
+          transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[700px] rounded-full bg-[#F97316] blur-[120px] pointer-events-none"
+        />
+      </div>
+
+      {/* CONTENT CONTAINER */}
+      <div className="max-w-7xl mx-auto space-y-10 relative z-10">
+        
+        {/* HEADER SECTION */}
         <div className="text-center md:text-left space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Available Domains</h2>
-          <p className="text-xs sm:text-sm text-slate-500">Select a specialization domain and apply to start your internship cohort.</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Available Domains
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500">
+            Select a specialization domain and apply to start your internship cohort.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {internshipDomains.map((domain) => {
-            const Icon = domain.icon;
-            return (
-              <div
-                key={domain.id}
-                className="glass-card p-6 sm:p-8 rounded-[28px] border border-slate-250 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm flex flex-col justify-between space-y-6 hover:shadow-md transition duration-200"
-              >
-                <div className="space-y-4">
-                  {/* Top line with Icon & Badge */}
-                  <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center shadow-sm">
-                      <Icon className="w-5.5 h-5.5" />
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-600/10 text-amber-600 border border-amber-600/20 uppercase tracking-wider">
-                        {domain.badge}
-                      </span>
-                    </div>
-                  </div>
+        {/* CARDS GRID (Compact 15-20% smaller cards, no top icons, h-48px button, hover elevation & glow) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {internshipDomains.map((domain, index) => (
+            <motion.div
+              key={domain.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: index * 0.08, ease: 'easeOut' }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="p-5 sm:p-6 rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-4 hover:border-[#F97316]/40 hover:shadow-[0_20px_50px_rgba(249,115,22,0.10)] transition-all duration-300 group cursor-pointer"
+            >
+              <div className="space-y-3.5">
+                
+                {/* Top Line with Title & Badge (NO ICON, Clean top alignment) */}
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug tracking-tight">
+                    {domain.title}
+                  </h3>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 uppercase tracking-wider shrink-0">
+                    {domain.badge}
+                  </span>
+                </div>
 
-                  {/* Header Details */}
+                {/* Duration & Mode Meta Info */}
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+                  <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
+                  <span>{domain.duration}</span>
+                  <span className="text-slate-300">•</span>
+                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Remote Mode</span>
+                </div>
+
+                {/* Description (15px equivalent, compact & readable) */}
+                <p className="text-[13px] sm:text-[14px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                  {domain.description}
+                </p>
+
+                {/* Key Skills & Eligibility Section */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  
+                  {/* Key Skills */}
                   <div className="space-y-1.5">
-                    <h3 className="text-xl font-black text-slate-900 dark:text-white leading-snug">{domain.title}</h3>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-                      <Calendar className="w-3.5 h-3.5 text-amber-600" />
-                      <span>{domain.duration}</span>
-                      <span className="text-slate-300">•</span>
-                      <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                      <span>Remote Mode</span>
-                    </div>
+                    <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.08em]">
+                      Key Skills
+                    </h4>
+                    <ul className="space-y-1">
+                      {domain.skills.map((skill, idx) => (
+                        <li key={idx} className="flex items-center gap-1.5 text-xs sm:text-[13px] text-slate-700 dark:text-slate-300 font-semibold">
+                          <span className="w-1 h-1 rounded-full bg-[#F97316] shrink-0" />
+                          <span>{skill}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                    {domain.description}
-                  </p>
-
-                  {/* Curriculum / Skills bullet points */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div className="space-y-2">
-                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Key Skills</h4>
-                      <ul className="space-y-1">
-                        {domain.skills.map((skill, index) => (
-                          <li key={index} className="flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 font-bold">
-                            <span className="w-1 h-1 rounded-full bg-amber-600 shrink-0" />
-                            <span>{skill}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider">Eligibility</h4>
-                      <ul className="space-y-1">
-                        {domain.requirements.map((req, index) => (
-                          <li key={index} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-medium">
-                            <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
-                            <span>{req}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                  {/* Eligibility */}
+                  <div className="space-y-1.5">
+                    <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.08em]">
+                      Eligibility
+                    </h4>
+                    <ul className="space-y-1">
+                      {domain.requirements.map((req, idx) => (
+                        <li key={idx} className="flex items-center gap-1.5 text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
+
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <button
-                    onClick={() => handleOpenApplyModal(domain.title)}
-                    className="w-full h-11 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-sm"
-                  >
-                    <span>Apply for Cohort</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
-            );
-          })}
+
+              {/* Action Button (Height 48px, rounded 14px, lift 2px, soft shadow, orange glow) */}
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  onClick={() => handleOpenApplyModal(domain.title)}
+                  className="w-full h-[48px] rounded-[14px] bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all duration-300 shadow-[0_4px_14px_rgba(249,115,22,0.25)] hover:shadow-[0_10px_25px_-5px_rgba(249,115,22,0.35)] hover:-translate-y-0.5 cursor-pointer"
+                >
+                  <span>Apply for Cohort</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </motion.div>
+          ))}
         </div>
+
       </div>
 
       {/* 4. Application Modal */}
