@@ -31,6 +31,8 @@ import EventManager from '../pages/admin/EventManager';
 import StudentManager from '../pages/admin/StudentManager';
 import AuditLogsView from '../pages/admin/AuditLogsView';
 import PlatformSettings from '../pages/admin/PlatformSettings';
+import InternshipManager from '../pages/admin/InternshipManager';
+import InquiryManager from '../pages/admin/InquiryManager';
 
 export default function AppRoutes() {
   return (
@@ -74,6 +76,8 @@ export default function AppRoutes() {
         <Route path="students" element={<StudentManager />} />
         <Route path="audit-logs" element={<AuditLogsView />} />
         <Route path="settings" element={<PlatformSettings />} />
+        <Route path="internships" element={<InternshipManager />} />
+        <Route path="inquiries" element={<InquiryManager />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Linkedin, Youtube } from 'lucide-react';
+import { Mail, MapPin, Linkedin, Youtube, Instagram } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Footer() {
@@ -42,6 +42,15 @@ export default function Footer() {
               >
                 <Youtube className="w-4 h-4" />
               </a>
+              <a
+                href="https://www.instagram.com/orvionlearn"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="p-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 hover:bg-[#E1306C] hover:text-white dark:hover:bg-[#E1306C] transition-all hover:scale-110"
+              >
+                <Instagram className="w-4 h-4" />
+              </a>
             </div>
           </div>
 
@@ -74,29 +83,29 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 2: Popular Programs */}
+          {/* Column 2: Offline Courses */}
           <div className="space-y-4">
             <h4 className="font-extrabold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
-              Popular Programs
+              Offline Courses
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
               <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <Link to="/courses?type=offline" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   Cloud & DevOps
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <Link to="/courses?type=offline" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   AI & Machine Learning
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <Link to="/courses?type=offline" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   Cybersecurity
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <Link to="/courses?type=offline" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                   UI/UX Design
                 </Link>
               </li>

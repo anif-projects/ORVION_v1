@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Search } from 'lucide-react';
 
-export default function CoursesHero({ search = '', setSearch = () => {} }) {
+export default function CoursesHero({ search = '', setSearch = () => {}, title = null, subtitle = null }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -91,21 +91,32 @@ export default function CoursesHero({ search = '', setSearch = () => {} }) {
           className="text-[32px] sm:text-[40px] lg:text-[48px] font-bold text-[#0F172A] dark:text-white leading-[1.1] tracking-[-0.03em]"
           style={{ willChange: 'transform, opacity' }}
         >
-          Build Skills That{' '}
-          <motion.span
-            initial={{ backgroundPosition: '200% 0%' }}
-            animate={{ backgroundPosition: '0% 0%' }}
-            transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
-            className="bg-clip-text text-transparent inline-block"
-            style={{
-              backgroundImage: 'linear-gradient(90deg, #9A5200 0%, #C87817 50%, #E9B45C 100%, #9A5200 150%)',
-              backgroundSize: '200% 100%',
-              willChange: 'background-position',
-            }}
-          >
-            Shape Your Future
-          </motion.span>
+          {title ? (
+            <span>{title}</span>
+          ) : (
+            <>
+              Build Skills That{' '}
+              <motion.span
+                initial={{ backgroundPosition: '200% 0%' }}
+                animate={{ backgroundPosition: '0% 0%' }}
+                transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
+                className="bg-clip-text text-transparent inline-block"
+                style={{
+                  backgroundImage: 'linear-gradient(90deg, #9A5200 0%, #C87817 50%, #E9B45C 100%, #9A5200 150%)',
+                  backgroundSize: '200% 100%',
+                  willChange: 'background-position',
+                }}
+              >
+                Shape Your Future
+              </motion.span>
+            </>
+          )}
         </motion.h1>
+        {subtitle && (
+          <p className="mt-3 text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 max-w-xl">
+            {subtitle}
+          </p>
+        )}
 
         {/* ONE Modern Centered Search Bar */}
         <motion.div

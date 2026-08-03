@@ -125,11 +125,7 @@ export default function PastEventsSection() {
                     {event.title}
                   </h3>
                   
-                  {/* Speaker */}
-                  <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-400 font-semibold">
-                    <User className="w-3.5 h-3.5 shrink-0" />
-                    <span>{event.speaker}</span>
-                  </div>
+
 
                   {/* Meta Grid: Date, Duration, Attendees */}
                   <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
@@ -247,7 +243,6 @@ export default function PastEventsSection() {
                 {/* Event Summary & Info */}
                 <div className="space-y-4">
                   <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-                    <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-amber-600" /> {activeModalEvent.speaker} ({activeModalEvent.designation})</span>
                     <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-amber-600" /> {activeModalEvent.date}</span>
                     <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-amber-600" /> {activeModalEvent.duration}</span>
                     <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-amber-600" /> {activeModalEvent.attendees} Attendees</span>

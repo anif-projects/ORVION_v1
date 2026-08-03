@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
@@ -21,6 +21,177 @@ import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import { pageVariants } from '../../utils/animations';
 
+// Study Time Tracker component with SVG Doughnut (Pie) Chart showing daily spent time
+function StudyTimeTracker({ studyStats, setStudyStats }) {
+  const [seconds, setSeconds] = useState(0);
+  const [hoveredSegment, setHoveredSegment] = useState(null);
+  const secondsRef = useRef(0);
+  const lastLoggedRef = useRef(0);
+
+  // Sync session seconds to DB periodically (every 10 seconds)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      secondsRef.current += 1;
+      setSeconds(secondsRef.current);
+
+      const delta = secondsRef.current - lastLoggedRef.current;
+      if (delta >= 10) {
+        lastLoggedRef.current = secondsRef.current;
+        api.post('/auth/study-time', { seconds: delta })
+          .then(res => {
+            if (res.data.status === 'success') {
+              setStudyStats(res.data.data);
+            }
+          })
+          .catch(err => console.error('Failed to sync study time:', err));
+      }
+    }, 1000);
+
+    return () => {
+      clearInterval(timer);
+      const finalDelta = secondsRef.current - lastLoggedRef.current;
+      if (finalDelta > 0) {
+        api.post('/auth/study-time', { seconds: finalDelta })
+          .then(res => {
+            if (res.data.status === 'success') {
+              setStudyStats(res.data.data);
+            }
+          })
+          .catch(e => console.error(e));
+      }
+    };
+  }, [setStudyStats]);
+
+  const formatSessionTime = (totalSeconds) => {
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const monTime = studyStats.study_mon || 0;
+  const tueTime = studyStats.study_tue || 0;
+  const wedTime = studyStats.study_wed || 0;
+  const thuTime = studyStats.study_thu || 0;
+  const friTime = studyStats.study_fri || 0;
+  const satTime = studyStats.study_sat || 0;
+  const sunTime = studyStats.study_sun || 0;
+
+  const totalMinutes = monTime + tueTime + wedTime + thuTime + friTime + satTime + sunTime;
+
+  // Monday to Sunday ordered list with dayIndex (0 = Sunday, 1 = Monday, etc.)
+  const orderedDays = [
+    { name: 'Monday', key: 'mon', color: '#b45309', val: monTime, dayIndex: 1 },
+    { name: 'Tuesday', key: 'tue', color: '#d97706', val: tueTime, dayIndex: 2 },
+    { name: 'Wednesday', key: 'wed', color: '#10b981', val: wedTime, dayIndex: 3 },
+    { name: 'Thursday', key: 'thu', color: '#3b82f6', val: thuTime, dayIndex: 4 },
+    { name: 'Friday', key: 'fri', color: '#8b5cf6', val: friTime, dayIndex: 5 },
+    { name: 'Saturday', key: 'sat', color: '#6366f1', val: satTime, dayIndex: 6 },
+    { name: 'Sunday', key: 'sun', color: '#ec4899', val: sunTime, dayIndex: 0 },
+  ];
+
+  const currentDayIndex = new Date().getDay();
+  const circ = 251.327;
+  let accumulatedPercent = 0;
+
+  const daysWithLayout = orderedDays.map(day => {
+    const percent = totalMinutes > 0 ? (day.val / totalMinutes) * 100 : 0;
+    const dash = `${(percent / 100) * circ} ${circ}`;
+    const offset = -((accumulatedPercent / 100) * circ);
+    accumulatedPercent += percent;
+    return {
+      ...day,
+      percent,
+      dash,
+      offset,
+    };
+  });
+
+  return (
+    <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-5">
+      <div className="flex items-center justify-between">
+        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white uppercase tracking-wider">
+          Study Time Tracker
+        </h4>
+        <div className="flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full text-emerald-600 dark:text-emerald-400">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span className="text-[10px] font-extrabold uppercase tracking-widest">Live</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-5">
+        {/* SVG Doughnut Chart Wrapper */}
+        <div className="flex items-center justify-center">
+          <div className="relative w-28 h-28 shrink-0">
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              {totalMinutes === 0 && (
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="transparent"
+                  stroke="#e2e8f0"
+                  strokeWidth="10"
+                />
+              )}
+              {daysWithLayout.map((day) => (
+                <circle
+                  key={day.key}
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="transparent"
+                  stroke={day.color}
+                  strokeWidth="10"
+                  strokeDasharray={day.dash}
+                  strokeDashoffset={day.offset}
+                  className="cursor-pointer transition-all duration-300 hover:stroke-[12]"
+                  onMouseEnter={() => setHoveredSegment(day.key)}
+                  onMouseLeave={() => setHoveredSegment(null)}
+                />
+              ))}
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
+              <span className="text-[10px] font-extrabold uppercase text-slate-400">Total</span>
+              <span className="text-sm font-black text-slate-900 dark:text-white">{Math.round(totalMinutes)}m</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Legend */}
+        <div className="space-y-2 text-xs font-bold">
+          {daysWithLayout.map((day) => {
+            const isToday = currentDayIndex === day.dayIndex;
+            return (
+              <div 
+                key={day.key}
+                className={`flex items-center justify-between p-2 rounded-xl transition-all ${
+                  hoveredSegment === day.key 
+                    ? 'bg-slate-100 dark:bg-slate-800 shadow-sm scale-[1.01]' 
+                    : 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/40'
+                }`}
+                style={{ color: hoveredSegment === day.key ? day.color : undefined }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: day.color }}></span>
+                  <span>{day.name}{isToday ? ' (Today)' : ''}</span>
+                </div>
+                <span>{Math.round(day.val)}m ({Math.round(day.percent)}%)</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="pt-3.5 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between text-xs font-bold text-slate-500">
+        <span>Session Duration</span>
+        <span className="font-mono text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+          {formatSessionTime(seconds)}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function StudentDashboard() {
   const { user, setUser } = useAuth();
   const [enrollments, setEnrollments] = useState([]);
@@ -28,6 +199,17 @@ export default function StudentDashboard() {
   const [eventsCount, setEventsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  
+  // Study stats from user database record
+  const [studyStats, setStudyStats] = useState({
+    study_mon: 0,
+    study_tue: 0,
+    study_wed: 0,
+    study_thu: 0,
+    study_fri: 0,
+    study_sat: 0,
+    study_sun: 0,
+  });
   
   // Dashboard quick profile editing state
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -52,27 +234,22 @@ export default function StudentDashboard() {
       setEventsCount(eventsRes.data.data.events?.length || 0);
       setEditName(profileRes.data.data.name || user?.name || '');
       setEditPhone(profileRes.data.data.phone || '');
+      if (profileRes.data.data) {
+        const d = profileRes.data.data;
+        setStudyStats({
+          study_mon: d.study_mon || 0,
+          study_tue: d.study_tue || 0,
+          study_wed: d.study_wed || 0,
+          study_thu: d.study_thu || 0,
+          study_fri: d.study_fri || 0,
+          study_sat: d.study_sat || 0,
+          study_sun: d.study_sun || 0,
+        });
+      }
     } catch (err) {
       console.error(err);
-      // Fallback state
-      setEnrollments([
-        {
-          _id: 'e1',
-          progressPercentage: 65,
-          course: {
-            _id: '1',
-            title: 'Full-Stack React & Node.js Masterclass',
-            subtitle: 'Build scalable modern web applications with clean architecture',
-            description: 'Master frontend and backend web development using React, Node.js, Express, MySQL, and Redux Toolkit with responsive animations.',
-            thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-            totalLessons: 8,
-            totalDuration: 420,
-            level: 'all_levels',
-            slug: 'fullstack-react-nodejs-masterclass',
-            learningOutcomes: ['Build enterprise React apps', 'Design RESTful Express APIs', 'Implement JWT & Security']
-          },
-        },
-      ]);
+      toast.error('Failed to load dashboard info from database.');
+      setEnrollments([]);
       setCertsCount(0);
       setEventsCount(0);
     } finally {
@@ -110,16 +287,7 @@ export default function StudentDashboard() {
               Welcome back, <span className="text-amber-600 dark:text-amber-400">{user?.name || 'Student'}</span>! 👋
             </h1>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsEditingProfile(true)}
-              className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 text-xs font-bold flex items-center gap-2 shadow-sm transition-all hover:scale-[1.02]"
-            >
-              <Settings className="w-4 h-4" />
-              <span>Account Settings</span>
-            </button>
-          </div>
+          {/* Welcome Text */}
         </div>
       </div>
 
@@ -255,51 +423,10 @@ export default function StudentDashboard() {
 
         </div>
 
-        {/* Right Column: Profile Summary & Inspiration */}
+        {/* Right Column: Time Tracker Widget */}
         <div className="space-y-8">
-          
-          {/* Profile Summary Card */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm space-y-6">
-            <div className="text-center space-y-2">
-              <div className="w-16 h-16 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto text-xl font-black">
-                {user?.name ? user.name[0].toUpperCase() : 'S'}
-              </div>
-              <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">{user?.name || 'Student Name'}</h3>
-              <span className="px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                Active Student
-              </span>
-            </div>
-
-            <div className="border-t border-slate-100 dark:border-slate-800/60 pt-4 space-y-3">
-              <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
-                <Mail className="w-4 h-4 text-slate-400 shrink-0" />
-                <span className="truncate">{user?.email}</span>
-              </div>
-              <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
-                <Phone className="w-4 h-4 text-slate-400 shrink-0" />
-                <span>{editPhone || 'No phone set'}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setIsEditingProfile(true)}
-              className="w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-amber-500 hover:text-amber-600 dark:hover:border-amber-500 dark:hover:text-amber-400 text-slate-700 dark:text-slate-350 text-xs font-bold transition-all"
-            >
-              Update Account Details
-            </button>
-          </div>
-
-          {/* Inspirational / Tip Widget */}
-          <div className="bg-gradient-to-tr from-amber-600 to-amber-700 rounded-2xl p-6 text-white space-y-3 shadow-md relative overflow-hidden">
-            <div className="absolute right-0 bottom-0 opacity-10 translate-x-4 translate-y-4">
-              <GraduationCap className="w-32 h-32" />
-            </div>
-            <h4 className="font-extrabold text-sm uppercase tracking-wider opacity-90">Daily Motivation</h4>
-            <p className="text-sm font-semibold leading-relaxed">
-              "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice."
-            </p>
-            <div className="text-[10px] opacity-75 font-medium">— Brian Herbert</div>
-          </div>
+          {/* Real-time Time Tracker Widget */}
+          <StudyTimeTracker studyStats={studyStats} setStudyStats={setStudyStats} />
 
         </div>
 

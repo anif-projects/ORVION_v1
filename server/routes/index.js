@@ -10,6 +10,8 @@ const certificateRoutes = require('./certificateRoutes');
 const eventRoutes = require('./eventRoutes');
 const discussionRoutes = require('./discussionRoutes');
 const internshipRoutes = require('./internshipRoutes');
+const contactRoutes = require('./contactRoutes');
+const galleryRoutes = require('./galleryRoutes');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,6 +24,8 @@ router.use('/certificates', certificateRoutes);
 router.use('/events', eventRoutes);
 router.use('/discussions', discussionRoutes);
 router.use('/internships', internshipRoutes);
+router.use('/contacts', contactRoutes);
+router.use('/gallery', galleryRoutes);
 
 router.post('/upload', (req, res) => {
   try {

@@ -7,6 +7,7 @@ const internshipApplicationSchema = new mongoose.Schema(
     phone: { type: String, required: true },
     college: { type: String, required: true },
     domain: { type: String, required: true },
+    internshipId: { type: Number, default: null },
     resumeLink: { type: String, default: '' },
     statement: { type: String, default: '' },
     status: { type: String, default: 'applied' },

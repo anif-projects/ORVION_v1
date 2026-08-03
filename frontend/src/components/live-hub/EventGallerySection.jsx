@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import api from '../../services/api';
 
 // Pure high-resolution real tech conference & workshop photos
 const galleryDatasets = [
@@ -36,55 +37,87 @@ const galleryDatasets = [
   },
 ];
 
-// Flat list for Lightbox viewing
-const allPhotos = galleryDatasets.flatMap(g => [g.hero, ...g.items]);
-
 export default function EventGallerySection() {
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [lightboxPhoto, setLightboxPhoto] = useState(null);
 
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      try {
+        const res = await api.get('/gallery');
+        setPhotos(res.data.data.images || []);
+      } catch (err) {
+        console.error('Failed to load gallery:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPhotos();
+  }, []);
+
+  // Map database photos or fallback to static ones
+  const activeGallery = photos.length > 0 ? (() => {
+    const list = [];
+    for (let i = 0; i < photos.length; i += 4) {
+      const chunk = photos.slice(i, i + 4);
+      list.push({
+        id: `db-gallery-${i}`,
+        hero: chunk[0].url,
+        items: chunk.slice(1).map(c => c.url)
+      });
+    }
+    return list;
+  })() : galleryDatasets;
+
+  const allPhotosList = activeGallery.flatMap(g => [g.hero, ...g.items]);
+
   // Auto-rotate image dataset every 5 seconds (5000ms), paused on desktop hover & lightbox
   useEffect(() => {
-    if (isHovered || lightboxPhoto !== null) return;
+    if (isHovered || lightboxPhoto !== null || activeGallery.length === 0) return;
 
     const interval = setInterval(() => {
-      setGalleryIndex((prev) => (prev + 1) % galleryDatasets.length);
+      setGalleryIndex((prev) => (prev + 1) % activeGallery.length);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isHovered, lightboxPhoto]);
+  }, [isHovered, lightboxPhoto, activeGallery]);
 
   // Background preload next gallery photos
   useEffect(() => {
-    const nextIndex = (galleryIndex + 1) % galleryDatasets.length;
-    const nextGallery = galleryDatasets[nextIndex];
-    [nextGallery.hero, ...nextGallery.items].forEach((src) => {
-      const img = new Image();
-      img.src = src;
-    });
-  }, [galleryIndex]);
+    if (activeGallery.length === 0) return;
+    const nextIndex = (galleryIndex + 1) % activeGallery.length;
+    const nextGallery = activeGallery[nextIndex];
+    if (nextGallery) {
+      [nextGallery.hero, ...nextGallery.items].forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
+  }, [galleryIndex, activeGallery]);
 
   // Keyboard controls for Lightbox (ESC, Left, Right)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (lightboxPhoto === null) return;
-      const currentIdx = allPhotos.indexOf(lightboxPhoto);
+      const currentIdx = allPhotosList.indexOf(lightboxPhoto);
       if (e.key === 'Escape') setLightboxPhoto(null);
       if (e.key === 'ArrowLeft') {
-        const prevIdx = currentIdx === 0 ? allPhotos.length - 1 : currentIdx - 1;
-        setLightboxPhoto(allPhotos[prevIdx]);
+        const prevIdx = currentIdx === 0 ? allPhotosList.length - 1 : currentIdx - 1;
+        setLightboxPhoto(allPhotosList[prevIdx]);
       }
       if (e.key === 'ArrowRight') {
-        const nextIdx = (currentIdx + 1) % allPhotos.length;
-        setLightboxPhoto(allPhotos[nextIdx]);
+        const nextIdx = (currentIdx + 1) % allPhotosList.length;
+        setLightboxPhoto(allPhotosList[nextIdx]);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxPhoto]);
+  }, [lightboxPhoto, allPhotosList]);
 
-  const currentGallery = galleryDatasets[galleryIndex];
+  const currentGallery = activeGallery[galleryIndex];
 
   return (
     <section 

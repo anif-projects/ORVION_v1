@@ -6,9 +6,11 @@ import { useTheme } from '../../context/ThemeContext';
 import { 
   Sun, Moon, LogOut, LayoutDashboard, Search, Bell, Menu, X, User,
   BookOpen, Users, Settings, MessageSquare, ShieldAlert, FolderGit2, Calendar, Award,
-  Image, ArrowRight, ChevronDown
+  Image, ArrowRight, ChevronDown, Briefcase
 } from 'lucide-react';
 import Logo from './Logo';
+
+import api from '../../services/api';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -17,9 +19,14 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileLiveHubOpen, setMobileLiveHubOpen] = useState(false);
+  const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLiveHubOpen, setIsLiveHubOpen] = useState(false);
+  const [isCoursesOpen, setIsCoursesOpen] = useState(false);
   const hoverTimeoutRef = useRef(null);
+  const coursesTimeoutRef = useRef(null);
+  const [notifications, setNotifications] = useState([]);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
 
   useEffect(() => {
     let ticking = false;
@@ -38,6 +45,26 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 20000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const fetchNotifications = async () => {
+    try {
+      const currentHour = new Date().getHours();
+      const res = await api.get(`/auth/notifications?clientHour=${currentHour}`);
+      if (res.data.status === 'success') {
+        setNotifications(res.data.data.notifications || []);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleLiveHubMouseEnter = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -48,6 +75,19 @@ export default function Navbar() {
   const handleLiveHubMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setIsLiveHubOpen(false);
+    }, 150);
+  };
+
+  const handleCoursesMouseEnter = () => {
+    if (coursesTimeoutRef.current) {
+      clearTimeout(coursesTimeoutRef.current);
+    }
+    setIsCoursesOpen(true);
+  };
+
+  const handleCoursesMouseLeave = () => {
+    coursesTimeoutRef.current = setTimeout(() => {
+      setIsCoursesOpen(false);
     }, 150);
   };
 
@@ -68,7 +108,6 @@ export default function Navbar() {
     { name: 'My Courses', path: '/student/my-courses', icon: BookOpen },
     { name: 'My Events', path: '/student/events', icon: Calendar },
     { name: 'Certifications', path: '/student/certifications', icon: Award },
-    { name: 'Community Q&A', path: '/student/community', icon: MessageSquare },
     { name: 'Profile', path: '/student/profile', icon: User },
   ];
 
@@ -77,6 +116,8 @@ export default function Navbar() {
     { name: 'Course Manager', path: '/admin/courses', icon: BookOpen },
     { name: 'Live Events', path: '/admin/events', icon: Calendar },
     { name: 'Student Directory', path: '/admin/students', icon: Users },
+    { name: 'Internships', path: '/admin/internships', icon: Briefcase },
+    { name: 'Inquiries', path: '/admin/inquiries', icon: MessageSquare },
   ];
 
   const portalLinks = isAdmin ? adminPortalLinks : studentPortalLinks;
@@ -124,29 +165,59 @@ export default function Navbar() {
           >
             {publicNavLinks.map((link) => {
               const isLiveHub = link.name === 'Live Hub';
+              const isCourses = link.name === 'Courses';
 
-              return isLiveHub ? (
-                <div
-                  key={link.path}
-                  onMouseEnter={handleLiveHubMouseEnter}
-                  onMouseLeave={handleLiveHubMouseLeave}
-                  className="relative"
-                >
-                  <NavLink
-                    to={link.path}
-                    className={({ isActive }) =>
-                      `px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-200 flex items-center gap-1 ${
-                        isActive || isLiveHubOpen
-                          ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md'
-                          : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/30 dark:hover:bg-white/10'
-                      }`
-                    }
+              if (isLiveHub) {
+                return (
+                  <div
+                    key={link.path}
+                    onMouseEnter={handleLiveHubMouseEnter}
+                    onMouseLeave={handleLiveHubMouseLeave}
+                    className="relative"
                   >
-                    <span>{link.name}</span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isLiveHubOpen ? 'rotate-180' : ''}`} />
-                  </NavLink>
-                </div>
-              ) : (
+                    <NavLink
+                      to={link.path}
+                      className={({ isActive }) =>
+                        `px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-200 flex items-center gap-1 ${
+                          isActive || isLiveHubOpen
+                            ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md'
+                            : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/30 dark:hover:bg-white/10'
+                        }`
+                      }
+                    >
+                      <span>{link.name}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isLiveHubOpen ? 'rotate-180' : ''}`} />
+                    </NavLink>
+                  </div>
+                );
+              }
+
+              if (isCourses) {
+                return (
+                  <div
+                    key={link.path}
+                    onMouseEnter={handleCoursesMouseEnter}
+                    onMouseLeave={handleCoursesMouseLeave}
+                    className="relative"
+                  >
+                    <NavLink
+                      to={link.path}
+                      className={({ isActive }) =>
+                        `px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-200 flex items-center gap-1 ${
+                          isActive || isCoursesOpen
+                            ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md'
+                            : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/30 dark:hover:bg-white/10'
+                        }`
+                      }
+                    >
+                      <span>{link.name}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCoursesOpen ? 'rotate-180' : ''}`} />
+                    </NavLink>
+                  </div>
+                );
+              }
+
+              return (
                 <NavLink
                   key={link.path}
                   to={link.path}
@@ -189,18 +260,56 @@ export default function Navbar() {
           {/* Portal Controls (Hidden on mobile < md to prevent layout overflow) */}
           {isLoggedInOrPortal ? (
             <div className="hidden md:flex items-center gap-2">
-              <button 
-                className="p-2.5 rounded-full text-slate-700 dark:text-slate-200 transition relative"
-                style={{
-                  background: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.18)',
-                  backdropFilter: 'blur(18px)',
-                  WebkitBackdropFilter: 'blur(18px)',
-                  border: darkMode ? '1px solid rgba(255, 255, 255, 0.10)' : '1px solid rgba(255, 255, 255, 0.20)',
-                }}
-              >
-                <Bell className="w-4 h-4" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary-500"></span>
-              </button>
+              <div className="relative">
+                <button 
+                  onClick={() => setIsNotifOpen(!isNotifOpen)}
+                  className="p-2.5 rounded-full text-slate-700 dark:text-slate-200 transition relative"
+                  style={{
+                    background: darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.18)',
+                    backdropFilter: 'blur(18px)',
+                    WebkitBackdropFilter: 'blur(18px)',
+                    border: darkMode ? '1px solid rgba(255, 255, 255, 0.10)' : '1px solid rgba(255, 255, 255, 0.20)',
+                  }}
+                >
+                  <Bell className="w-4 h-4" />
+                  {notifications.length > 0 && (
+                    <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-[#f97316] animate-pulse"></span>
+                  )}
+                </button>
+
+                {isNotifOpen && (
+                  <div className="absolute right-0 top-full mt-3 w-80 rounded-2xl p-4 shadow-2xl z-50 border border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl text-slate-800 dark:text-slate-100 flex flex-col gap-3">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-2">
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-500">Notifications</span>
+                      {notifications.length > 0 && (
+                        <button
+                          onClick={() => setNotifications([])}
+                          className="text-[10px] font-bold text-[#b45309] hover:underline"
+                        >
+                          Clear All
+                        </button>
+                      )}
+                    </div>
+                    <div className="max-h-60 overflow-y-auto space-y-2 text-xs font-bold pr-1">
+                      {notifications.length === 0 ? (
+                        <p className="text-slate-500 text-center py-4 font-semibold">No new notifications.</p>
+                      ) : (
+                        notifications.map((n) => (
+                          <div key={n.id} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-850/50 border border-slate-150 dark:border-slate-800 space-y-1 text-left">
+                            <div className="flex items-center justify-between">
+                              <span className="font-extrabold text-slate-900 dark:text-white">{n.title}</span>
+                              <span className="text-[10px] text-slate-400 font-mono shrink-0 ml-2">{n.time}</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                              {n.message}
+                            </p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               <div className="flex items-center gap-2 pl-2 border-l border-white/20 dark:border-white/10">
                 <Link
@@ -269,7 +378,7 @@ export default function Navbar() {
         >
           <div className="grid grid-cols-12 gap-6">
             {/* COLUMN 1: Large Title & Description */}
-            <div className="col-span-4 rounded-2xl p-5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/15 flex flex-col justify-between relative overflow-hidden group">
+            <div className="col-span-6 rounded-2xl p-5 bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/15 flex flex-col justify-between relative overflow-hidden group">
               <div className="absolute -right-6 -top-6 w-24 h-24 rounded-full bg-amber-500/10 blur-xl pointer-events-none" />
               <div>
                 <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#D97706]">Orvion Live</span>
@@ -289,7 +398,7 @@ export default function Navbar() {
             </div>
 
             {/* COLUMN 2: Navigation Options */}
-            <div className="col-span-4 space-y-1">
+            <div className="col-span-6 space-y-1">
               <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-3">
                 Explore
               </h4>
@@ -336,54 +445,69 @@ export default function Navbar() {
                 </div>
               </Link>
             </div>
+          </div>
+        </div>
+      )}
 
-            {/* COLUMN 3: Highlights */}
-            <div className="col-span-4 space-y-3">
-              <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3 px-1">
-                Highlights
-              </h4>
-
-              {/* CARD 1 */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60 hover:border-amber-500/30 transition-all duration-200 space-y-1.5 group/card">
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/10 text-[#D97706]">
-                    Upcoming Event
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-400">15 Aug</span>
-                </div>
-                <h5 className="text-xs font-bold text-[#0F172A] dark:text-white truncate">
-                  AI Career Bootcamp
-                </h5>
-                <Link
-                  to="/live-hub"
-                  onClick={() => setIsLiveHubOpen(false)}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D97706] hover:underline pt-0.5 group/link"
-                >
-                  <span>Register Now</span>
-                  <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
-                </Link>
+      {/* Courses Premium Dropdown Menu */}
+      {!isPortalRoute && (
+        <div
+          onMouseEnter={handleCoursesMouseEnter}
+          onMouseLeave={handleCoursesMouseLeave}
+          className={`hidden lg:block absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[520px] rounded-[24px] p-6 transition-all duration-250 ease-out z-50 select-none ${
+            isCoursesOpen
+              ? 'opacity-100 translate-y-0 pointer-events-auto shadow-[0_20px_50px_rgba(15,23,42,0.12)]'
+              : 'opacity-0 -translate-y-3 pointer-events-none shadow-none'
+          }`}
+          style={{
+            background: darkMode ? 'rgba(15, 23, 42, 0.96)' : 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(15, 23, 42, 0.06)',
+          }}
+        >
+          <div className="grid grid-cols-2 gap-4">
+            {/* Online Courses */}
+            <Link
+              to="/courses?type=online"
+              onClick={() => setIsCoursesOpen(false)}
+              className="group flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/15 hover:border-[#D97706] hover:bg-amber-500/10 transition-all duration-200"
+            >
+              <div>
+                <BookOpen className="w-5 h-5 text-[#D97706] mb-2" />
+                <h4 className="text-sm font-extrabold text-[#0F172A] dark:text-white group-hover:text-[#D97706] transition-colors">
+                  Online Courses
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                  Learn at your own pace with self-paced content, quizzes and modules.
+                </p>
               </div>
-
-              {/* CARD 2 */}
-              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-700/60 hover:border-amber-500/30 transition-all duration-200 space-y-1.5 group/card">
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                    Latest Webinar
-                  </span>
-                </div>
-                <h5 className="text-xs font-bold text-[#0F172A] dark:text-white truncate">
-                  Building AI Agents
-                </h5>
-                <Link
-                  to="/live-hub"
-                  onClick={() => setIsLiveHubOpen(false)}
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D97706] hover:underline pt-0.5 group/link"
-                >
-                  <span>Watch Preview</span>
-                  <ArrowRight className="w-3 h-3 transition-transform group-hover/link:translate-x-1" />
-                </Link>
+              <div className="flex items-center gap-1 text-[11px] font-bold text-[#D97706] mt-4">
+                <span>Explore Online</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
               </div>
-            </div>
+            </Link>
+
+            {/* Offline Courses */}
+            <Link
+              to="/courses?type=offline"
+              onClick={() => setIsCoursesOpen(false)}
+              className="group flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border border-blue-500/15 hover:border-blue-600 hover:bg-blue-500/10 transition-all duration-200"
+            >
+              <div>
+                <Users className="w-5 h-5 text-blue-600 mb-2" />
+                <h4 className="text-sm font-extrabold text-[#0F172A] dark:text-white group-hover:text-blue-600 transition-colors">
+                  Offline Courses
+                </h4>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
+                  Attend hands-on workshops, classroom cohorts and interactive campus tracks.
+                </p>
+              </div>
+              <div className="flex items-center gap-1 text-[11px] font-bold text-blue-600 mt-4">
+                <span>Explore Offline</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              </div>
+            </Link>
           </div>
         </div>
       )}
@@ -408,6 +532,7 @@ export default function Navbar() {
 
             {(isPortalRoute ? portalLinks : publicNavLinks).map((link) => {
               const isLiveHub = link.name === 'Live Hub';
+              const isCourses = link.name === 'Courses';
 
               if (!isLoggedInOrPortal && isLiveHub) {
                 return (
@@ -431,6 +556,35 @@ export default function Navbar() {
                         <Link to="/live-hub" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
                           <Image className="w-3.5 h-3.5 text-[#D97706]" />
                           <span>Gallery</span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              if (!isLoggedInOrPortal && isCourses) {
+                return (
+                  <div key={link.path} className="flex flex-col gap-1">
+                    <button
+                      onClick={() => setMobileCoursesOpen(!mobileCoursesOpen)}
+                      className="px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center justify-between text-slate-800 dark:text-slate-200 hover:bg-white/40 dark:hover:bg-white/10"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span>Courses</span>
+                      </div>
+                      <ChevronDown className={`w-4 h-4 transition-transform ${mobileCoursesOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {mobileCoursesOpen && (
+                      <div className="pl-6 space-y-1 py-1">
+                        <Link to="/courses?type=online" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
+                          <BookOpen className="w-3.5 h-3.5 text-[#D97706]" />
+                          <span>Online Courses</span>
+                        </Link>
+                        <Link to="/courses?type=offline" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-blue-600">
+                          <Users className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Offline Courses</span>
                         </Link>
                       </div>
                     )}

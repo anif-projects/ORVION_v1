@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import CourseCard from '../../components/common/CourseCard';
 import { CourseCardSkeleton } from '../../components/common/Skeleton';
 import { pageVariants } from '../../utils/animations';
 import CoursesHero from '../../components/courses/CoursesHero';
+import toast from 'react-hot-toast';
 
 export default function CourseCatalog() {
+  const [searchParams] = useSearchParams();
+  const type = searchParams.get('type') || '';
+
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -17,69 +22,34 @@ export default function CourseCatalog() {
 
   useEffect(() => {
     fetchCourses();
-  }, [search, category, level, sort]);
+  }, [search, category, level, sort, type]);
 
   const fetchCourses = async () => {
     setLoading(true);
     try {
       const res = await api.get('/courses', {
-        params: { search, category, level, sort },
+        params: { search, category, level, sort, type },
       });
       setCourses(res.data.data.courses || []);
     } catch (err) {
       console.error(err);
-      // Fallback demo courses if backend server is not yet running locally
-      setCourses([
-        {
-          _id: '1',
-          title: 'Full-Stack React & Node.js Masterclass',
-          slug: 'fullstack-react-nodejs-masterclass',
-          thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-          price: 89.99,
-          discountPrice: 49.99,
-          category: { name: 'Web Dev', color: '#4F46E5' },
-          instructor: { name: 'Super Admin' },
-          rating: 4.9,
-          enrolledCount: 1420,
-          totalDuration: 420,
-          totalLessons: 8,
-          level: 'all_levels',
-        },
-        {
-          _id: '2',
-          title: 'AI System Design & Machine Learning Pipelines',
-          slug: 'ai-system-design',
-          thumbnail: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80',
-          price: 129.99,
-          discountPrice: 89.99,
-          category: { name: 'AI & ML', color: '#06B6D4' },
-          instructor: { name: 'Dr. Sarah Lin' },
-          rating: 5.0,
-          enrolledCount: 980,
-          totalDuration: 540,
-          totalLessons: 14,
-          level: 'advanced',
-        },
-        {
-          _id: '3',
-          title: 'Glassmorphism UI/UX Design System with Tailwind',
-          slug: 'glassmorphism-ui-design',
-          thumbnail: 'https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=800&q=80',
-          price: 59.99,
-          discountPrice: 0,
-          category: { name: 'UI/UX Design', color: '#22C55E' },
-          instructor: { name: 'Elena Rostova' },
-          rating: 4.8,
-          enrolledCount: 2150,
-          totalDuration: 280,
-          totalLessons: 10,
-          level: 'beginner',
-        },
-      ]);
+      toast.error('Failed to retrieve courses from database.');
+      setCourses([]);
     } finally {
       setLoading(false);
     }
   };
+
+  // Determine headers based on type
+  let heroTitle = null;
+  let heroSubtitle = null;
+  if (type === 'offline') {
+    heroTitle = 'Premium Offline Programs';
+    heroSubtitle = 'Industry-designed curriculum with real mentorship, live labs, and offline classroom cohorts.';
+  } else if (type === 'online') {
+    heroTitle = 'Premium Online Courses';
+    heroSubtitle = 'Learn at your own pace with structured self-paced modules, interactive quizzes, and project labs.';
+  }
 
   return (
     <motion.div
@@ -89,8 +59,13 @@ export default function CourseCatalog() {
       transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6"
     >
-      {/* Hero Section with Centered Single Search Bar */}
-      <CoursesHero search={search} setSearch={setSearch} />
+      {/* Hero Section with Custom Headers */}
+      <CoursesHero
+        search={search}
+        setSearch={setSearch}
+        title={heroTitle}
+        subtitle={heroSubtitle}
+      />
 
       {/* Courses Grid Section */}
       <motion.div
@@ -116,7 +91,7 @@ export default function CourseCatalog() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {courses.map((c, index) => (
-              <CourseCard key={c._id} course={c} index={index} />
+              <CourseCard key={c._id || c.id} course={c} index={index} />
             ))}
           </div>
         )}

@@ -222,16 +222,8 @@ export default function LearningPlayer() {
       }
     } catch (err) {
       console.error(err);
-      // Fallback state for learning player demo
-      const demoLesson = {
-        _id: 'l1',
-        title: 'Lesson 1: Introduction to Clean Architecture',
-        notes: 'Key Takeaway: Clean Architecture decouples UI & persistence logic from domain rules.',
-        videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-        resources: [{ title: 'Architecture Diagram PDF', fileUrl: '#' }],
-      };
-      setActiveLesson(demoLesson);
-      setStreamUrl(demoLesson.videoUrl);
+      toast.error('Failed to load course details from database.');
+      setCourse(null);
     } finally {
       setLoading(false);
     }
@@ -298,6 +290,17 @@ export default function LearningPlayer() {
     );
   }
 
+  if (!course) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-700 text-sm font-semibold gap-4 text-center">
+        <p className="text-slate-600 font-bold">Failed to load course video content from database.</p>
+        <button onClick={() => navigate('/student/dashboard')} className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition shadow-sm">
+          Return to Dashboard
+        </button>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       variants={pageVariants}
@@ -323,15 +326,8 @@ export default function LearningPlayer() {
           {course?.title || 'Learning Player'}
         </h1>
 
-        {/* Claim Certificate Button */}
-        <button
-          onClick={handleClaimCertificate}
-          className="px-3.5 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-xs flex items-center gap-1.5 hover:bg-emerald-100/55 transition shrink-0"
-        >
-          <Award className="w-4 h-4" />
-          <span className="hidden sm:inline">Claim Certificate</span>
-          <span className="sm:hidden">Certificate</span>
-        </button>
+        {/* Balanced spacer */}
+        <div className="w-[120px] hidden sm:block shrink-0" />
       </header>
 
       {/* Main Split Body */}
@@ -603,7 +599,7 @@ export default function LearningPlayer() {
         </div>
 
         {/* Lessons Sidebar Hierarchy */}
-        <div className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-r border-slate-200 p-4 space-y-4 overflow-y-auto shrink-0 flex flex-col font-sans">
+        <div className="w-full lg:w-80 bg-white border-t lg:border-t-0 lg:border-r border-slate-200 p-4 space-y-4 shrink-0 flex flex-col font-sans justify-between">
           <div className="flex items-center gap-2 text-amber-600 pb-2 border-b border-slate-100">
             <BookOpen className="w-4 h-4" />
             <h3 className="font-extrabold text-xs uppercase tracking-wider text-slate-800">
@@ -611,7 +607,7 @@ export default function LearningPlayer() {
             </h3>
           </div>
 
-          <div className="space-y-3.5 flex-1">
+          <div className="space-y-3.5 flex-1 overflow-y-auto pr-1">
             {course?.modules?.map((mod, idx) => {
               const isExpanded = !!expandedModules[idx];
               return (
@@ -671,6 +667,17 @@ export default function LearningPlayer() {
                 </div>
               );
             })}
+          </div>
+
+          {/* Claim Certificate Button inside Sidebar Footer */}
+          <div className="pt-3 border-t border-slate-200/80 shrink-0">
+            <button
+              onClick={handleClaimCertificate}
+              className="w-full py-3.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 font-bold text-xs flex items-center justify-center gap-2 hover:bg-emerald-100/55 transition shadow-sm"
+            >
+              <Award className="w-4 h-4" />
+              <span>Claim Certificate</span>
+            </button>
           </div>
         </div>
       </div>

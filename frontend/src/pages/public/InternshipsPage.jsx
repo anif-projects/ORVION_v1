@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Briefcase, Calendar, MapPin, Award, CheckCircle2, ChevronRight, X, Send, BookOpen, Star, HelpCircle } from 'lucide-react';
 import { pageVariants } from '../../utils/animations';
@@ -6,7 +6,10 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function InternshipsPage() {
+  const [internships, setInternships] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDomain, setSelectedDomain] = useState('');
+  const [selectedInternshipId, setSelectedInternshipId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -19,47 +22,26 @@ export default function InternshipsPage() {
     statement: '',
   });
 
-  const internshipDomains = [
-    {
-      id: 'fs-web',
-      title: 'Full-Stack Web Development',
-      duration: '3 Months (Remote)',
-      description: 'Master modern web architectures using React, Node.js, Express, and databases. Work on real-world collaborative sprints and production deployments.',
-      requirements: ['Basic JavaScript', 'HTML & CSS knowledge', 'Familiarity with Git'],
-      skills: ['React & Next.js', 'Node.js & REST APIs', 'MySQL / MongoDB', 'CI/CD Pipelines'],
-      badge: 'Popular',
-    },
-    {
-      id: 'ai-ml',
-      title: 'AI & Data Science Engineering',
-      duration: '3 Months (Remote)',
-      description: 'Build and deploy Machine Learning models, analyze complex datasets, and work on Generative AI integrations using Python and popular deep learning frameworks.',
-      requirements: ['Python programming', 'Basic Linear Algebra', 'Analytical mindset'],
-      skills: ['Python & Pandas', 'Supervised / Unsupervised ML', 'Generative AI & LLMs', 'Model Deployment'],
-      badge: 'Trending',
-    },
-    {
-      id: 'ui-ux',
-      title: 'UI/UX Design & Frontend Engineering',
-      duration: '3 Months (Remote)',
-      description: 'Bridge the gap between design and development. Design high-fidelity Figma mockups, user research maps, and convert designs into responsive React interfaces.',
-      requirements: ['Interest in visual design', 'Basic CSS/JS', 'Attention to detail'],
-      skills: ['Figma Mastery', 'User Research & Wireframes', 'TailwindCSS & React', 'Micro-interactions'],
-      badge: 'Highly Creative',
-    },
-    {
-      id: 'devops-sec',
-      title: 'DevOps & Cloud Security',
-      duration: '3 Months (Remote)',
-      description: 'Gain hands-on expertise in cloud infrastructure, containerization, automated pipelines, security auditing, and server administration.',
-      requirements: ['Basic Linux commands', 'Understanding of web servers', 'Problem solving'],
-      skills: ['Docker & Kubernetes', 'AWS / Google Cloud', 'CI/CD & Jenkins', 'Infrastructure as Code'],
-      badge: 'Enterprise Focus',
-    },
-  ];
+  useEffect(() => {
+    fetchInternships();
+  }, []);
 
-  const handleOpenApplyModal = (domainTitle) => {
-    setSelectedDomain(domainTitle);
+  const fetchInternships = async () => {
+    setLoading(true);
+    try {
+      const res = await api.get('/internships');
+      setInternships(res.data.data.internships || []);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load internships.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenApplyModal = (internship) => {
+    setSelectedDomain(internship.title);
+    setSelectedInternshipId(internship.id || internship._id);
     setIsModalOpen(true);
   };
 
@@ -80,6 +62,7 @@ export default function InternshipsPage() {
       await api.post('/internships/apply', {
         ...form,
         domain: selectedDomain,
+        internshipId: selectedInternshipId,
       });
       toast.success('Your application has been submitted successfully!');
       setForm({
@@ -196,93 +179,107 @@ export default function InternshipsPage() {
         </div>
 
         {/* CARDS GRID (Compact 15-20% smaller cards, no top icons, h-48px button, hover elevation & glow) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {internshipDomains.map((domain, index) => (
-            <motion.div
-              key={domain.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: index * 0.08, ease: 'easeOut' }}
-              whileHover={{ y: -8, scale: 1.02 }}
-              className="p-5 sm:p-6 rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-4 hover:border-[#F97316]/40 hover:shadow-[0_20px_50px_rgba(249,115,22,0.10)] transition-all duration-300 group cursor-pointer"
-            >
-              <div className="space-y-3.5">
-                
-                {/* Top Line with Title & Badge (NO ICON, Clean top alignment) */}
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug tracking-tight">
-                    {domain.title}
-                  </h3>
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 uppercase tracking-wider shrink-0">
-                    {domain.badge}
-                  </span>
-                </div>
-
-                {/* Duration & Mode Meta Info */}
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-                  <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
-                  <span>{domain.duration}</span>
-                  <span className="text-slate-300">•</span>
-                  <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Remote Mode</span>
-                </div>
-
-                {/* Description (15px equivalent, compact & readable) */}
-                <p className="text-[13px] sm:text-[14px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-                  {domain.description}
-                </p>
-
-                {/* Key Skills & Eligibility Section */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                  
-                  {/* Key Skills */}
-                  <div className="space-y-1.5">
-                    <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.08em]">
-                      Key Skills
-                    </h4>
-                    <ul className="space-y-1">
-                      {domain.skills.map((skill, idx) => (
-                        <li key={idx} className="flex items-center gap-1.5 text-xs sm:text-[13px] text-slate-700 dark:text-slate-300 font-semibold">
-                          <span className="w-1 h-1 rounded-full bg-[#F97316] shrink-0" />
-                          <span>{skill}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Eligibility */}
-                  <div className="space-y-1.5">
-                    <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.08em]">
-                      Eligibility
-                    </h4>
-                    <ul className="space-y-1">
-                      {domain.requirements.map((req, idx) => (
-                        <li key={idx} className="flex items-center gap-1.5 text-xs sm:text-[13px] text-slate-600 dark:text-slate-400 font-medium">
-                          <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
-                          <span>{req}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* Action Button (Height 48px, rounded 14px, lift 2px, soft shadow, orange glow) */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                <button
-                  onClick={() => handleOpenApplyModal(domain.title)}
-                  className="w-full h-[48px] rounded-[14px] bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all duration-300 shadow-[0_4px_14px_rgba(249,115,22,0.25)] hover:shadow-[0_10px_25px_-5px_rgba(249,115,22,0.35)] hover:-translate-y-0.5 cursor-pointer"
+        {loading ? (
+          <div className="text-center py-16 text-slate-500 font-semibold">Loading internship tracks...</div>
+        ) : internships.length === 0 ? (
+          <div className="text-center py-16 text-slate-505 dark:text-slate-400 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[24px] p-8 font-semibold shadow-sm">
+            No active internship cohorts available right now. Check back soon!
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {internships.map((domain, index) => {
+              const skillsArray = domain.skills ? (typeof domain.skills === 'string' ? domain.skills.split(',').map(s => s.trim()) : domain.skills) : [];
+              const reqsArray = domain.requirements ? (typeof domain.requirements === 'string' ? domain.requirements.split(',').map(s => s.trim()) : domain.requirements) : [];
+              return (
+                <motion.div
+                  key={domain.id || domain._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.7, delay: index * 0.08, ease: 'easeOut' }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="p-5 sm:p-6 rounded-[24px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-4 hover:border-[#F97316]/40 hover:shadow-[0_20px_50px_rgba(249,115,22,0.10)] transition-all duration-300 group cursor-pointer"
                 >
-                  <span>Apply for Cohort</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                  <div className="space-y-3.5">
+                    
+                    {/* Top Line with Title & Badge (NO ICON, Clean top alignment) */}
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white leading-snug tracking-tight">
+                        {domain.title}
+                      </h3>
+                      {domain.category && (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 uppercase tracking-wider shrink-0">
+                          {domain.category}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Duration & Mode Meta Info */}
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+                      <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
+                      <span>{domain.duration}</span>
+                      <span className="text-slate-300">•</span>
+                      <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                      <span>{domain.location || 'Remote'}</span>
+                    </div>
+
+                    {/* Description (15px equivalent, compact & readable) */}
+                    <p className="text-[13px] sm:text-[14px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
+                      {domain.description}
+                    </p>
+
+                    {/* Key Skills & Eligibility Section */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                      
+                      {/* Key Skills */}
+                      <div className="space-y-1.5">
+                        <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.08em]">
+                          Key Skills
+                        </h4>
+                        <ul className="space-y-1">
+                          {skillsArray.map((skill, idx) => (
+                            <li key={idx} className="flex items-center gap-1.5 text-xs sm:text-[13px] text-slate-700 dark:text-slate-300 font-semibold">
+                              <span className="w-1 h-1 rounded-full bg-[#F97316] shrink-0" />
+                              <span>{skill}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Eligibility */}
+                      <div className="space-y-1.5">
+                        <h4 className="text-[11px] font-extrabold text-slate-400 uppercase tracking-[0.08em]">
+                          Eligibility
+                        </h4>
+                        <ul className="space-y-1">
+                          {reqsArray.map((req, idx) => (
+                            <li key={idx} className="flex items-center gap-1.5 text-xs sm:text-[13px] text-slate-650 dark:text-slate-450 font-medium">
+                              <span className="w-1.5 h-1.5 rounded-full bg-slate-400 shrink-0" />
+                              <span>{req}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                    </div>
+
+                  </div>
+
+                  {/* Action Button (Height 48px, rounded 14px, lift 2px, soft shadow, orange glow) */}
+                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                    <button
+                      onClick={() => handleOpenApplyModal(domain)}
+                      className="w-full h-[48px] rounded-[14px] bg-[#F97316] hover:bg-[#EA580C] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all duration-300 shadow-[0_4px_14px_rgba(249,115,22,0.25)] hover:shadow-[0_10px_25px_-5px_rgba(249,115,22,0.35)] hover:-translate-y-0.5 cursor-pointer"
+                    >
+                      <span>Apply for Cohort</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
 
       </div>
 

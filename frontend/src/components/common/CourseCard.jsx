@@ -34,7 +34,6 @@ export default function CourseCard({ course, index = 0 }) {
   } = course;
 
   const slug = course.slug || course._id || course.id;
-
   const { user } = useAuth();
   const [isFeaturedState, setIsFeaturedState] = useState(course.isFeatured || false);
 
@@ -42,7 +41,7 @@ export default function CourseCard({ course, index = 0 }) {
     e.preventDefault();
     e.stopPropagation();
     try {
-      const res = await api.patch(`/courses/${_id}/toggle-featured`);
+      const res = await api.patch(`/courses/${_id || course.id}/toggle-featured`);
       if (res.data.data) {
         setIsFeaturedState(res.data.data.course.isFeatured);
         toast.success(res.data.data.course.isFeatured ? 'Course set as Featured!' : 'Course removed from Featured!');
@@ -51,6 +50,64 @@ export default function CourseCard({ course, index = 0 }) {
       toast.error('Failed to toggle featured status');
     }
   };
+
+  const isOffline = course.type === 'offline';
+
+  if (isOffline) {
+    return (
+      <motion.div
+        variants={cardAnimationVariants}
+        initial="initial"
+        whileInView="animate"
+        whileHover="hover"
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ delay: index * 0.12 }}
+        className="relative group block h-full w-full select-none"
+      >
+        <Link to={`/courses/${slug}`} className="block h-full">
+          <div className="h-full w-full rounded-[24px] rounded-tr-[100px] p-[3px] bg-gradient-to-tr from-[#E2E8F0] via-[#E2E8F0]/30 to-primary-500 dark:to-primary-600 shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex flex-col transition-all duration-300">
+            <div className="h-full bg-[#f8fafc] dark:bg-slate-900 rounded-[21px] rounded-tr-[96px] p-5 sm:px-6 sm:py-6 flex flex-col items-start text-left relative overflow-hidden justify-between min-h-[300px]">
+              
+              {/* Top Row: Icon */}
+              <div className="w-full flex items-center justify-between">
+                <div className="w-[44px] h-[44px] bg-primary-500/10 dark:bg-primary-500/20 rounded-full flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="mt-4 space-y-2 flex-1 w-full">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-primary-600 dark:text-primary-400">
+                  {typeof category === 'object' ? category.name : category || 'Program'}
+                </span>
+                <h3 className="text-[18px] sm:text-[19px] font-extrabold text-[#0B0F19] dark:text-white leading-snug font-heading group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors line-clamp-2">
+                  {title}
+                </h3>
+                <p className="text-[12.5px] text-[#4B5563] dark:text-slate-350 font-medium leading-relaxed line-clamp-3">
+                  {course.subtitle || course.description}
+                </p>
+              </div>
+
+              {/* Bottom Row: Specs & Go Arrow */}
+              <div className="w-full flex justify-between items-end mt-5 pt-3 border-t border-slate-200/50 dark:border-slate-800/50">
+                <div className="bg-primary-500/10 dark:bg-slate-800/80 border border-primary-500/20 text-primary-600 dark:text-primary-400 text-[11px] font-bold px-3 py-1.5 rounded-lg">
+                  {totalLessons ? `${totalLessons} modules` : '12 weeks'}
+                </div>
+                
+                <div className="w-[36px] h-[36px] rounded-full bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center relative overflow-hidden shadow-md group-hover:scale-105 transition-transform duration-200">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-arrow-right w-4 h-4 text-white relative z-10" aria-hidden="true">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </Link>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div
@@ -74,9 +131,9 @@ export default function CourseCard({ course, index = 0 }) {
           {category && (
             <span
               className="absolute top-3 left-3 px-2.5 py-1 text-[11px] font-bold rounded-full text-white shadow-sm"
-              style={{ backgroundColor: category.color || '#4F46E5' }}
+              style={{ backgroundColor: typeof category === 'object' ? (category.color || '#4F46E5') : '#4F46E5' }}
             >
-              {category.name}
+              {typeof category === 'object' ? category.name : category}
             </span>
           )}
           {(user?.role === 'admin' || user?.role === 'super_admin') && (

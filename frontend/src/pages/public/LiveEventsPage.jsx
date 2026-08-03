@@ -5,7 +5,6 @@ import { pageVariants } from '../../utils/animations';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
-import PastEventsSection from '../../components/live-hub/PastEventsSection';
 import EventGallerySection from '../../components/live-hub/EventGallerySection';
 
 export default function LiveEventsPage() {
@@ -234,8 +233,7 @@ export default function LiveEventsPage() {
       )}
       </div>
 
-      {/* SECTION 1 — PAST EVENTS */}
-      <PastEventsSection />
+
 
       {/* SECTION 2 — EVENT GALLERY WITH LIGHTBOX */}
       <EventGallerySection />

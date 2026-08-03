@@ -20,10 +20,13 @@ export default function CourseBuilder() {
     price: 499,
     level: 'all_levels',
     thumbnail: '',
+    previewVideo: '',
     category: '', // initialized empty, loaded dynamically
+    type: 'online',
     rating: 4.8,
     enrolledCount: 0,
     totalDuration: 480,
+    totalLessons: 12,
     language: 'English (Subtitles available)',
     isCertificateIncluded: true,
     certificateTemplate: '',
@@ -115,6 +118,7 @@ export default function CourseBuilder() {
     {
       title: 'Module 1: Foundations & Architecture',
       order: 1,
+      duration: '45 mins',
       lessons: [
         { title: 'Lesson 1: Introduction to Clean Code', type: 'video', duration: 600, isPreview: true },
         {
@@ -159,10 +163,13 @@ export default function CourseBuilder() {
           price: c.price || 0,
           level: c.level || 'all_levels',
           thumbnail: c.thumbnail || '',
+          previewVideo: c.previewVideo || '',
           category: c.category || '',
+          type: c.type || 'online',
           rating: c.rating !== undefined ? c.rating : 4.8,
           enrolledCount: c.enrolledCount !== undefined ? c.enrolledCount : 0,
           totalDuration: c.totalDuration !== undefined ? c.totalDuration : 480,
+          totalLessons: c.totalLessons !== undefined ? c.totalLessons : 12,
           language: c.language || 'English (Subtitles available)',
           isCertificateIncluded: c.isCertificateIncluded !== undefined ? Boolean(c.isCertificateIncluded) : true,
           certificateTemplate: c.certificateTemplate || '',
@@ -181,6 +188,7 @@ export default function CourseBuilder() {
           const formattedModules = c.modules.map(mod => ({
             title: mod.title,
             order: mod.order,
+            duration: mod.duration || '',
             lessons: (mod.lessons || []).map(les => ({
               _id: les._id || les.id || `les-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
               title: les.title,
@@ -192,7 +200,7 @@ export default function CourseBuilder() {
             })),
           }));
           setModules(formattedModules.length > 0 ? formattedModules : [
-            { title: 'Module 1: Foundations', order: 1, lessons: [] }
+            { title: 'Module 1: Foundations', order: 1, duration: '45 mins', lessons: [] }
           ]);
         }
       }
@@ -244,7 +252,7 @@ export default function CourseBuilder() {
 
   // Modules Handlers
   const addModule = () => {
-    setModules([...modules, { title: `Module ${modules.length + 1}`, order: modules.length + 1, lessons: [] }]);
+    setModules([...modules, { title: `Module ${modules.length + 1}`, order: modules.length + 1, duration: '45 mins', lessons: [] }]);
   };
 
   const deleteModule = (modIdx) => {
@@ -402,7 +410,7 @@ export default function CourseBuilder() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Price (₹)</label>
               <input
@@ -435,6 +443,17 @@ export default function CourseBuilder() {
                 onChange={(e) => setCourseData({ ...courseData, category: e.target.value })}
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none text-slate-700 dark:text-slate-200"
               />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Course Mode</label>
+              <select
+                value={courseData.type || 'online'}
+                onChange={(e) => setCourseData({ ...courseData, type: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
+              >
+                <option value="online">Online Course</option>
+                <option value="offline">Offline Program</option>
+              </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Course Thumbnail</label>
@@ -489,6 +508,25 @@ export default function CourseBuilder() {
                 value={courseData.totalDuration}
                 onChange={(e) => setCourseData({ ...courseData, totalDuration: Number(e.target.value) })}
                 className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Lessons Count</label>
+              <input
+                type="number"
+                value={courseData.totalLessons}
+                onChange={(e) => setCourseData({ ...courseData, totalLessons: Number(e.target.value) })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Preview Video Link</label>
+              <input
+                type="text"
+                value={courseData.previewVideo}
+                onChange={(e) => setCourseData({ ...courseData, previewVideo: e.target.value })}
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none text-slate-700 dark:text-slate-200"
+                placeholder="e.g. https://www.youtube.com/watch?v=..."
               />
             </div>
             <div>
@@ -893,8 +931,8 @@ export default function CourseBuilder() {
             {modules.map((m, mIdx) => (
               <div key={mIdx} className="glass-panel p-4 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-4 relative">
                 {/* Module Title Row */}
-                <div className="flex items-center gap-4">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Module {m.order}:</span>
+                <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Module {m.order}:</span>
                   <input
                     type="text"
                     value={m.title}
@@ -903,8 +941,23 @@ export default function CourseBuilder() {
                       updated[mIdx].title = e.target.value;
                       setModules(updated);
                     }}
-                    className="flex-1 font-bold text-base bg-transparent border-b border-slate-300 dark:border-slate-700 focus:outline-none py-1 text-slate-800 dark:text-white"
+                    className="flex-1 font-bold text-base bg-transparent border-b border-slate-300 dark:border-slate-700 focus:outline-none py-1 text-slate-800 dark:text-white min-w-0"
+                    placeholder="Module Title"
                   />
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Duration:</span>
+                    <input
+                      type="text"
+                      value={m.duration || ''}
+                      onChange={(e) => {
+                        const updated = [...modules];
+                        updated[mIdx].duration = e.target.value;
+                        setModules(updated);
+                      }}
+                      className="w-24 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none"
+                      placeholder="e.g. 45 mins"
+                    />
+                  </div>
                   <button type="button" onClick={() => deleteModule(mIdx)} className="p-1.5 text-slate-400 hover:text-accent-danger transition" title="Delete Module">
                     <Trash2 className="w-4.5 h-4.5" />
                   </button>

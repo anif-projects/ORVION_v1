@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { BookOpen, Play, CheckCircle } from 'lucide-react';
 import api from '../../services/api';
 import { pageVariants } from '../../utils/animations';
+import toast from 'react-hot-toast';
 
 export default function MyCourses() {
   const [courses, setCourses] = useState([]);
@@ -19,18 +20,8 @@ export default function MyCourses() {
       setCourses(res.data.data.enrollments || []);
     } catch (err) {
       console.error(err);
-      setCourses([
-        {
-          _id: 'e1',
-          progressPercentage: 100,
-          status: 'completed',
-          course: {
-            title: 'Full-Stack React & Node.js Masterclass',
-            slug: 'fullstack-react-nodejs-masterclass',
-            thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
-          },
-        },
-      ]);
+      toast.error('Failed to retrieve enrolled courses from database.');
+      setCourses([]);
     } finally {
       setLoading(false);
     }

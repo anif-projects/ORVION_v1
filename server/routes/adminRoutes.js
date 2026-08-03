@@ -8,6 +8,7 @@ const { auditLog } = require('../middlewares/auditMiddleware');
 router.use(protect, restrictTo('admin', 'super_admin'));
 
 router.get('/stats', adminController.getDashboardStats);
+router.get('/registration-stats', adminController.getRegistrationStats);
 router.get('/students', adminController.getStudents);
 router.patch('/students/:id/status', auditLog('UPDATE_STUDENT_STATUS'), adminController.updateStudentStatus);
 router.get('/audit-logs', adminController.getAuditLogs);

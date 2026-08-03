@@ -51,6 +51,8 @@ CREATE TABLE courses (
     rating DECIMAL(3, 2) DEFAULT 4.80,
     enrolledCount INT DEFAULT 0,
     totalDuration INT DEFAULT 480,
+    totalLessons INT DEFAULT 12,
+    previewVideo TEXT,
     language VARCHAR(255) DEFAULT 'English (Subtitles available)',
     isCertificateIncluded BOOLEAN DEFAULT TRUE,
     modules TEXT,
@@ -124,7 +126,22 @@ CREATE TABLE certificates (
 INSERT INTO admins (name, email, password) VALUES 
 ('Super Admin', 'tothayeswanth052@gmail.com', '$2a$12$DsBWqvrgqrSD.KDoNCktd.3KBgEFnjl83Ycs8YzkAhAGYRreC3RV2');
 
--- 9. Internship Applications Table
+-- 9. Internships Table
+CREATE TABLE IF NOT EXISTS internships (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    duration VARCHAR(100) DEFAULT '3 Months (Remote)',
+    requirements TEXT,
+    skills TEXT,
+    stipend VARCHAR(100) DEFAULT 'Unpaid',
+    location VARCHAR(255) DEFAULT 'Remote',
+    category VARCHAR(255) DEFAULT '',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. Internship Applications Table
 CREATE TABLE IF NOT EXISTS internship_applications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -132,11 +149,13 @@ CREATE TABLE IF NOT EXISTS internship_applications (
     phone VARCHAR(50) NOT NULL,
     college VARCHAR(255) NOT NULL,
     domain VARCHAR(255) NOT NULL,
+    internshipId INT DEFAULT NULL,
     resumeLink VARCHAR(555),
     statement TEXT,
     status VARCHAR(50) DEFAULT 'applied',
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (internshipId) REFERENCES internships(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 10. Lesson Progress Table
@@ -155,4 +174,28 @@ CREATE TABLE IF NOT EXISTS lesson_progress (
     UNIQUE KEY uq_student_course_lesson (student, course, lesson),
     INDEX idx_progress_student (student),
     INDEX idx_progress_course (course)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 11. Contact Messages Table
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fullName VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    mobile VARCHAR(50) NOT NULL,
+    college VARCHAR(255) DEFAULT '',
+    year VARCHAR(100) DEFAULT '',
+    branch VARCHAR(255) DEFAULT '',
+    address VARCHAR(255) DEFAULT '',
+    message TEXT,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 12. Gallery Images Table
+CREATE TABLE IF NOT EXISTS gallery_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    url LONGTEXT NOT NULL,
+    isHero BOOLEAN DEFAULT FALSE,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

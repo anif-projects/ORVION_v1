@@ -5,18 +5,19 @@ const AppError = require('../utils/appError');
 const emailService = require('./emailService');
 
 class AuthService {
-  async register({ name, email, password }) {
+  async register({ name, email, password, phone }) {
     let student = await User.findOne({ email });
 
     if (student) {
       if (student.isVerified) {
         throw new AppError('Email address is already registered. Please log in.', 400);
       }
-      // If student exists but is not verified, update name & password
+      // If student exists but is not verified, update name, password & phone
       if (name) student.name = name;
       if (password) student.password = password;
+      if (phone) student.phone = phone;
     } else {
-      student = new User({ name, email, password });
+      student = new User({ name, email, password, phone });
     }
 
     // Generate 6-digit OTP
@@ -31,7 +32,7 @@ class AuthService {
     emailService.sendOTP(email, otpCode).catch((err) => console.error(err));
 
     return {
-      user: { id: student.id, name: student.name, email: student.email },
+      user: { id: student.id, name: student.name, email: student.email, phone: student.phone || '' },
       otpCode,
       message: `OTP verification code sent to ${email}.`,
     };

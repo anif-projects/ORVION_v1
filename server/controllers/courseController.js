@@ -5,9 +5,10 @@ const asyncHandler = require('../utils/asyncHandler');
 const AppError = require('../utils/appError');
 
 const getCourses = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 12, search, sort, isFeatured } = req.query;
+  const { page = 1, limit = 12, search, sort, isFeatured, type } = req.query;
   const filters = {};
   if (isFeatured) filters.isFeatured = isFeatured === 'true';
+  if (type) filters.type = type;
   
   // Clean text search on title
   if (search) filters.title = { $regex: search, $options: 'i' };
@@ -62,7 +63,7 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
 });
 
 const createCourse = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, totalLessons, previewVideo, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
   const course = await courseRepo.create({
     title,
     subtitle: subtitle || '',
@@ -74,6 +75,8 @@ const createCourse = asyncHandler(async (req, res) => {
     rating: (rating !== undefined && rating !== '') ? Number(rating) : 4.80,
     enrolledCount: (enrolledCount !== undefined && enrolledCount !== '') ? Number(enrolledCount) : 0,
     totalDuration: (totalDuration !== undefined && totalDuration !== '') ? Number(totalDuration) : 480,
+    totalLessons: (totalLessons !== undefined && totalLessons !== '') ? Number(totalLessons) : 12,
+    previewVideo: previewVideo || '',
     language: language || 'English (Subtitles available)',
     isCertificateIncluded: isCertificateIncluded === true || isCertificateIncluded === 'true',
     modules: modules || [],
@@ -86,7 +89,7 @@ const createCourse = asyncHandler(async (req, res) => {
 });
 
 const updateCourse = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, totalLessons, previewVideo, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
   const course = await courseRepo.update(req.params.id, {
     title,
     subtitle: subtitle || '',
@@ -98,6 +101,8 @@ const updateCourse = asyncHandler(async (req, res) => {
     rating: (rating !== undefined && rating !== '') ? Number(rating) : 4.80,
     enrolledCount: (enrolledCount !== undefined && enrolledCount !== '') ? Number(enrolledCount) : 0,
     totalDuration: (totalDuration !== undefined && totalDuration !== '') ? Number(totalDuration) : 480,
+    totalLessons: (totalLessons !== undefined && totalLessons !== '') ? Number(totalLessons) : 12,
+    previewVideo: previewVideo || '',
     language: language || 'English (Subtitles available)',
     isCertificateIncluded: isCertificateIncluded === true || isCertificateIncluded === 'true',
     modules: modules || [],

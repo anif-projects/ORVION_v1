@@ -10,6 +10,14 @@ const userSchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false },
     otp: { type: String, default: null },
     otpExpiresAt: { type: Date, default: null },
+    study_mon: { type: Number, default: 0 },
+    study_tue: { type: Number, default: 0 },
+    study_wed: { type: Number, default: 0 },
+    study_thu: { type: Number, default: 0 },
+    study_fri: { type: Number, default: 0 },
+    study_sat: { type: Number, default: 0 },
+    study_sun: { type: Number, default: 0 },
+    study_week_start: { type: String, default: '' },
   },
   { timestamps: true }
 );

@@ -6,7 +6,7 @@ const asyncHandler = require('../utils/asyncHandler');
 
 const getDashboardStats = asyncHandler(async (req, res) => {
   const totalStudents = await User.countDocuments({});
-  const totalCourses = await Course.countDocuments({});
+  const totalCourses = await Course.countDocuments({ type: { $ne: 'offline' } });
   const totalEvents = await Event.countDocuments({});
 
   const analytics = {
@@ -74,10 +74,61 @@ const createCategory = asyncHandler(async (req, res) => {
   res.status(201).json({ status: 'success', data: { category: {} } });
 });
 
+const getRegistrationStats = asyncHandler(async (req, res) => {
+  const { startDate, endDate } = req.query;
+  
+  // Default values: last 30 days
+  const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const end = endDate ? new Date(endDate) : new Date();
+  
+  // Set boundaries
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+
+  // Format to MySQL DATETIME format YYYY-MM-DD HH:MM:SS
+  const formatMySQLDate = (d) => {
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
+
+  const sqlStart = formatMySQLDate(start);
+  const sqlEnd = formatMySQLDate(end);
+
+  // Query database using raw MySQL queries
+  const [courseRows] = await mongoose.query(
+    "SELECT COUNT(*) AS count FROM `course_enrollments` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    [sqlStart, sqlEnd]
+  );
+  const [eventRows] = await mongoose.query(
+    "SELECT COUNT(*) AS count FROM `event_enrollments` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    [sqlStart, sqlEnd]
+  );
+  const [internshipRows] = await mongoose.query(
+    "SELECT COUNT(*) AS count FROM `internship_applications` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    [sqlStart, sqlEnd]
+  );
+
+  const courseCount = courseRows[0]?.count || 0;
+  const eventCount = eventRows[0]?.count || 0;
+  const internshipCount = internshipRows[0]?.count || 0;
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      courses: courseCount,
+      events: eventCount,
+      internships: internshipCount
+    }
+  });
+});
+
+const mongoose = require('../config/mongoose-mysql');
+
 module.exports = {
   getDashboardStats,
   getStudents,
   updateStudentStatus,
   getAuditLogs,
   createCategory,
+  getRegistrationStats,
 };

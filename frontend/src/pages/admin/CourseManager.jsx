@@ -23,7 +23,9 @@ export default function CourseManager() {
   const fetchCourses = async () => {
     try {
       const res = await api.get('/courses?limit=50&status=all');
-      setCourses(res.data.data.courses || []);
+      const allCourses = res.data.data.courses || [];
+      const onlineCourses = allCourses.filter(c => c.type !== 'offline');
+      setCourses(onlineCourses);
     } catch (err) {
       console.error(err);
       setCourses([
@@ -168,13 +170,13 @@ export default function CourseManager() {
               <p className="text-xs text-slate-500 font-medium">Course: {selectedCourseTitle}</p>
             </div>
 
-            <div className="max-h-[350px] overflow-y-auto border border-slate-200 dark:border-slate-800 rounded-2xl">
+            <div className="max-h-[350px] overflow-y-auto overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl">
               {loadingStudents ? (
                 <div className="text-center py-12 text-slate-500 text-sm">Loading enrolled students...</div>
               ) : enrolledStudents.length === 0 ? (
                 <div className="text-center py-12 text-slate-500 text-sm">No students enrolled in this course yet.</div>
               ) : (
-                <table className="w-full text-left border-collapse text-sm">
+                <table className="w-full min-w-[550px] text-left border-collapse text-sm">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-slate-800/50 text-xs font-semibold text-slate-500 uppercase border-b border-slate-200 dark:border-slate-700">
                       <th className="px-4 py-3">Student Name</th>

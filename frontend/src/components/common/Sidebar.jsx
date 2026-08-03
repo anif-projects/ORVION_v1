@@ -8,7 +8,8 @@ import {
   MessageSquare,
   User,
   Calendar,
-  Award
+  Award,
+  Briefcase
 } from 'lucide-react';
 
 export default function Sidebar({ role = 'student' }) {
@@ -17,7 +18,6 @@ export default function Sidebar({ role = 'student' }) {
     { name: 'My Courses', path: '/student/my-courses', icon: BookOpen },
     { name: 'My Events', path: '/student/events', icon: Calendar },
     { name: 'Certifications', path: '/student/certifications', icon: Award },
-    { name: 'Community Q&A', path: '/student/community', icon: MessageSquare },
     { name: 'Profile', path: '/student/profile', icon: User },
   ];
 
@@ -26,6 +26,8 @@ export default function Sidebar({ role = 'student' }) {
     { name: 'Course Manager', path: '/admin/courses', icon: BookOpen },
     { name: 'Live Events', path: '/admin/events', icon: Calendar },
     { name: 'Student Directory', path: '/admin/students', icon: Users },
+    { name: 'Internships', path: '/admin/internships', icon: Briefcase },
+    { name: 'Inquiries', path: '/admin/inquiries', icon: MessageSquare },
   ];
 
   const links = role === 'admin' || role === 'super_admin' ? adminLinks : studentLinks;

@@ -215,7 +215,128 @@ const connect = async () => {
     const conn = await realPool.getConnection();
     console.log(`[Database] MySQL Connection Pool Initialized. Connected to: mysql://${host}:${port}/${database}`);
     
-    // No-op for structural changes on startup since schema.sql handles it.
+    // Structural changes on startup to migrate new columns
+    try {
+      await realPool.query("ALTER TABLE `courses` ADD COLUMN `totalLessons` INT DEFAULT 12;");
+      console.log("[Database] Migration: Added totalLessons column to courses table.");
+    } catch (err) {
+      // Column might already exist
+    }
+    try {
+      await realPool.query("ALTER TABLE `courses` ADD COLUMN `previewVideo` TEXT;");
+      console.log("[Database] Migration: Added previewVideo column to courses table.");
+    } catch (err) {
+      // Column might already exist
+    }
+    try {
+      await realPool.query(`
+        CREATE TABLE IF NOT EXISTS \`internships\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`title\` VARCHAR(255) NOT NULL,
+          \`description\` TEXT NOT NULL,
+          \`duration\` VARCHAR(100) DEFAULT '3 Months (Remote)',
+          \`requirements\` TEXT,
+          \`skills\` TEXT,
+          \`stipend\` VARCHAR(100) DEFAULT 'Unpaid',
+          \`location\` VARCHAR(255) DEFAULT 'Remote',
+          \`category\` VARCHAR(255) DEFAULT '',
+          \`createdAt\` DATETIME DEFAULT CURRENT_TIMESTAMP,
+          \`updatedAt\` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      console.log("[Database] Migration: Checked/Created internships table.");
+    } catch (err) {
+      console.error("[Database] Migration Error creating internships table:", err.message);
+    }
+    try {
+      await realPool.query("ALTER TABLE `internship_applications` ADD COLUMN `internshipId` INT DEFAULT NULL;");
+      console.log("[Database] Migration: Added internshipId column to internship_applications table.");
+    } catch (err) {
+      // Column might already exist
+    }
+    try {
+      await realPool.query("ALTER TABLE `internship_applications` ADD CONSTRAINT `fk_internship_applications_internshipId` FOREIGN KEY (`internshipId`) REFERENCES `internships` (`id`) ON DELETE SET NULL;");
+      console.log("[Database] Migration: Added foreign key constraint to internship_applications table.");
+    } catch (err) {
+      // Constraint might already exist
+    }
+    try {
+      await realPool.query(`
+        CREATE TABLE IF NOT EXISTS \`contact_messages\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`fullName\` VARCHAR(255) NOT NULL,
+          \`email\` VARCHAR(255) NOT NULL,
+          \`mobile\` VARCHAR(50) NOT NULL,
+          \`college\` VARCHAR(255) DEFAULT '',
+          \`year\` VARCHAR(100) DEFAULT '',
+          \`branch\` VARCHAR(255) DEFAULT '',
+          \`address\` VARCHAR(255) DEFAULT '',
+          \`message\` TEXT,
+          \`createdAt\` DATETIME DEFAULT CURRENT_TIMESTAMP,
+          \`updatedAt\` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      console.log("[Database] Migration: Checked/Created contact_messages table.");
+    } catch (err) {
+      console.error("[Database] Migration Error creating contact_messages table:", err.message);
+    }
+    try {
+      await realPool.query(`
+        CREATE TABLE IF NOT EXISTS \`gallery_images\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`url\` LONGTEXT NOT NULL,
+          \`isHero\` BOOLEAN DEFAULT FALSE,
+          \`createdAt\` DATETIME DEFAULT CURRENT_TIMESTAMP,
+          \`updatedAt\` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      console.log("[Database] Migration: Checked/Created gallery_images table.");
+    } catch (err) {
+      console.error("[Database] Migration Error creating gallery_images table:", err.message);
+    }
+
+    try {
+      await realPool.query("ALTER TABLE `courses` ADD COLUMN `type` VARCHAR(50) DEFAULT 'online';");
+      console.log("[Database] Migration: Added type column to courses table.");
+    } catch (err) {
+      // Column might already exist
+    }
+    const studyColumns = [
+      "ALTER TABLE `students` ADD COLUMN `study_mon` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_tue` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_wed` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_thu` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_fri` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_sat` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_sun` DOUBLE DEFAULT 0.0;",
+      "ALTER TABLE `students` ADD COLUMN `study_week_start` VARCHAR(20) DEFAULT '';"
+    ];
+    for (const sql of studyColumns) {
+      try {
+        await conn.query(sql);
+      } catch (err) {
+        // column might already exist
+      }
+    }
+
+    try {
+      const [rows] = await realPool.query("SELECT COUNT(*) as count FROM courses WHERE type = 'offline';");
+      if (rows && rows[0] && rows[0].count === 0) {
+        await realPool.query(`
+          INSERT INTO courses (title, subtitle, description, type, totalDuration, totalLessons, isFeatured, category, rating) VALUES 
+          ('UI/UX Design', 'Master design thinking & tools', 'Master design thinking, user research, and industry-standard tools to craft beautiful, intuitive digital experiences.', 'offline', 720, 12, 1, 'Design', 4.90),
+          ('DevOps & Cloud', 'Build, deploy, and scale', 'Build, deploy, and scale modern applications with the most in-demand cloud and DevOps toolchain used in top companies.', 'offline', 960, 16, 1, 'Cloud', 4.85),
+          ('AI & Data Science', 'Deep learning & analytics', 'From data wrangling to deep learning — build real-world AI models using cutting edge frameworks and OpenAI APIs.', 'offline', 960, 16, 1, 'Artificial Intelligence', 4.90),
+          ('Cybersecurity', 'Offensive & defensive security', 'Learn offensive and defensive security techniques used by real security engineers to protect modern systems.', 'offline', 960, 16, 1, 'Security', 4.80),
+          ('Quantum Computing', 'Future of computation', 'Step into the future — understand quantum algorithms and build circuits using the world\\'s leading quantum platforms.', 'offline', 720, 12, 1, 'Quantum', 4.95),
+          ('Machine Learning', 'Predictive modeling & AI', 'Master modern machine learning algorithms, build intelligent predictive models, and deploy real-world AI applications from scratch.', 'offline', 960, 16, 1, 'Data Science', 4.88),
+          ('Data Engineering', 'Optimize modern data pipelines', 'Master the modern data stack to design, build, and optimize scalable data pipelines, data warehouses, and big data architectures.', 'offline', 960, 16, 1, 'Data Engineering', 4.86);
+        `);
+        console.log("[Database] Seeding: Inserted Orvion offline courses.");
+      }
+    } catch (err) {
+      console.error("[Database] Seeding Error:", err.message);
+    }
 
     conn.release();
     pool = realPool;
@@ -269,6 +390,10 @@ const getTableName = (modelName) => {
     Event: 'events',
     EventEnrollment: 'event_enrollments',
     LessonProgress: 'lesson_progress',
+    Internship: 'internships',
+    InternshipApplication: 'internship_applications',
+    ContactMessage: 'contact_messages',
+    GalleryImage: 'gallery_images',
   };
   return mapping[modelName] || modelName.toLowerCase() + 's';
 };

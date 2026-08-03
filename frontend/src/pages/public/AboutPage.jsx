@@ -42,6 +42,8 @@ import {
   MapPin
 } from 'lucide-react';
 import { pageVariants } from '../../utils/animations';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 // Orvion Tree Logo Watermark SVG
 const OrvionTreeLogo = ({ className = "w-full h-full text-orange-600/10" }) => (
@@ -122,13 +124,19 @@ export default function AboutPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      await api.post('/contacts', contactForm);
       setSubmitSuccess(true);
-    }, 1500);
+      toast.success('Your message has been received!');
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Hover states for "What We Stand For" section
