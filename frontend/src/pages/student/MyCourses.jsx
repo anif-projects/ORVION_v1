@@ -45,24 +45,29 @@ export default function MyCourses() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {courses.map((item) => (
-            <div key={item._id} className="glass-card p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-4">
-              <div className="flex gap-4">
-                <img src={item.course?.thumbnail} alt={item.course?.title} className="w-28 h-20 rounded-xl object-cover" />
-                <div className="space-y-1">
-                  <h3 className="font-bold text-slate-800 dark:text-white text-base">{item.course?.title}</h3>
-                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${item.progressPercentage >= 100 ? 'bg-accent-success/20 text-accent-success' : 'bg-primary-500/20 text-primary-600'}`}>
-                    {item.progressPercentage >= 100 ? 'Completed' : `${item.progressPercentage}% Progress`}
-                  </span>
+          {courses.map((item) => {
+            const courseSlug = item.course?.slug || (item.course?.title 
+              ? item.course.title.toLowerCase().replace(/\s+/g, '').replace(/[^\w\-]+/g, '') 
+              : (item.course?.id || item.course?._id));
+            return (
+              <div key={item._id} className="glass-card p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 space-y-4">
+                <div className="flex gap-4">
+                  <img src={item.course?.thumbnail} alt={item.course?.title} className="w-28 h-20 rounded-xl object-cover" />
+                  <div className="space-y-1">
+                    <h3 className="font-bold text-slate-800 dark:text-white text-base">{item.course?.title}</h3>
+                    <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${item.progressPercentage >= 100 ? 'bg-accent-success/20 text-accent-success' : 'bg-primary-500/20 text-primary-600'}`}>
+                      {item.progressPercentage >= 100 ? 'Completed' : `${item.progressPercentage}% Progress`}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <Link to={`/learning/player/${courseSlug}`} className="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center gap-1.5">
+                    <Play className="w-3.5 h-3.5" /> Continue Learning
+                  </Link>
                 </div>
               </div>
-              <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
-                <Link to={`/learning/player/${item.course?.id || item.course?._id || item.course?.slug}`} className="px-4 py-2 rounded-xl bg-primary-600 text-white text-xs font-bold flex items-center gap-1.5">
-                  <Play className="w-3.5 h-3.5" /> Continue Learning
-                </Link>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </motion.div>

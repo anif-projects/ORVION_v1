@@ -1,6 +1,8 @@
 const authService = require('../services/authService');
 const asyncHandler = require('../utils/asyncHandler');
 const User = require('../models/User');
+const mongoose = require('../config/mongoose-mysql');
+const emailService = require('../services/emailService');
 
 const register = asyncHandler(async (req, res) => {
   const result = await authService.register(req.body);
@@ -164,7 +166,7 @@ const trackStudyTime = asyncHandler(async (req, res) => {
       "SELECT `title`, `createdAt` FROM `courses` WHERE `type` != 'offline' ORDER BY `createdAt` DESC LIMIT 5"
     );
     const [recentEvents] = await mongoose.query(
-      "SELECT `title`, `createdAt` FROM `events` ORDER BY `createdAt` DESC LIMIT 5"
+      "SELECT `name`, `createdAt` FROM `events` ORDER BY `createdAt` DESC LIMIT 5"
     );
 
     recentCourses.forEach(c => {
@@ -186,9 +188,9 @@ const trackStudyTime = asyncHandler(async (req, res) => {
       const diffHours = diffMs / (1000 * 60 * 60);
       if (diffHours <= 72) {
         notifications.push({
-          id: `event-${e.title}`,
+          id: `event-${e.name}`,
           title: 'New Seminar Scheduled 📅',
-          message: `Join the live session: "${e.title}". Register in Live Hub.`,
+          message: `Join the live session: "${e.name}". Register in Live Hub.`,
           time: 'Recently',
           type: 'new_event'
         });
@@ -230,6 +232,84 @@ const trackStudyTime = asyncHandler(async (req, res) => {
     data: { notifications }
   });
 });
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new AppError('Email address is required.', 400);
+  }
+
+  const student = await User.findOne({ email: email.toLowerCase().trim() });
+  if (!student) {
+    throw new AppError('Student with this email address does not exist.', 404);
+  }
+
+  // Rate limiting check: 3 resets per day max
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (student.last_reset_date === todayStr && student.reset_count >= 3) {
+    throw new AppError('You have reached the maximum limit of 3 password resets per day.', 400);
+  }
+
+  // Generate 6-digit OTP
+  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  student.reset_otp = otpCode;
+  student.reset_otp_expires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+  await student.save();
+
+  // Send OTP
+  await emailService.sendResetOTP(student.email, otpCode);
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Verification OTP has been sent to your email.'
+  });
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    throw new AppError('Email, verification OTP, and new password are required.', 400);
+  }
+
+  const student = await User.findOne({ email: email.toLowerCase().trim() });
+  if (!student) {
+    throw new AppError('Student with this email address does not exist.', 404);
+  }
+
+  // Rate limiting double-check
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (student.last_reset_date === todayStr && student.reset_count >= 3) {
+    throw new AppError('You have reached the maximum limit of 3 password resets per day.', 400);
+  }
+
+  // OTP Check
+  if (!student.reset_otp || student.reset_otp !== otp) {
+    throw new AppError('Invalid verification OTP code.', 400);
+  }
+
+  if (new Date() > new Date(student.reset_otp_expires)) {
+    throw new AppError('Verification OTP has expired.', 400);
+  }
+
+  // Increment daily counter upon successful reset
+  if (student.last_reset_date === todayStr) {
+    student.reset_count = (student.reset_count || 0) + 1;
+  } else {
+    student.last_reset_date = todayStr;
+    student.reset_count = 1;
+  }
+
+  // Reset password & clear OTP fields
+  student.password = newPassword;
+  student.reset_otp = null;
+  student.reset_otp_expires = null;
+  await student.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Password has been reset successfully.'
+  });
+});
 
 module.exports = {
   register,
@@ -241,4 +321,6 @@ module.exports = {
   updateProfile,
   trackStudyTime,
   getNotifications,
+  forgotPassword,
+  resetPassword,
 };

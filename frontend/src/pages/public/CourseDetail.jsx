@@ -261,6 +261,16 @@ export default function CourseDetail() {
     }
   };
 
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleEnroll = async () => {
     if (!user) {
       toast.error('Please log in to enroll in this course');
@@ -268,21 +278,71 @@ export default function CourseDetail() {
       return;
     }
 
+    const loadToast = toast.loading('Initiating enrollment...');
     try {
       const res = await api.post('/payments/checkout', {
-        courseId: course._id,
-        price: course.discountPrice || course.price,
-        provider: 'stripe',
+        type: 'course',
+        id: course._id
       });
       
-      if (res.data.data.checkoutUrl) {
-        window.location.href = res.data.data.checkoutUrl;
-      } else {
-        toast.success(res.data.data.message || 'Enrolled successfully!');
+      const { isPaid, orderId, amount, currency, keyId, message } = res.data.data;
+
+      if (!isPaid) {
+        toast.success(message || 'Enrolled in free course successfully!', { id: loadToast });
         navigate('/student/dashboard');
+        return;
       }
+
+      // Paid course flow: Load Razorpay
+      toast.loading('Loading payment gateway...', { id: loadToast });
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        toast.error('Failed to load Razorpay SDK. Check your internet connection.', { id: loadToast });
+        return;
+      }
+
+      toast.dismiss(loadToast);
+
+      const options = {
+        key: keyId,
+        amount: amount, // in paise
+        currency: currency || 'INR',
+        name: 'Orvion Edu Tech',
+        description: `Purchase: ${course.title}`,
+        order_id: orderId,
+        handler: async function (response) {
+          const verifyToast = toast.loading('Verifying payment secure signature...');
+          try {
+            await api.post('/payments/verify', {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              type: 'course',
+              itemId: course._id
+            });
+            toast.success('🎉 Purchase complete! Course access granted.', { id: verifyToast });
+            navigate('/student/dashboard');
+          } catch (err) {
+            console.error(err);
+            toast.error(err.response?.data?.message || 'Payment verification failed.', { id: verifyToast });
+          }
+        },
+        prefill: {
+          name: user.name || '',
+          email: user.email || '',
+          contact: user.phone || ''
+        },
+        theme: {
+          color: '#b45309'
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Checkout failed');
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Checkout initialization failed', { id: loadToast });
     }
   };
 

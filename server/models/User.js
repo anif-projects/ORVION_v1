@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema(
     study_sat: { type: Number, default: 0 },
     study_sun: { type: Number, default: 0 },
     study_week_start: { type: String, default: '' },
+    token_version: { type: Number, default: 1 },
   },
   { timestamps: true }
 );

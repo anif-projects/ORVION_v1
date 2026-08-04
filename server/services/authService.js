@@ -69,7 +69,11 @@ class AuthService {
       throw new AppError('Your email is not verified. Please register or verify via OTP.', 401);
     }
 
-    const payload = { id: student.id, role: 'student', email: student.email };
+    const nextTokenVersion = (student.token_version || 0) + 1;
+    student.token_version = nextTokenVersion;
+    await student.save();
+
+    const payload = { id: student.id, role: 'student', email: student.email, token_version: nextTokenVersion };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 
@@ -87,7 +91,11 @@ class AuthService {
     const isMatch = await admin.comparePassword(password);
     if (!isMatch) throw new AppError('Invalid email or password', 401);
 
-    const payload = { id: admin.id, role: 'admin', email: admin.email };
+    const nextTokenVersion = (admin.token_version || 0) + 1;
+    admin.token_version = nextTokenVersion;
+    await admin.save();
+
+    const payload = { id: admin.id, role: 'admin', email: admin.email, token_version: nextTokenVersion };
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
 

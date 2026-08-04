@@ -320,6 +320,56 @@ const connect = async () => {
     }
 
     try {
+      await conn.query(`
+        CREATE TABLE IF NOT EXISTS \`payments\` (
+          \`id\` INT AUTO_INCREMENT PRIMARY KEY,
+          \`student\` INT NOT NULL,
+          \`course\` INT DEFAULT NULL,
+          \`event\` INT DEFAULT NULL,
+          \`amount\` DECIMAL(10, 2) NOT NULL,
+          \`currency\` VARCHAR(10) DEFAULT 'INR',
+          \`provider\` VARCHAR(50) NOT NULL,
+          \`transactionId\` VARCHAR(255) NOT NULL UNIQUE,
+          \`status\` VARCHAR(50) DEFAULT 'pending',
+          \`createdAt\` DATETIME DEFAULT CURRENT_TIMESTAMP,
+          \`updatedAt\` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          FOREIGN KEY (\`student\`) REFERENCES \`students\`(\`id\`) ON DELETE CASCADE,
+          FOREIGN KEY (\`course\`) REFERENCES \`courses\`(\`id\`) ON DELETE SET NULL,
+          FOREIGN KEY (\`event\`) REFERENCES \`events\`(\`id\`) ON DELETE SET NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      `);
+      console.log("[Database] Migration: Checked/Created payments table.");
+    } catch (err) {
+      console.error("[Database] Migration Error creating payments table:", err.message);
+    }
+
+    const resetPasswordColumns = [
+      "ALTER TABLE `students` ADD COLUMN `reset_otp` VARCHAR(6) DEFAULT NULL;",
+      "ALTER TABLE `students` ADD COLUMN `reset_otp_expires` DATETIME DEFAULT NULL;",
+      "ALTER TABLE `students` ADD COLUMN `reset_count` INT DEFAULT 0;",
+      "ALTER TABLE `students` ADD COLUMN `last_reset_date` VARCHAR(20) DEFAULT '';"
+    ];
+    for (const sql of resetPasswordColumns) {
+      try {
+        await conn.query(sql);
+      } catch (err) {
+        // column might already exist
+      }
+    }
+
+    const tokenVersionColumns = [
+      "ALTER TABLE `students` ADD COLUMN `token_version` INT DEFAULT 1;",
+      "ALTER TABLE `admins` ADD COLUMN `token_version` INT DEFAULT 1;"
+    ];
+    for (const sql of tokenVersionColumns) {
+      try {
+        await conn.query(sql);
+      } catch (err) {
+        // column might already exist
+      }
+    }
+
+    try {
       const [rows] = await realPool.query("SELECT COUNT(*) as count FROM courses WHERE type = 'offline';");
       if (rows && rows[0] && rows[0].count === 0) {
         await realPool.query(`
@@ -336,6 +386,22 @@ const connect = async () => {
       }
     } catch (err) {
       console.error("[Database] Seeding Error:", err.message);
+    }
+
+    try {
+      const [internshipRows] = await realPool.query("SELECT COUNT(*) as count FROM internships;");
+      if (internshipRows && internshipRows[0] && internshipRows[0].count === 0) {
+        await realPool.query(`
+          INSERT INTO internships (title, description, duration, requirements, skills, stipend, location, category) VALUES 
+          ('Full-Stack Web Development', 'Master modern web architectures using React, Node.js, Express, and databases. Work on real-world collaborative sprints and production deployments.', '3 Months (Remote)', 'Basic JavaScript, HTML & CSS knowledge, Familiarity with Git', 'React & Next.js, Node.js & REST APIs, MySQL / MongoDB, CI/CD Pipelines', 'Unpaid', 'Remote', 'Web Development'),
+          ('AI & Data Science Engineering', 'Build and deploy Machine Learning models, analyze complex datasets, and work on Generative AI integrations using Python and popular deep learning frameworks.', '3 Months (Remote)', 'Python programming, Basic Linear Algebra, Analytical mindset', 'Python & Pandas, Supervised / Unsupervised ML, Generative AI & LLMs, Model Deployment', 'Unpaid', 'Remote', 'Data Science'),
+          ('UI/UX Design & Frontend Engineering', 'Bridge the gap between design and development. Design high-fidelity Figma mockups, user research maps, and convert designs into responsive React interfaces.', '3 Months (Remote)', 'Interest in visual design, Basic CSS/JS, Attention to detail', 'Figma Mastery, User Research & Wireframes, TailwindCSS & React, Micro-interactions', 'Unpaid', 'Remote', 'Design'),
+          ('DevOps & Cloud Security', 'Gain hands-on expertise in cloud infrastructure, containerization, automated pipelines, security auditing, and server administration.', '3 Months (Remote)', 'Basic Linux commands, Understanding of web servers, Problem solving', 'Docker & Kubernetes, AWS / Google Cloud, CI/CD & Jenkins, Infrastructure as Code', 'Unpaid', 'Remote', 'DevOps & Security');
+        `);
+        console.log("[Database] Seeding: Inserted Orvion default internships.");
+      }
+    } catch (err) {
+      console.error("[Database] Internship Seeding Error:", err.message);
     }
 
     conn.release();

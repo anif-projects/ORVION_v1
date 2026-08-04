@@ -33,7 +33,8 @@ export default function CourseCard({ course, index = 0 }) {
     level,
   } = course;
 
-  const slug = course.slug || course._id || course.id;
+  const slugify = (text) => text.toString().toLowerCase().replace(/\s+/g, '').replace(/[^\w\-]+/g, '');
+  const slug = course.slug || (course.title ? slugify(course.title) : (course._id || course.id));
   const { user } = useAuth();
   const [isFeaturedState, setIsFeaturedState] = useState(course.isFeatured || false);
 

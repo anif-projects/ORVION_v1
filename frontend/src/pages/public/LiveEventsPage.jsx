@@ -80,56 +80,83 @@ export default function LiveEventsPage() {
     setIsReservedSuccess(false);
 
     if (selectedEvent.isPaymentEnabled && selectedEvent.paymentAmount > 0) {
-      const loaded = await loadRazorpayScript();
-      if (!loaded) {
+      try {
+        const res = await api.post('/payments/checkout', {
+          type: 'event',
+          id: selectedEvent._id
+        });
+        
+        const { isPaid, orderId, amount, currency, keyId, message } = res.data.data;
+
+        if (!isPaid) {
+          setIsSubmitting(false);
+          setIsReservedSuccess(true);
+          toast.success(message || '✅ Reserved Successfully!');
+          setTimeout(() => {
+            setSelectedEvent(null);
+            setIsReservedSuccess(false);
+            setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
+          }, 1200);
+          return;
+        }
+
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          setIsSubmitting(false);
+          toast.error('Failed to load Razorpay Payment Gateway. Check connection.');
+          return;
+        }
+
+        const options = {
+          key: keyId,
+          amount: amount, // in paise
+          currency: currency || 'INR',
+          name: 'Orvion Edu Tech',
+          description: `Enrollment: ${selectedEvent.name}`,
+          order_id: orderId,
+          handler: async function (response) {
+            try {
+              await api.post('/payments/verify', {
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                type: 'event',
+                itemId: selectedEvent._id
+              });
+              setIsSubmitting(false);
+              setIsReservedSuccess(true);
+              toast.success('✅ Payment Verified & Registered Successfully!');
+              setTimeout(() => {
+                setSelectedEvent(null);
+                setIsReservedSuccess(false);
+                setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
+              }, 1200);
+            } catch (err) {
+              setIsSubmitting(false);
+              toast.error(err.response?.data?.message || 'Payment verification failed. Contact support.');
+            }
+          },
+          modal: {
+            ondismiss: function() {
+              setIsSubmitting(false);
+            }
+          },
+          prefill: {
+            name: formData.name,
+            email: formData.email,
+            contact: formData.phone,
+          },
+          theme: {
+            color: '#4F46E5',
+          },
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } catch (err) {
         setIsSubmitting(false);
-        toast.error('Failed to load Razorpay Payment Gateway. Check connection.');
-        return;
+        toast.error(err.response?.data?.message || 'Checkout initialization failed');
       }
-
-      const options = {
-        key: 'rzp_test_mockkey_123', // Test API Key
-        amount: Math.round(selectedEvent.paymentAmount * 100), // in Paisa
-        currency: 'INR',
-        name: 'Orvion Edu Tech',
-        description: `Enrollment: ${selectedEvent.name}`,
-        handler: async function (response) {
-          try {
-            await api.post(`/events/${selectedEvent._id}/register`, {
-              ...formData,
-              isPaid: true,
-              paymentId: response.razorpay_payment_id || `MOCK-PAY-${Date.now()}`,
-            });
-            setIsSubmitting(false);
-            setIsReservedSuccess(true);
-            toast.success('✅ Reserved Successfully!');
-            setTimeout(() => {
-              setSelectedEvent(null);
-              setIsReservedSuccess(false);
-              setFormData(prev => ({ ...prev, organization: '', agreedToTerms: false }));
-            }, 1200);
-          } catch (err) {
-            setIsSubmitting(false);
-            toast.error('Registration failed after payment. Contact support.');
-          }
-        },
-        modal: {
-          ondismiss: function() {
-            setIsSubmitting(false);
-          }
-        },
-        prefill: {
-          name: formData.name,
-          email: formData.email,
-          contact: formData.phone,
-        },
-        theme: {
-          color: '#4F46E5',
-        },
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.open();
     } else {
       // Free Event
       try {

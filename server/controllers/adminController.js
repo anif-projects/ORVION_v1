@@ -3,6 +3,8 @@ const Course = require('../models/Course');
 const Event = require('../models/Event');
 const Enrollment = require('../models/Enrollment');
 const asyncHandler = require('../utils/asyncHandler');
+const Admin = require('../models/Admin');
+const AppError = require('../utils/appError');
 
 const getDashboardStats = asyncHandler(async (req, res) => {
   const totalStudents = await User.countDocuments({});
@@ -96,11 +98,11 @@ const getRegistrationStats = asyncHandler(async (req, res) => {
 
   // Query database using raw MySQL queries
   const [courseRows] = await mongoose.query(
-    "SELECT COUNT(*) AS count FROM `course_enrollments` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    "SELECT COUNT(*) AS count FROM `course_enrollments` WHERE `enrolledAt` >= ? AND `enrolledAt` <= ?",
     [sqlStart, sqlEnd]
   );
   const [eventRows] = await mongoose.query(
-    "SELECT COUNT(*) AS count FROM `event_enrollments` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    "SELECT COUNT(*) AS count FROM `event_enrollments` WHERE `enrolledAt` >= ? AND `enrolledAt` <= ?",
     [sqlStart, sqlEnd]
   );
   const [internshipRows] = await mongoose.query(
@@ -121,6 +123,34 @@ const getRegistrationStats = asyncHandler(async (req, res) => {
     }
   });
 });
+const createAdmin = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    throw new AppError('Name, email, and password are required.', 400);
+  }
+
+  const existing = await Admin.findOne({ email: email.toLowerCase().trim() });
+  if (existing) {
+    throw new AppError('Admin with this email already exists.', 400);
+  }
+
+  const newAdmin = await Admin.create({
+    name,
+    email: email.toLowerCase().trim(),
+    password
+  });
+
+  const adminObj = newAdmin.toObject();
+  delete adminObj.password;
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      admin: adminObj
+    }
+  });
+});
 
 const mongoose = require('../config/mongoose-mysql');
 
@@ -131,4 +161,5 @@ module.exports = {
   getAuditLogs,
   createCategory,
   getRegistrationStats,
+  createAdmin,
 };

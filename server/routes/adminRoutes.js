@@ -13,5 +13,6 @@ router.get('/students', adminController.getStudents);
 router.patch('/students/:id/status', auditLog('UPDATE_STUDENT_STATUS'), adminController.updateStudentStatus);
 router.get('/audit-logs', adminController.getAuditLogs);
 router.post('/categories', auditLog('CREATE_CATEGORY'), adminController.createCategory);
+router.post('/create-admin', auditLog('CREATE_ADMIN'), adminController.createAdmin);
 
 module.exports = router;
