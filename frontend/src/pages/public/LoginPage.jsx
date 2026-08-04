@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { BookOpen, ArrowRight } from 'lucide-react';
-import { pageVariants } from '../../utils/animations';
+import { BookOpen, ArrowRight, Lock, Mail, KeyRound } from 'lucide-react';
 import api from '../../services/api';
+import orvionAuthBg from '../../assets/orvion_auth_bg.png';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -13,6 +13,27 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Mouse Movement Effect (Subtle 3-5px translation)
+  const rawX = useMotionValue(0);
+  const rawY = useMotionValue(0);
+  const mouseX = useSpring(rawX, { stiffness: 200, damping: 25 });
+  const mouseY = useSpring(rawY, { stiffness: 200, damping: 25 });
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const offsetX = ((e.clientX - centerX) / (rect.width / 2)) * 4; // max ±4px
+    const offsetY = ((e.clientY - centerY) / (rect.height / 2)) * 4;
+    rawX.set(offsetX);
+    rawY.set(offsetY);
+  };
+
+  const handleMouseLeave = () => {
+    rawX.set(0);
+    rawY.set(0);
+  };
 
   // Forgot Password Wizard States
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -26,7 +47,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    loadingToast = toast.loading('Logging in...');
+    setLoading(true);
+    const loadingToast = toast.loading('Logging in...');
     try {
       const loggedUser = await login(email, password);
       toast.success('Welcome back!', { id: loadingToast });
@@ -75,7 +97,7 @@ export default function LoginPage() {
       toast.success('Password reset completed successfully! Please log in.', { id: loadToast });
       setIsForgotPassword(false);
       setResetStep(1);
-      setEmail(resetEmail); // autofill
+      setEmail(resetEmail);
       setResetEmail('');
       setResetOtp('');
       setNewPassword('');
@@ -87,176 +109,256 @@ export default function LoginPage() {
     }
   };
 
-  let loadingToast;
+  // Stagger Animations for Form Items
+  const formContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.06,
+        delayChildren: 0.15,
+      },
+    },
+  };
 
-  if (isForgotPassword) {
-    return (
-      <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="min-h-[calc(100vh-8rem)] flex items-center justify-center p-4">
-        <div className="w-full max-w-md glass-panel p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-2xl space-y-6">
-          <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-600 to-secondary-500 flex items-center justify-center text-white mx-auto shadow-glow">
-              <BookOpen className="w-6 h-6" />
-            </div>
-            <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Reset Password</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {resetStep === 1 
-                ? 'Enter your registered email to receive a 6-digit OTP' 
-                : 'Enter the OTP and set your new password'}
-            </p>
-          </div>
-
-          {resetStep === 1 ? (
-            <form onSubmit={handleRequestOTP} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  placeholder="alex@example.com"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={sendingOtp}
-                className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow hover:scale-[1.02] transition flex items-center justify-center gap-2"
-              >
-                {sendingOtp ? 'Sending OTP...' : 'Send Verification OTP'} <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleResetPassword} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">6-Digit OTP Code</label>
-                <input
-                  type="text"
-                  required
-                  maxLength="6"
-                  value={resetOtp}
-                  onChange={(e) => setResetOtp(e.target.value)}
-                  placeholder="123456"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm text-center font-mono text-base tracking-widest"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">New Password</label>
-                <input
-                  type="password"
-                  required
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Confirm New Password</label>
-                <input
-                  type="password"
-                  required
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={resetting}
-                className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow hover:scale-[1.02] transition flex items-center justify-center gap-2"
-              >
-                {resetting ? 'Resetting Password...' : 'Reset Password'} <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
-          )}
-
-          <div className="text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setIsForgotPassword(false);
-                setResetStep(1);
-              }}
-              className="text-xs font-bold text-primary-600 hover:underline bg-transparent border-none cursor-pointer"
-            >
-              Back to Login
-            </button>
-          </div>
-        </div>
-      </motion.div>
-    );
-  }
+  const formItemVariants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.35, ease: 'easeOut' },
+    },
+  };
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="min-h-[calc(100vh-8rem)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md glass-panel p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-2xl space-y-6">
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-primary-600 to-secondary-500 flex items-center justify-center text-white mx-auto shadow-glow">
-            <BookOpen className="w-6 h-6" />
-          </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Welcome Back</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Log in to continue your learning journey</p>
-        </div>
+    <div className="flex-1 w-full relative flex items-center justify-center p-4 sm:p-6 overflow-hidden min-h-screen -mt-[88px] pt-[88px]">
+      {/* Background Image Container with One-Time Very Slow Zoom (1.02x, crisp background) */}
+      <motion.div
+        initial={{ scale: 1 }}
+        animate={{ scale: 1.02 }}
+        transition={{ duration: 1.2, ease: 'easeOut' }}
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat pointer-events-none"
+        style={{ backgroundImage: `url(${orvionAuthBg})` }}
+      />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="alex@example.com"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-            />
-          </div>
+      {/* Light Warm Overlay (5-10% Opacity) */}
+      <div className="absolute inset-0 bg-[#6b471c]/5 pointer-events-none" />
 
-          <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
+      {/* Glassmorphism Authentication Card with 0.65s Entrance & Mouse Move Effect */}
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          x: mouseX,
+          y: mouseY,
+          background: 'rgba(255, 255, 255, 0.18)',
+          backdropFilter: 'blur(22px)',
+          WebkitBackdropFilter: 'blur(22px)',
+          border: '1px solid rgba(255, 255, 255, 0.28)',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.12), 0 8px 30px rgba(255, 170, 60, 0.10)',
+          borderRadius: '32px',
+        }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="relative z-10 w-[90%] sm:w-full max-w-[480px] p-7 sm:p-9 space-y-6"
+      >
+        {isForgotPassword ? (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              {/* Glass Icon with soft orange gradient & blur glow */}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8A4B08] to-[#C96A00] flex items-center justify-center text-white mx-auto shadow-[0_8px_25px_rgba(201,106,0,0.35)]">
+                <KeyRound className="w-6 h-6 text-amber-100" />
+              </div>
+              <h2 className="text-2xl font-extrabold text-[#2e1c0c] tracking-tight">Reset Password</h2>
+              <p className="text-xs text-[#5c3e21]/80 font-medium">
+                {resetStep === 1 
+                  ? 'Enter your registered email to receive a 6-digit OTP' 
+                  : 'Enter the OTP and set your new password'}
+              </p>
+            </div>
+
+            {resetStep === 1 ? (
+              <form onSubmit={handleRequestOTP} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#3d230d] mb-1.5">Email Address</label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A4B08]/70" />
+                    <input
+                      type="email"
+                      required
+                      value={resetEmail}
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      placeholder="alex@example.com"
+                      className="w-full pl-10 pr-4 py-3 text-sm glass-input-premium"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={sendingOtp}
+                  className="w-full py-3.5 glass-btn-orange flex items-center justify-center gap-2 text-sm"
+                >
+                  {sendingOtp ? 'Sending OTP...' : 'Send Verification OTP'} <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#3d230d] mb-1.5">6-Digit OTP Code</label>
+                  <input
+                    type="text"
+                    required
+                    maxLength="6"
+                    value={resetOtp}
+                    onChange={(e) => setResetOtp(e.target.value)}
+                    placeholder="123456"
+                    className="w-full px-4 py-3 text-center font-mono text-base tracking-widest glass-input-premium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#3d230d] mb-1.5">New Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A4B08]/70" />
+                    <input
+                      type="password"
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-10 pr-4 py-3 text-sm glass-input-premium"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#3d230d] mb-1.5">Confirm New Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A4B08]/70" />
+                    <input
+                      type="password"
+                      required
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-10 pr-4 py-3 text-sm glass-input-premium"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={resetting}
+                  className="w-full py-3.5 glass-btn-orange flex items-center justify-center gap-2 text-sm"
+                >
+                  {resetting ? 'Resetting Password...' : 'Reset Password'} <ArrowRight className="w-4 h-4" />
+                </button>
+              </form>
+            )}
+
+            <div className="text-center">
               <button
                 type="button"
                 onClick={() => {
-                  setIsForgotPassword(true);
-                  setResetEmail(email);
+                  setIsForgotPassword(false);
+                  setResetStep(1);
                 }}
-                className="text-xs font-bold text-primary-600 hover:underline bg-transparent border-none cursor-pointer"
+                className="text-xs font-bold text-[#8A4B08] hover:text-[#C96A00] transition bg-transparent border-none cursor-pointer"
               >
-                Forgot Password?
+                Back to Login
               </button>
             </div>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
-            />
           </div>
+        ) : (
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              {/* Glass Icon with soft orange gradient, blur glow & floating shadow */}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8A4B08] to-[#C96A00] flex items-center justify-center text-white mx-auto shadow-[0_8px_25px_rgba(201,106,0,0.35)]">
+                <BookOpen className="w-6 h-6 text-amber-100" />
+              </div>
+              <h2 className="text-2xl font-extrabold text-[#2e1c0c] tracking-tight">Welcome Back</h2>
+              <p className="text-xs text-[#5c3e21]/80 font-medium">Log in to continue your learning journey</p>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow hover:scale-[1.02] transition flex items-center justify-center gap-2"
-          >
-            {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
+            {/* Staggered Form Elements */}
+            <motion.form
+              variants={formContainerVariants}
+              initial="hidden"
+              animate="visible"
+              onSubmit={handleSubmit}
+              className="space-y-4"
+            >
+              {/* Item 1: Email */}
+              <motion.div variants={formItemVariants}>
+                <label className="block text-xs font-bold text-[#3d230d] mb-1.5">Email Address</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A4B08]/70" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="alex@example.com"
+                    className="w-full pl-10 pr-4 py-3 text-sm glass-input-premium"
+                  />
+                </div>
+              </motion.div>
 
-        <div className="text-center text-xs text-slate-500">
-          Don't have an account?{' '}
-          <Link to="/signup" className="font-bold text-primary-600 hover:underline">
-            Sign up
-          </Link>
-        </div>
-      </div>
-    </motion.div>
+              {/* Item 2: Password */}
+              <motion.div variants={formItemVariants}>
+                <div className="flex justify-between items-center mb-1.5">
+                  <label className="block text-xs font-bold text-[#3d230d]">Password</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setResetEmail(email);
+                    }}
+                    className="text-xs font-bold text-[#8A4B08] hover:text-[#C96A00] transition bg-transparent border-none cursor-pointer"
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8A4B08]/70" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-4 py-3 text-sm glass-input-premium"
+                  />
+                </div>
+              </motion.div>
+
+              {/* Item 3: Button */}
+              <motion.div variants={formItemVariants}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3.5 glass-btn-orange flex items-center justify-center gap-2 text-sm"
+                >
+                  {loading ? 'Authenticating...' : 'Sign In'} <ArrowRight className="w-4 h-4" />
+                </button>
+              </motion.div>
+
+              {/* Item 4: Signup Link Text */}
+              <motion.div variants={formItemVariants} className="text-center text-xs font-medium text-[#5c3e21]/80 pt-1">
+                Don't have an account?{' '}
+                <Link to="/signup" className="font-bold text-[#8A4B08] hover:text-[#C96A00] hover:underline transition">
+                  Sign up
+                </Link>
+              </motion.div>
+            </motion.form>
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 }
+
+
+

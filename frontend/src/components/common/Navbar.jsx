@@ -122,12 +122,14 @@ export default function Navbar() {
 
   const portalLinks = isAdmin ? adminPortalLinks : studentPortalLinks;
 
+  const isLoginPage = location.pathname === '/login';
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20, filter: 'blur(8px)' }}
       animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="sticky top-3 z-50 w-full px-3 sm:px-6 max-w-7xl mx-auto transition-all mb-4 sm:mb-6 relative"
+      className={`sticky top-3 z-50 w-full px-3 sm:px-6 max-w-[1600px] mx-auto transition-all relative ${isLoginPage ? 'mb-0' : 'mb-4 sm:mb-6'}`}
     >
       {/* True Glassmorphism Floating Container */}
       <div 

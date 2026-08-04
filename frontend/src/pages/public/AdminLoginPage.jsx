@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { ShieldAlert, ArrowRight } from 'lucide-react';
-import { pageVariants } from '../../utils/animations';
+import { ShieldAlert, ArrowRight, Mail, Lock } from 'lucide-react';
+import orvionAuthBg from '../../assets/orvion_auth_bg.png';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
   const { user, adminLogin } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (user && (user.role === 'admin' || user.role === 'super_admin')) {
       navigate('/$/admin');
     }
@@ -38,50 +38,82 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" exit="exit" className="min-h-[calc(100vh-8rem)] flex items-center justify-center p-4">
-      <div className="w-full max-w-md glass-panel p-8 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-2xl space-y-6">
+    <div 
+      className="min-h-screen w-full relative flex items-center justify-center p-4 sm:p-6 overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${orvionAuthBg})` }}
+    >
+      {/* Light Warm Overlay (5-10% Opacity) */}
+      <div className="absolute inset-0 bg-[#6b471c]/5 pointer-events-none" />
+
+      {/* Background Ambient Shimmer */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="w-full h-full animate-bg-shimmer bg-gradient-to-r from-transparent via-amber-100/25 to-transparent" />
+      </div>
+
+      {/* Floating Ambient Light Particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/4 left-1/5 w-2.5 h-2.5 rounded-full bg-amber-300/40 blur-[1px] animate-particle-float" style={{ animationDelay: '0s' }} />
+        <div className="absolute top-1/3 right-1/4 w-3.5 h-3.5 rounded-full bg-amber-200/35 blur-[1px] animate-particle-float" style={{ animationDelay: '3s' }} />
+        <div className="absolute bottom-1/4 left-1/3 w-2.5 h-2.5 rounded-full bg-yellow-200/40 blur-[1px] animate-particle-float" style={{ animationDelay: '6s' }} />
+        <div className="absolute top-2/3 right-1/5 w-3 h-3 rounded-full bg-amber-400/30 blur-[1px] animate-particle-float" style={{ animationDelay: '9s' }} />
+      </div>
+
+      {/* Authentication Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="relative z-10 w-full max-w-[480px] orvion-auth-card p-7 sm:p-9 space-y-6"
+      >
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 to-red-500 flex items-center justify-center text-white mx-auto shadow-glow">
-            <ShieldAlert className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#3d230d] via-[#8b5e2b] to-[#c98a2c] flex items-center justify-center text-white mx-auto shadow-md">
+            <ShieldAlert className="w-6 h-6 text-amber-100" />
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">Admin Control Center</h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Log in with your administrator credentials</p>
+          <h2 className="text-2xl font-extrabold text-[#2e1c0c] tracking-tight">Admin Control Center</h2>
+          <p className="text-xs text-[#5c3e21]/80 font-medium">Log in with your administrator credentials</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Admin Email Address</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@lms.com"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
-            />
+            <label className="block text-xs font-bold text-[#3d230d] mb-1.5">Admin Email Address</label>
+            <div className="relative">
+              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b5e2b]/70" />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@lms.com"
+                className="w-full pl-10 pr-4 py-3 text-sm orvion-auth-input"
+              />
+            </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Password</label>
-            <input
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
-            />
+            <label className="block text-xs font-bold text-[#3d230d] mb-1.5">Password</label>
+            <div className="relative">
+              <Lock className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8b5e2b]/70" />
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-4 py-3 text-sm orvion-auth-input"
+              />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-amber-600 to-amber-700 shadow-glow hover:scale-[1.02] transition flex items-center justify-center gap-2"
+            className="w-full py-3.5 orvion-brand-btn flex items-center justify-center gap-2 text-sm"
           >
             {loading ? 'Verifying...' : 'Access Console'} <ArrowRight className="w-4 h-4" />
           </button>
         </form>
-      </div>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
+

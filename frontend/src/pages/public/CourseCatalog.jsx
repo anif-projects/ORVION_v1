@@ -7,6 +7,7 @@ import CourseCard from '../../components/common/CourseCard';
 import { CourseCardSkeleton } from '../../components/common/Skeleton';
 import { pageVariants } from '../../utils/animations';
 import CoursesHero from '../../components/courses/CoursesHero';
+import OfflineProgramsSection from '../../components/courses/OfflineProgramsSection';
 import toast from 'react-hot-toast';
 
 export default function CourseCatalog() {
@@ -96,6 +97,10 @@ export default function CourseCatalog() {
           </div>
         )}
       </motion.div>
+
+      {/* Offline Professional Programs Section */}
+      <OfflineProgramsSection />
     </motion.div>
   );
 }
+
