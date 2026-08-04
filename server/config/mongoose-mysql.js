@@ -370,30 +370,29 @@ const connect = async () => {
     }
 
     try {
-      const [rows] = await realPool.query("SELECT COUNT(*) as count FROM courses WHERE title = 'UI/UX Design';");
+      const [rows] = await realPool.query("SELECT COUNT(*) as count FROM courses WHERE type = 'offline';");
       if (rows && rows[0] && rows[0].count === 0) {
         await realPool.query(`
           INSERT INTO courses (title, subtitle, description, type, totalDuration, totalLessons, isFeatured, category, rating) VALUES 
-          ('UI/UX Design', 'Master design thinking & tools', 'Master design thinking, user research, and industry-standard tools to craft beautiful, intuitive digital experiences.', 'online', 720, 12, 1, 'Design', 4.90),
-          ('DevOps & Cloud', 'Build, deploy, and scale', 'Build, deploy, and scale modern applications with the most in-demand cloud and DevOps toolchain used in top companies.', 'online', 960, 16, 1, 'Cloud', 4.85),
-          ('AI & Data Science', 'Deep learning & analytics', 'From data wrangling to deep learning — build real-world AI models using cutting edge frameworks and OpenAI APIs.', 'online', 960, 16, 1, 'Artificial Intelligence', 4.90),
-          ('Cybersecurity', 'Offensive & defensive security', 'Learn offensive and defensive security techniques used by real security engineers to protect modern systems.', 'online', 960, 16, 1, 'Security', 4.80),
-          ('Quantum Computing', 'Future of computation', 'Step into the future — understand quantum algorithms and build circuits using the world\\'s leading quantum platforms.', 'online', 720, 12, 1, 'Quantum', 4.95),
-          ('Machine Learning', 'Predictive modeling & AI', 'Master modern machine learning algorithms, build intelligent predictive models, and deploy real-world AI applications from scratch.', 'online', 960, 16, 1, 'Data Science', 4.88),
-          ('Data Engineering', 'Optimize modern data pipelines', 'Master the modern data stack to design, build, and optimize scalable data pipelines, data warehouses, and big data architectures.', 'online', 960, 16, 1, 'Data Engineering', 4.86);
+          ('UI/UX Design', 'Master design thinking & tools', 'Master design thinking, user research, and industry-standard tools to craft beautiful, intuitive digital experiences.', 'offline', 720, 12, 1, 'Design', 4.90),
+          ('DevOps & Cloud', 'Build, deploy, and scale', 'Build, deploy, and scale modern applications with the most in-demand cloud and DevOps toolchain used in top companies.', 'offline', 960, 16, 1, 'Cloud', 4.85),
+          ('AI & Data Science', 'Deep learning & analytics', 'From data wrangling to deep learning — build real-world AI models using cutting edge frameworks and OpenAI APIs.', 'offline', 960, 16, 1, 'Artificial Intelligence', 4.90),
+          ('Cybersecurity', 'Offensive & defensive security', 'Learn offensive and defensive security techniques used by real security engineers to protect modern systems.', 'offline', 960, 16, 1, 'Security', 4.80),
+          ('Quantum Computing', 'Future of computation', 'Step into the future — understand quantum algorithms and build circuits using the world\\'s leading quantum platforms.', 'offline', 720, 12, 1, 'Quantum', 4.95),
+          ('Machine Learning', 'Predictive modeling & AI', 'Master modern machine learning algorithms, build intelligent predictive models, and deploy real-world AI applications from scratch.', 'offline', 960, 16, 1, 'Data Science', 4.88),
+          ('Data Engineering', 'Optimize modern data pipelines', 'Master the modern data stack to design, build, and optimize scalable data pipelines, data warehouses, and big data architectures.', 'offline', 960, 16, 1, 'Data Engineering', 4.86);
         `);
-        console.log("[Database] Seeding: Inserted Orvion online courses.");
+        console.log("[Database] Seeding: Inserted Orvion offline courses.");
       }
 
-      // One-time migration to correct type for existing seeded courses
+      // Cleanup previously mis-seeded online versions of these offline courses
       await realPool.query(`
-        UPDATE courses 
-        SET type = 'online' 
-        WHERE type = 'offline' 
+        DELETE FROM courses 
+        WHERE type = 'online' 
           AND title IN ('UI/UX Design', 'DevOps & Cloud', 'AI & Data Science', 'Cybersecurity', 'Quantum Computing', 'Machine Learning', 'Data Engineering');
       `);
     } catch (err) {
-      console.error("[Database] Seeding/Migration Error:", err.message);
+      console.error("[Database] Seeding/Cleanup Error:", err.message);
     }
 
     try {
