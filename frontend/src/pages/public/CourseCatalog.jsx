@@ -29,7 +29,7 @@ export default function CourseCatalog() {
     setLoading(true);
     try {
       const res = await api.get('/courses', {
-        params: { search, category, level, sort, type },
+        params: { search, category, level, sort, type: 'online' },
       });
       setCourses(res.data.data.courses || []);
     } catch (err) {
@@ -51,9 +51,6 @@ export default function CourseCatalog() {
     heroTitle = 'Premium Online Courses';
     heroSubtitle = 'Learn at your own pace with structured self-paced modules, interactive quizzes, and project labs.';
   }
-
-  const onlineCourses = courses.filter(c => c.type !== 'offline');
-  const offlineCourses = courses.filter(c => c.type === 'offline');
 
   return (
     <motion.div
@@ -93,40 +90,18 @@ export default function CourseCatalog() {
             </button>
           </div>
         ) : (
-          <div className="space-y-16">
-            {/* Online Courses Section */}
-            {onlineCourses.length > 0 && (
-              <div className="space-y-6">
-                {type === '' && (
-                  <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-                    <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Online Courses</h2>
-                    <p className="text-xs text-slate-500 mt-1">Self-paced online learning programs with lifetime access.</p>
-                  </div>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {onlineCourses.map((c, index) => (
-                    <CourseCard key={c._id || c.id} course={c} index={index} />
-                  ))}
-                </div>
+          <div className="space-y-6">
+            {type === '' && (
+              <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Online Courses</h2>
+                <p className="text-xs text-slate-500 mt-1">Self-paced online learning programs with lifetime access.</p>
               </div>
             )}
-
-            {/* Offline Courses Section */}
-            {offlineCourses.length > 0 && (
-              <div className="space-y-6">
-                {type === '' && (
-                  <div className="border-b border-slate-200 dark:border-slate-800 pb-3">
-                    <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Offline Classroom Programs</h2>
-                    <p className="text-xs text-slate-500 mt-1">In-person classroom training with hands-on lab projects.</p>
-                  </div>
-                )}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {offlineCourses.map((c, index) => (
-                    <CourseCard key={c._id || c.id} course={c} index={index} />
-                  ))}
-                </div>
-              </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {courses.map((c, index) => (
+                <CourseCard key={c._id || c.id} course={c} index={index} />
+              ))}
+            </div>
           </div>
         )}
       </motion.div>
