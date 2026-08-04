@@ -99,6 +99,11 @@ export default function OfflineProgramsSection() {
 
   return (
     <section className="mt-8 pt-4 border-t border-[#F2E5D8] dark:border-slate-800">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 mb-6">
+        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Offline Classroom Programs</h2>
+        <p className="text-xs text-slate-500 mt-1">In-person classroom training with hands-on lab sessions and dedicated placement guidance.</p>
+      </div>
+
       {/* ULTRA-COMPACT PREVIEW CARDS GRID (Shifted Upwards cleanly) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {programs.map((prog, index) => (
