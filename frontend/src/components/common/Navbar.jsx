@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Logo from './Logo';
 
+// Clean Navigation Component
 import api from '../../services/api';
 
 export default function Navbar() {
@@ -19,12 +20,9 @@ export default function Navbar() {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileLiveHubOpen, setMobileLiveHubOpen] = useState(false);
-  const [mobileCoursesOpen, setMobileCoursesOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLiveHubOpen, setIsLiveHubOpen] = useState(false);
-  const [isCoursesOpen, setIsCoursesOpen] = useState(false);
   const hoverTimeoutRef = useRef(null);
-  const coursesTimeoutRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
 
@@ -78,17 +76,19 @@ export default function Navbar() {
     }, 150);
   };
 
-  const handleCoursesMouseEnter = () => {
-    if (coursesTimeoutRef.current) {
-      clearTimeout(coursesTimeoutRef.current);
+  const handleGalleryClick = (e) => {
+    setIsLiveHubOpen(false);
+    setMobileMenuOpen(false);
+    if (location.pathname === '/live-hub') {
+      e.preventDefault();
+      if (window.location.hash !== '#highlights') {
+        window.history.pushState(null, '', '/live-hub#highlights');
+      }
+      const el = document.getElementById('highlights');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
-    setIsCoursesOpen(true);
-  };
-
-  const handleCoursesMouseLeave = () => {
-    coursesTimeoutRef.current = setTimeout(() => {
-      setIsCoursesOpen(false);
-    }, 150);
   };
 
   // Check if current route is inside Student or Admin portal
@@ -165,7 +165,6 @@ export default function Navbar() {
           >
             {publicNavLinks.map((link) => {
               const isLiveHub = link.name === 'Live Hub';
-              const isCourses = link.name === 'Courses';
 
               if (isLiveHub) {
                 return (
@@ -187,31 +186,6 @@ export default function Navbar() {
                     >
                       <span>{link.name}</span>
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isLiveHubOpen ? 'rotate-180' : ''}`} />
-                    </NavLink>
-                  </div>
-                );
-              }
-
-              if (isCourses) {
-                return (
-                  <div
-                    key={link.path}
-                    onMouseEnter={handleCoursesMouseEnter}
-                    onMouseLeave={handleCoursesMouseLeave}
-                    className="relative"
-                  >
-                    <NavLink
-                      to={link.path}
-                      className={({ isActive }) =>
-                        `px-4 py-1.5 rounded-full text-xs font-bold tracking-wide transition-all duration-200 flex items-center gap-1 ${
-                          isActive || isCoursesOpen
-                            ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-md'
-                            : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/30 dark:hover:bg-white/10'
-                        }`
-                      }
-                    >
-                      <span>{link.name}</span>
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isCoursesOpen ? 'rotate-180' : ''}`} />
                     </NavLink>
                   </div>
                 );
@@ -425,8 +399,8 @@ export default function Navbar() {
               </Link>
 
               <Link
-                to="/live-hub"
-                onClick={() => setIsLiveHubOpen(false)}
+                to="/live-hub#highlights"
+                onClick={handleGalleryClick}
                 className="group flex items-start gap-3 p-3 rounded-xl transition-all duration-200 border-l-2 border-transparent hover:border-[#D97706] hover:bg-[#F8FAFC] dark:hover:bg-slate-800/60"
               >
                 <div className="p-2 rounded-lg bg-amber-500/10 text-[#D97706] shrink-0 mt-0.5">
@@ -448,70 +422,6 @@ export default function Navbar() {
           </div>
         </div>
       )}
-
-      {/* Courses Premium Dropdown Menu */}
-      {!isPortalRoute && (
-        <div
-          onMouseEnter={handleCoursesMouseEnter}
-          onMouseLeave={handleCoursesMouseLeave}
-          className={`hidden lg:block absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[520px] rounded-[24px] p-6 transition-all duration-250 ease-out z-50 select-none ${
-            isCoursesOpen
-              ? 'opacity-100 translate-y-0 pointer-events-auto shadow-[0_20px_50px_rgba(15,23,42,0.12)]'
-              : 'opacity-0 -translate-y-3 pointer-events-none shadow-none'
-          }`}
-          style={{
-            background: darkMode ? 'rgba(15, 23, 42, 0.96)' : 'rgba(255, 255, 255, 0.95)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            border: darkMode ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(15, 23, 42, 0.06)',
-          }}
-        >
-          <div className="grid grid-cols-2 gap-4">
-            {/* Online Courses */}
-            <Link
-              to="/courses?type=online"
-              onClick={() => setIsCoursesOpen(false)}
-              className="group flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/15 hover:border-[#D97706] hover:bg-amber-500/10 transition-all duration-200"
-            >
-              <div>
-                <BookOpen className="w-5 h-5 text-[#D97706] mb-2" />
-                <h4 className="text-sm font-extrabold text-[#0F172A] dark:text-white group-hover:text-[#D97706] transition-colors">
-                  Online Courses
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
-                  Learn at your own pace with self-paced content, quizzes and modules.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-[#D97706] mt-4">
-                <span>Explore Online</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
-
-            {/* Offline Courses */}
-            <Link
-              to="/courses?type=offline"
-              onClick={() => setIsCoursesOpen(false)}
-              className="group flex flex-col justify-between p-4 rounded-2xl bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent border border-blue-500/15 hover:border-blue-600 hover:bg-blue-500/10 transition-all duration-200"
-            >
-              <div>
-                <Users className="w-5 h-5 text-blue-600 mb-2" />
-                <h4 className="text-sm font-extrabold text-[#0F172A] dark:text-white group-hover:text-blue-600 transition-colors">
-                  Offline Courses
-                </h4>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-normal font-medium">
-                  Attend hands-on workshops, classroom cohorts and interactive campus tracks.
-                </p>
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-blue-600 mt-4">
-                <span>Explore Offline</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Mobile Drawer (Clean Frosted Glass Overlay) */}
       {mobileMenuOpen && (
         <div 
@@ -523,7 +433,6 @@ export default function Navbar() {
             border: darkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(255, 255, 255, 0.25)',
           }}
         >
-          
           {/* Navigation Links in Mobile Drawer */}
           <div className="flex flex-col gap-1">
             <div className="px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -532,7 +441,6 @@ export default function Navbar() {
 
             {(isPortalRoute ? portalLinks : publicNavLinks).map((link) => {
               const isLiveHub = link.name === 'Live Hub';
-              const isCourses = link.name === 'Courses';
 
               if (!isLoggedInOrPortal && isLiveHub) {
                 return (
@@ -553,38 +461,9 @@ export default function Navbar() {
                           <Calendar className="w-3.5 h-3.5 text-[#D97706]" />
                           <span>Live Events</span>
                         </Link>
-                        <Link to="/live-hub" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
+                        <Link to="/live-hub#highlights" onClick={handleGalleryClick} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
                           <Image className="w-3.5 h-3.5 text-[#D97706]" />
                           <span>Gallery</span>
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              if (!isLoggedInOrPortal && isCourses) {
-                return (
-                  <div key={link.path} className="flex flex-col gap-1">
-                    <button
-                      onClick={() => setMobileCoursesOpen(!mobileCoursesOpen)}
-                      className="px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center justify-between text-slate-800 dark:text-slate-200 hover:bg-white/40 dark:hover:bg-white/10"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span>Courses</span>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${mobileCoursesOpen ? 'rotate-180' : ''}`} />
-                    </button>
-                    
-                    {mobileCoursesOpen && (
-                      <div className="pl-6 space-y-1 py-1">
-                        <Link to="/courses?type=online" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-[#D97706]">
-                          <BookOpen className="w-3.5 h-3.5 text-[#D97706]" />
-                          <span>Online Courses</span>
-                        </Link>
-                        <Link to="/courses?type=offline" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-slate-700 dark:text-slate-200 hover:text-blue-600">
-                          <Users className="w-3.5 h-3.5 text-blue-600" />
-                          <span>Offline Courses</span>
                         </Link>
                       </div>
                     )}

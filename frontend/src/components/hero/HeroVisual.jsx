@@ -61,12 +61,12 @@ export default function HeroVisual({ mousePos = { x: 0, y: 0 } }) {
           {/* Inner Frame with 28px border radius, soft inner ring, subtle background */}
           <div className="w-full h-[450px] sm:h-[500px] lg:h-[530px] rounded-[26px] overflow-hidden bg-gradient-to-b from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 relative ring-1 ring-white/80 dark:ring-white/10 shadow-inner">
             
-            {/* Subject Image: Uncropped face, full upper body visible, subject positioned slightly right */}
+            {/* Subject Image: Zoomed scale(1.30), center 28% position (founder occupies ~82% of card frame), subtle 1.34x hover */}
             <img
               src={sainadhImg}
               alt="SAINADH NARNE - Founder & CEO"
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-              style={{ objectPosition: '62% 15%' }}
+              className="w-full h-full object-cover scale-[1.30] group-hover:scale-[1.34] transition-transform duration-[350ms] ease-out origin-center"
+              style={{ objectPosition: 'center 28%' }}
             />
 
             {/* Subtle Gradient Vignette at bottom for nameplate contrast */}

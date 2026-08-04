@@ -1,9 +1,34 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Mail, MapPin, Linkedin, Youtube, Instagram } from 'lucide-react';
 import Logo from './Logo';
 
 export default function Footer() {
+  const location = useLocation();
+
+  const handleAboutClick = (e) => {
+    if (location.pathname === '/about') {
+      e.preventDefault();
+      if (window.location.hash) {
+        window.history.pushState(null, '', '/about');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleContactClick = (e) => {
+    if (location.pathname === '/about') {
+      e.preventDefault();
+      if (window.location.hash !== '#contact') {
+        window.history.pushState(null, '', '/about#contact');
+      }
+      const el = document.getElementById('contact');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
   return (
     <footer className="relative overflow-hidden border-t border-slate-200/90 dark:border-slate-800/90 bg-slate-50/80 dark:bg-slate-900/60 backdrop-blur-md pt-12 sm:pt-16 pb-8">
       {/* Refined Background Typography Watermark (Shifted 40-60px downward, full word visibility, 1.5px blur, 5% opacity) */}
@@ -61,22 +86,44 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2.5 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-400">
               <li>
-                <Link to="/about" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  About Us
+                <Link
+                  to="/about"
+                  onClick={handleAboutClick}
+                  className="inline-block hover:text-[#D97706] dark:hover:text-[#F59E0B] hover:translate-x-[3px] transition-all duration-250 ease-out cursor-pointer"
+                >
+                  About
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Programs
+                <Link
+                  to="/courses"
+                  className="inline-block hover:text-[#D97706] dark:hover:text-[#F59E0B] hover:translate-x-[3px] transition-all duration-250 ease-out cursor-pointer"
+                >
+                  Courses
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                  Internship Tracks
+                <Link
+                  to="/internships"
+                  className="inline-block hover:text-[#D97706] dark:hover:text-[#F59E0B] hover:translate-x-[3px] transition-all duration-250 ease-out cursor-pointer"
+                >
+                  Internships
                 </Link>
               </li>
               <li>
-                <Link to="/about" className="hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                <Link
+                  to="/live-hub"
+                  className="inline-block hover:text-[#D97706] dark:hover:text-[#F59E0B] hover:translate-x-[3px] transition-all duration-250 ease-out cursor-pointer"
+                >
+                  Live Hub
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about#contact"
+                  onClick={handleContactClick}
+                  className="inline-block hover:text-[#D97706] dark:hover:text-[#F59E0B] hover:translate-x-[3px] transition-all duration-250 ease-out cursor-pointer"
+                >
                   Contact
                 </Link>
               </li>

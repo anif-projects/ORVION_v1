@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import orvionTreeImg from '../../assets/orvion-tree-logo.png';
 import logoImg from '../../assets/logo.png';
 import glassesImg from '../../assets/3d-glasses.png';
@@ -71,6 +71,19 @@ const OrvionTreeLogo = ({ className = "w-full h-full text-orange-600/10" }) => (
 );
 
 export default function AboutPage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === '#contact') {
+      const el = document.getElementById('contact');
+      if (el) {
+        const timer = setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.hash]);
   // Progressive Contact Form state
   const [contactForm, setContactForm] = useState({
     fullName: '',
@@ -1312,6 +1325,7 @@ export default function AboutPage() {
           SECTION 5: BRAND-NEW PREMIUM MINIMAL CONTACT FORM (#FCFAF7)
          ================================================== */}
       <motion.section
+        id="contact"
         ref={contactSectionRef}
         onMouseMove={handleContactMouseMove}
         onMouseLeave={handleContactMouseLeave}
@@ -1319,7 +1333,7 @@ export default function AboutPage() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full relative py-24 sm:py-32 bg-[#FCFAF7] text-[#111827] overflow-hidden select-none border-t border-[#111827]/08"
+        className="w-full relative py-24 sm:py-32 bg-[#FCFAF7] text-[#111827] overflow-hidden select-none border-t border-[#111827]/08 scroll-mt-28"
       >
         {/* PREMIUM ANIMATED BACKGROUND LAYER */}
         <motion.div

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Calendar, Video, Clock, Users, ShieldAlert, Radio, DollarSign, Ticket, CalendarCheck, Loader2 } from 'lucide-react';
 import { pageVariants } from '../../utils/animations';
@@ -9,6 +10,7 @@ import EventGallerySection from '../../components/live-hub/EventGallerySection';
 
 export default function LiveEventsPage() {
   const { user } = useAuth();
+  const location = useLocation();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -26,6 +28,18 @@ export default function LiveEventsPage() {
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    if (location.hash === '#highlights') {
+      const el = document.getElementById('highlights');
+      if (el) {
+        const timer = setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.hash, loading]);
 
   const fetchEvents = async () => {
     try {

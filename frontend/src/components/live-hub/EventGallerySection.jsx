@@ -121,7 +121,8 @@ export default function EventGallerySection() {
 
   return (
     <section 
-      className="w-full bg-[#0A0A0A] pt-[80px] pb-[70px] sm:pt-[100px] sm:pb-[85px] lg:pt-[120px] lg:pb-[100px] text-white overflow-hidden select-none"
+      id="highlights"
+      className="w-full bg-[#0A0A0A] pt-[80px] pb-[70px] sm:pt-[100px] sm:pb-[85px] lg:pt-[120px] lg:pb-[100px] text-white overflow-hidden select-none scroll-mt-28"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
