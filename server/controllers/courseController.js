@@ -63,7 +63,7 @@ const getCourseBySlug = asyncHandler(async (req, res) => {
 });
 
 const createCourse = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, totalLessons, previewVideo, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, totalLessons, previewVideo, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout, type } = req.body;
   const course = await courseRepo.create({
     title,
     subtitle: subtitle || '',
@@ -83,13 +83,14 @@ const createCourse = asyncHandler(async (req, res) => {
     learningOutcomes: learningOutcomes || [],
     certificateTemplate: certificateTemplate || '',
     certificateLayout: certificateLayout || null,
+    type: type || 'online',
   });
 
   res.status(201).json({ status: 'success', data: { course } });
 });
 
 const updateCourse = asyncHandler(async (req, res) => {
-  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, totalLessons, previewVideo, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout } = req.body;
+  const { title, subtitle, description, thumbnail, price, isFeatured, category, rating, enrolledCount, totalDuration, totalLessons, previewVideo, language, isCertificateIncluded, modules, learningOutcomes, certificateTemplate, certificateLayout, type } = req.body;
   const course = await courseRepo.update(req.params.id, {
     title,
     subtitle: subtitle || '',
@@ -109,6 +110,7 @@ const updateCourse = asyncHandler(async (req, res) => {
     learningOutcomes: learningOutcomes || [],
     certificateTemplate: certificateTemplate !== undefined ? certificateTemplate : '',
     certificateLayout: certificateLayout !== undefined ? certificateLayout : null,
+    type: type || 'online',
   });
 
   if (!course) throw new AppError('Course not found', 404);
