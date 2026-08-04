@@ -16,11 +16,19 @@ class CourseRepository {
     return { courses, total, page: pagination.page, pages: Math.ceil(total / pagination.limit) };
   }
 
-  async findBySlug(id) {
-    // Treat the slug parameter as the ID in the simplified schema
-    const course = await Course.findById(id);
-    if (!course) return null;
-    return course.toObject();
+  async findBySlug(slug) {
+    // 1. Try finding directly by ID (if slug is a valid ID)
+    const course = await Course.findById(slug);
+    if (course) return course.toObject();
+
+    // 2. Try finding by slugified course title
+    const courses = await Course.find({});
+    const slugify = (text) => text.toString().toLowerCase().replace(/\s+/g, '').replace(/[^\w\-]+/g, '');
+    
+    const found = courses.find(c => slugify(c.title) === slug);
+    if (found) return found ? found.toObject() : null;
+
+    return null;
   }
 
   async create(courseData) {

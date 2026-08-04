@@ -92,9 +92,9 @@ export default function Navbar() {
   };
 
   // Check if current route is inside Student or Admin portal
-  const isPortalRoute = location.pathname === '/student' || location.pathname.startsWith('/student/') || location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  const isPortalRoute = location.pathname === '/student' || location.pathname.startsWith('/student/') || location.pathname === '/$/admin' || location.pathname.startsWith('/$/admin/');
   const isLoggedInOrPortal = Boolean(user) || isPortalRoute;
-  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || location.pathname === '/admin' || location.pathname.startsWith('/admin/');
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin' || location.pathname === '/$/admin' || location.pathname.startsWith('/$/admin/');
 
   const publicNavLinks = [
     { name: 'About', path: '/about' },
@@ -112,12 +112,12 @@ export default function Navbar() {
   ];
 
   const adminPortalLinks = [
-    { name: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
-    { name: 'Course Manager', path: '/admin/courses', icon: BookOpen },
-    { name: 'Live Events', path: '/admin/events', icon: Calendar },
-    { name: 'Student Directory', path: '/admin/students', icon: Users },
-    { name: 'Internships', path: '/admin/internships', icon: Briefcase },
-    { name: 'Inquiries', path: '/admin/inquiries', icon: MessageSquare },
+    { name: 'Admin Overview', path: '/$/admin', icon: LayoutDashboard },
+    { name: 'Course Manager', path: '/$/admin/courses', icon: BookOpen },
+    { name: 'Live Events', path: '/$/admin/events', icon: Calendar },
+    { name: 'Student Directory', path: '/$/admin/students', icon: Users },
+    { name: 'Internships', path: '/$/admin/internships', icon: Briefcase },
+    { name: 'Inquiries', path: '/$/admin/inquiries', icon: MessageSquare },
   ];
 
   const portalLinks = isAdmin ? adminPortalLinks : studentPortalLinks;
@@ -313,7 +313,7 @@ export default function Navbar() {
 
               <div className="flex items-center gap-2 pl-2 border-l border-white/20 dark:border-white/10">
                 <Link
-                  to={user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/student/dashboard'}
+                  to={user?.role === 'admin' || user?.role === 'super_admin' ? '/$/admin' : '/student/dashboard'}
                   className="text-xs font-bold text-slate-800 dark:text-white max-w-[120px] truncate hover:text-[#D97706] dark:hover:text-amber-400 transition-colors"
                 >
                   {user?.name || 'Student'}
@@ -598,7 +598,7 @@ export default function Navbar() {
                   key={link.path}
                   to={link.path}
                   onClick={() => setMobileMenuOpen(false)}
-                  end={link.path === '/' || link.path === '/admin'}
+                  end={link.path === '/' || link.path === '/$/admin'}
                   className={({ isActive }) =>
                     `px-4 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center gap-3 ${
                       isActive
@@ -618,7 +618,7 @@ export default function Navbar() {
             {/* User Badge if Logged In */}
             {isLoggedInOrPortal && (
               <Link
-                to={user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/student/dashboard'}
+                to={user?.role === 'admin' || user?.role === 'super_admin' ? '/$/admin' : '/student/dashboard'}
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-3 py-2 rounded-2xl bg-white/20 dark:bg-white/10 hover:bg-white/30 dark:hover:bg-white/20 transition-all w-full"
               >

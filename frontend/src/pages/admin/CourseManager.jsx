@@ -90,7 +90,7 @@ export default function CourseManager() {
         </div>
 
         <Link
-          to="/admin/courses/builder"
+          to="/$/admin/courses/builder"
           className="px-5 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 shadow-glow flex items-center gap-2 text-xs hover:scale-105 transition"
         >
           <Plus className="w-4 h-4" /> Create New Course
@@ -139,7 +139,7 @@ export default function CourseManager() {
                   >
                     <Users className="w-4 h-4 inline" />
                   </button>
-                  <Link to={`/admin/courses/builder/${c._id}`} className="p-2 text-slate-400 hover:text-primary-600 transition" title="Course Builder">
+                  <Link to={`/$/admin/courses/builder/${c._id}`} className="p-2 text-slate-400 hover:text-primary-600 transition" title="Course Builder">
                     <Layers className="w-4 h-4 inline" />
                   </Link>
                   <button onClick={() => handleDelete(c._id)} className="p-2 text-slate-400 hover:text-accent-danger transition" title="Delete Course">

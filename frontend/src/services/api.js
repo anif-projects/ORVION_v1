@@ -24,7 +24,7 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       sessionStorage.removeItem('accessToken');
       sessionStorage.removeItem('user');
-      if (window.location.pathname.startsWith('/student') || window.location.pathname.startsWith('/admin')) {
+      if (window.location.pathname.startsWith('/student') || window.location.pathname.startsWith('/$/admin')) {
         window.location.href = '/login';
       }
     }

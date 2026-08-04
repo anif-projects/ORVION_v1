@@ -22,12 +22,13 @@ export default function Sidebar({ role = 'student' }) {
   ];
 
   const adminLinks = [
-    { name: 'Admin Overview', path: '/admin', icon: LayoutDashboard },
-    { name: 'Course Manager', path: '/admin/courses', icon: BookOpen },
-    { name: 'Live Events', path: '/admin/events', icon: Calendar },
-    { name: 'Student Directory', path: '/admin/students', icon: Users },
-    { name: 'Internships', path: '/admin/internships', icon: Briefcase },
-    { name: 'Inquiries', path: '/admin/inquiries', icon: MessageSquare },
+    { name: 'Admin Overview', path: '/$/admin', icon: LayoutDashboard },
+    { name: 'Course Manager', path: '/$/admin/courses', icon: BookOpen },
+    { name: 'Live Events', path: '/$/admin/events', icon: Calendar },
+    { name: 'Student Directory', path: '/$/admin/students', icon: Users },
+    { name: 'Internships', path: '/$/admin/internships', icon: Briefcase },
+    { name: 'Inquiries', path: '/$/admin/inquiries', icon: MessageSquare },
+    { name: 'System Settings', path: '/$/admin/settings', icon: Settings },
   ];
 
   const links = role === 'admin' || role === 'super_admin' ? adminLinks : studentLinks;
@@ -44,7 +45,7 @@ export default function Sidebar({ role = 'student' }) {
             <NavLink
               key={link.path}
               to={link.path}
-              end={link.path === '/admin'}
+              end={link.path === '/$/admin'}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm transition-all ${
                   isActive

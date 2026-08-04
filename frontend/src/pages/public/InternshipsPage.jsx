@@ -526,44 +526,35 @@ export default function InternshipsPage() {
     statement: '',
   });
 
-  const internshipDomains = [
-    {
-      id: 'fs-web',
-      title: 'Full-Stack Web Development',
-      duration: '3 Months (Remote)',
-      description: 'Master modern web architectures using React, Node.js, Express, and databases. Work on real-world collaborative sprints and production deployments.',
-      requirements: ['Basic JavaScript', 'HTML & CSS knowledge', 'Familiarity with Git'],
-      skills: ['React & Next.js', 'Node.js & REST APIs', 'MySQL / MongoDB', 'CI/CD Pipelines'],
-      badge: 'Popular',
-    },
-    {
-      id: 'ai-ml',
-      title: 'AI & Data Science Engineering',
-      duration: '3 Months (Remote)',
-      description: 'Build and deploy Machine Learning models, analyze complex datasets, and work on Generative AI integrations using Python and popular deep learning frameworks.',
-      requirements: ['Python programming', 'Basic Linear Algebra', 'Analytical mindset'],
-      skills: ['Python & Pandas', 'Supervised / Unsupervised ML', 'Generative AI & LLMs', 'Model Deployment'],
-      badge: 'Trending',
-    },
-    {
-      id: 'ui-ux',
-      title: 'UI/UX Design & Frontend Engineering',
-      duration: '3 Months (Remote)',
-      description: 'Bridge the gap between design and development. Design high-fidelity Figma mockups, user research maps, and convert designs into responsive React interfaces.',
-      requirements: ['Interest in visual design', 'Basic CSS/JS', 'Attention to detail'],
-      skills: ['Figma Mastery', 'User Research & Wireframes', 'TailwindCSS & React', 'Micro-interactions'],
-      badge: 'Highly Creative',
-    },
-    {
-      id: 'devops-sec',
-      title: 'DevOps & Cloud Security',
-      duration: '3 Months (Remote)',
-      description: 'Gain hands-on expertise in cloud infrastructure, containerization, automated pipelines, security auditing, and server administration.',
-      requirements: ['Basic Linux commands', 'Understanding of web servers', 'Problem solving'],
-      skills: ['Docker & Kubernetes', 'AWS / Google Cloud', 'CI/CD & Jenkins', 'Infrastructure as Code'],
-      badge: 'Enterprise Focus',
-    },
-  ];
+  const [internships, setInternships] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInternships = async () => {
+      try {
+        const res = await api.get('/internships');
+        const formatted = (res.data.data.internships || []).map((item) => ({
+          id: item._id,
+          title: item.title,
+          duration: item.duration || '3 Months (Remote)',
+          description: item.description,
+          requirements: Array.isArray(item.requirements) 
+            ? item.requirements 
+            : (item.requirements ? item.requirements.split(',').map(s => s.trim()).filter(Boolean) : []),
+          skills: Array.isArray(item.skills) 
+            ? item.skills 
+            : (item.skills ? item.skills.split(',').map(s => s.trim()).filter(Boolean) : []),
+          badge: item.category || 'Cohort Specialization',
+        }));
+        setInternships(formatted);
+      } catch (err) {
+        console.error('Failed to load internships:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInternships();
+  }, []);
 
   const processSteps = [
     {
@@ -823,17 +814,27 @@ export default function InternshipsPage() {
         <DomainsHeader isInView={isDomainsInView} />
 
         {/* CARDS GRID */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 sm:gap-8 max-w-[1280px] mx-auto">
-          {internshipDomains.map((domain, index) => (
-            <DomainCard
-              key={domain.id}
-              domain={domain}
-              index={index}
-              isInView={isDomainsInView}
-              onApply={handleOpenApplyModal}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="w-8 h-8 border-4 border-amber-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : internships.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-slate-500 dark:text-slate-400 font-sans text-sm">No active internship cohorts at the moment. Please check back later!</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-7 sm:gap-8 max-w-[1280px] mx-auto">
+            {internships.map((domain, index) => (
+              <DomainCard
+                key={domain.id}
+                domain={domain}
+                index={index}
+                isInView={isDomainsInView}
+                onApply={handleOpenApplyModal}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ========================================================================= */}
