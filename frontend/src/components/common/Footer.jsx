@@ -54,9 +54,11 @@ export default function Footer() {
             {/* Social Media Links */}
             <div className="flex gap-2.5 pt-1 text-slate-600 dark:text-slate-300">
               <a
-                href="#"
-                aria-label="LinkedIn"
-                className="p-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 hover:bg-primary-600 hover:text-white dark:hover:bg-primary-600 transition-all hover:scale-110"
+                href="https://www.linkedin.com/company/orvion-co/posts/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visit Orvion on LinkedIn"
+                className="p-2.5 rounded-full bg-slate-200/80 dark:bg-slate-800/80 hover:bg-primary-600 hover:text-white dark:hover:bg-primary-600 transition-all hover:scale-110 cursor-pointer"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
