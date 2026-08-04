@@ -21,12 +21,18 @@ const protect = asyncHandler(async (req, res, next) => {
     if (decoded.role === 'admin' || decoded.role === 'super_admin') {
       const doc = await Admin.findById(decoded.id);
       if (doc) {
+        if (decoded.token_version !== doc.token_version) {
+          return next(new AppError('Your session has expired because you logged in from another device.', 401));
+        }
         currentUser = doc.toObject();
         currentUser.role = 'admin';
       }
     } else {
       const doc = await User.findById(decoded.id);
       if (doc) {
+        if (decoded.token_version !== doc.token_version) {
+          return next(new AppError('Your session has expired because you logged in from another device.', 401));
+        }
         currentUser = doc.toObject();
         currentUser.role = 'student';
       }

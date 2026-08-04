@@ -357,6 +357,18 @@ const connect = async () => {
       }
     }
 
+    const tokenVersionColumns = [
+      "ALTER TABLE `students` ADD COLUMN `token_version` INT DEFAULT 1;",
+      "ALTER TABLE `admins` ADD COLUMN `token_version` INT DEFAULT 1;"
+    ];
+    for (const sql of tokenVersionColumns) {
+      try {
+        await conn.query(sql);
+      } catch (err) {
+        // column might already exist
+      }
+    }
+
     try {
       const [rows] = await realPool.query("SELECT COUNT(*) as count FROM courses WHERE type = 'offline';");
       if (rows && rows[0] && rows[0].count === 0) {

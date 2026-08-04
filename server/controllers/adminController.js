@@ -98,11 +98,11 @@ const getRegistrationStats = asyncHandler(async (req, res) => {
 
   // Query database using raw MySQL queries
   const [courseRows] = await mongoose.query(
-    "SELECT COUNT(*) AS count FROM `course_enrollments` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    "SELECT COUNT(*) AS count FROM `course_enrollments` WHERE `enrolledAt` >= ? AND `enrolledAt` <= ?",
     [sqlStart, sqlEnd]
   );
   const [eventRows] = await mongoose.query(
-    "SELECT COUNT(*) AS count FROM `event_enrollments` WHERE `createdAt` >= ? AND `createdAt` <= ?",
+    "SELECT COUNT(*) AS count FROM `event_enrollments` WHERE `enrolledAt` >= ? AND `enrolledAt` <= ?",
     [sqlStart, sqlEnd]
   );
   const [internshipRows] = await mongoose.query(
