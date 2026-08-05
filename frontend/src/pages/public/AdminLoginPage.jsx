@@ -15,7 +15,7 @@ export default function AdminLoginPage() {
 
   useEffect(() => {
     if (user && (user.role === 'admin' || user.role === 'super_admin')) {
-      navigate('/$/admin');
+      navigate('/admin');
     }
   }, [user, navigate]);
 
@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
       const loggedUser = await adminLogin(email, password);
       toast.success('Access Granted. Welcome Admin!');
       if (loggedUser.role === 'admin' || loggedUser.role === 'super_admin') {
-        navigate('/$/admin');
+        navigate('/admin');
       } else {
         toast.error('Access denied. Admin role required.');
       }

@@ -53,7 +53,7 @@ export default function LoginPage() {
       const loggedUser = await login(email, password);
       toast.success('Welcome back!', { id: loadingToast });
       if (loggedUser.role === 'admin' || loggedUser.role === 'super_admin') {
-        navigate('/$/admin');
+        navigate('/admin');
       } else {
         navigate('/student/dashboard');
       }

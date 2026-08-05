@@ -67,7 +67,7 @@ export default function AppRoutes() {
       <Route path="/learning/player/:slug" element={<LearningPlayer />} />
 
       {/* Admin Portal */}
-      <Route path="/$/admin" element={<AdminLayout />}>
+      <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
         <Route path="courses" element={<CourseManager />} />
         <Route path="courses/builder" element={<CourseBuilder />} />
