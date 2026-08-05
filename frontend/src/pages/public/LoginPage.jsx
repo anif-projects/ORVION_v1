@@ -161,15 +161,11 @@ export default function LoginPage() {
         }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="relative z-10 w-[90%] sm:w-full max-w-[480px] p-7 sm:p-9 space-y-6"
+        className="relative z-10 w-[90%] sm:w-full max-w-[480px] p-7 sm:p-9 space-y-6 mt-14 sm:mt-16"
       >
         {isForgotPassword ? (
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              {/* Glass Icon with soft orange gradient & blur glow */}
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8A4B08] to-[#C96A00] flex items-center justify-center text-white mx-auto shadow-[0_8px_25px_rgba(201,106,0,0.35)]">
-                <KeyRound className="w-6 h-6 text-amber-100" />
-              </div>
               <h2 className="text-2xl font-extrabold text-[#2e1c0c] tracking-tight">Reset Password</h2>
               <p className="text-xs text-[#5c3e21]/80 font-medium">
                 {resetStep === 1 
@@ -274,10 +270,6 @@ export default function LoginPage() {
         ) : (
           <div className="space-y-6">
             <div className="text-center space-y-2">
-              {/* Glass Icon with soft orange gradient, blur glow & floating shadow */}
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8A4B08] to-[#C96A00] flex items-center justify-center text-white mx-auto shadow-[0_8px_25px_rgba(201,106,0,0.35)]">
-                <BookOpen className="w-6 h-6 text-amber-100" />
-              </div>
               <h2 className="text-2xl font-extrabold text-[#2e1c0c] tracking-tight">Welcome Back</h2>
               <p className="text-xs text-[#5c3e21]/80 font-medium">Log in to continue your learning journey</p>
             </div>

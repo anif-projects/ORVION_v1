@@ -1,17 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Clock, MapPin, Target, CheckCircle2, Sparkles, Award, 
-  ArrowRight, X, Check
+  Clock, MapPin, Target, ArrowRight, X, Check, Phone, Mail
 } from 'lucide-react';
-import toast from 'react-hot-toast';
 
 export default function OfflineProgramsSection() {
   const [activeDetailProgram, setActiveDetailProgram] = useState(null);
-  const [appliedSuccess, setAppliedSuccess] = useState(false);
-  const [applicantName, setApplicantName] = useState('');
-  const [applicantEmail, setApplicantEmail] = useState('');
-  const [applicantPhone, setApplicantPhone] = useState('');
 
   const programs = [
     {
@@ -85,24 +79,25 @@ export default function OfflineProgramsSection() {
 
   const handleRegisterClick = (program) => {
     setActiveDetailProgram(program);
-    setAppliedSuccess(false);
-    setApplicantName('');
-    setApplicantEmail('');
-    setApplicantPhone('');
   };
-
-  const handleFinalRegister = (e) => {
-    e.preventDefault();
-    setAppliedSuccess(true);
-    toast.success(`Registration submitted for ${activeDetailProgram.title}!`);
-  };
-
   return (
-    <section className="mt-8 pt-4 border-t border-[#F2E5D8] dark:border-slate-800">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 mb-6">
-        <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Offline Classroom Programs</h2>
-        <p className="text-xs text-slate-500 mt-1">In-person classroom training with hands-on lab sessions and dedicated placement guidance.</p>
-      </div>
+    <section className="mt-[40px] pt-4 border-t border-[#F2E5D8] dark:border-slate-800">
+      {/* Premium Redesigned Heading Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="text-center mt-[40px] mb-[32px]"
+      >
+        <h2 className="text-[32px] sm:text-[42px] lg:text-[52px] font-extrabold text-[#111827] dark:text-white tracking-[-1px] leading-[1.1] text-center">
+          Offline{' '}
+          <span className="bg-gradient-to-r from-[#C96A00] to-[#F59E0B] bg-clip-text text-transparent">
+            Classroom
+          </span>{' '}
+          Programs
+        </h2>
+      </motion.div>
 
       {/* ULTRA-COMPACT PREVIEW CARDS GRID (Shifted Upwards cleanly) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -113,7 +108,7 @@ export default function OfflineProgramsSection() {
             whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full max-w-[420px] mx-auto bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200/80 dark:border-slate-800 shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 p-4 flex flex-col justify-between overflow-hidden group"
+            className="w-full max-w-[420px] mx-auto bg-white dark:bg-slate-900 rounded-[24px] border border-slate-200/80 dark:border-slate-800 shadow-[0_10px_25px_rgba(0,0,0,0.06)] hover:shadow-[0_18px_40px_rgba(0,0,0,0.12)] hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 p-4 flex flex-col justify-between overflow-hidden group h-full"
           >
             <div className="space-y-3">
               {/* Cover Image Banner (h-[160px]) */}
@@ -163,30 +158,22 @@ export default function OfflineProgramsSection() {
               </div>
             </div>
 
-            {/* Bottom Card Footer: Info Ribbon & Light Theme Pill Register Button */}
-            <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 space-y-3">
-              {/* Info Ribbon (h-[38px]) */}
-              <div className="h-[38px] w-full rounded-full bg-[#FFF5EA] dark:bg-amber-950/40 border border-[#FFE4C4] dark:border-amber-900/50 text-[#A65800] font-bold text-xs flex items-center justify-center gap-1.5">
-                <span>{prog.highlight}</span>
-              </div>
-
-              {/* Premium Light Theme Pill Register Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-                className="flex justify-center mt-[24px] mb-[20px]"
+          {/* Premium Light Theme Pill Register Button */}
+          <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4 }}
+              className="flex justify-center mt-5 mb-1"
+            >
+              <button
+                onClick={() => handleRegisterClick(prog)}
+                className="w-[190px] h-[52px] rounded-full bg-white border-2 border-[#C96A00] text-[#C96A00] hover:bg-[#C96A00] hover:text-white hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-300 ease-in-out shadow-[0_8px_24px_rgba(201,106,0,0.08)] flex items-center justify-center gap-2 group/btn cursor-pointer font-semibold text-[18px] tracking-normal"
               >
-                <button
-                  onClick={() => handleRegisterClick(prog)}
-                  className="w-fit h-[52px] px-[24px] rounded-[18px] bg-[#FFF7F0] dark:bg-amber-950/40 border border-[#F3D7B5] dark:border-amber-900/50 text-[#C46A00] hover:text-[#D57A00] font-bold text-[18px] shadow-[0_6px_20px_rgba(180,120,40,0.08)] hover:shadow-[0_12px_30px_rgba(195,110,20,0.15)] hover:bg-[#FFF1E2] dark:hover:bg-amber-950/70 hover:border-[#E7B97A] dark:hover:border-amber-700/60 hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-250 ease-out flex items-center justify-center gap-2 group/btn cursor-pointer"
-                >
-                  <span>Register</span>
-                  <ArrowRight className="w-[16px] h-[16px] text-[#C46A00] transition-transform duration-250 group-hover/btn:translate-x-1.5" />
-                </button>
-              </motion.div>
-            </div>
+                <span>Register</span>
+                <ArrowRight className="w-[18px] h-[18px] text-[#C96A00] group-hover/btn:text-white transition-all duration-300 group-hover/btn:translate-x-1.5" />
+              </button>
+            </motion.div>
           </motion.div>
         ))}
       </div>
@@ -203,11 +190,7 @@ export default function OfflineProgramsSection() {
               className="bg-white dark:bg-slate-900 rounded-[32px] max-w-3xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto max-h-[90vh] flex flex-col relative"
             >
               {/* Modal Header Bar */}
-              <div className="sticky top-0 z-20 px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-[#A65800]">
-                  <Sparkles className="w-4 h-4" />
-                  <span>ORVION CAREER ACCELERATOR</span>
-                </div>
+              <div className="sticky top-0 z-20 px-6 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-end">
                 <button
                   onClick={() => setActiveDetailProgram(null)}
                   className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
@@ -245,10 +228,10 @@ export default function OfflineProgramsSection() {
 
                   <div className="pt-1">
                     <a
-                      href="#register-section"
+                      href="#contact-section"
                       className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#A65800] to-[#D47A00] shadow-md hover:scale-105 transition"
                     >
-                      <span>Register Now</span>
+                      <span>Contact Us</span>
                       <ArrowRight className="w-4 h-4" />
                     </a>
                   </div>
@@ -279,77 +262,60 @@ export default function OfflineProgramsSection() {
                   </div>
                 </div>
 
-                {/* 4. OFFICIAL ORVION CERTIFICATE */}
-                <div className="p-6 rounded-3xl bg-gradient-to-br from-amber-50/60 to-white dark:from-slate-800 dark:to-slate-900 border border-[#F2E5D8] dark:border-slate-700 flex flex-col sm:flex-row items-center gap-5">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#A65800] to-[#D47A00] text-white flex items-center justify-center shrink-0 shadow-md">
-                    <Award className="w-7 h-7" />
-                  </div>
-                  <div className="space-y-1 text-center sm:text-left">
-                    <h3 className="font-extrabold text-base text-[#0F172A] dark:text-white">Official Orvion Certificate of Completion</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                      Earn a verifiable Orvion Certificate of Completion along with a 1-Month Industry Internship Experience Letter to strengthen your resume and showcase your practical skills to employers.
+                {/* 4. CONTACT ORVION SECTION */}
+                <motion.div 
+                  id="contact-section"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                  className="py-8 space-y-6 text-center"
+                >
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-black uppercase tracking-widest text-[#C96A00]">Contact Us</span>
+                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white">Contact Orvion</h2>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto font-medium">
+                      Get in touch with our admissions team to register or learn more about this program.
                     </p>
                   </div>
-                </div>
 
-                {/* 5. FULLY TRANSPARENT REGISTRATION CTA SECTION */}
-                <div id="register-section" className="py-[48px] px-0 mt-[40px] bg-transparent backdrop-none border-none shadow-none space-y-6">
-                  <div className="text-center max-w-md mx-auto space-y-1.5">
-                    <span className="text-[11px] font-black uppercase tracking-widest text-[#A65800]">REGISTRATION</span>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] dark:text-white">Ready to Begin Your Career Journey?</h2>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium">Reserve your seat today and start building industry-ready skills with Orvion.</p>
-                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto pt-2">
+                    {/* Card 1: Mobile Number */}
+                    <a 
+                      href="tel:+918978226888"
+                      className="p-6 rounded-[18px] bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(201,106,0,0.1)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group cursor-pointer"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-[#C96A00] text-white flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">Mobile Number</span>
+                      <span className="text-sm font-bold text-[#0F172A] dark:text-white mt-1 group-hover:text-[#C96A00] transition-colors">+91 89782 26888</span>
+                    </a>
 
-                  {appliedSuccess ? (
-                    <div className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2 text-emerald-700 dark:text-emerald-300">
-                      <CheckCircle2 className="w-9 h-9 mx-auto text-emerald-500" />
-                      <h3 className="font-bold text-base">Registration Received!</h3>
-                      <p className="text-xs">Our admissions counselor will contact you within 24 hours to confirm your seat.</p>
+                    {/* Card 2: Email Address */}
+                    <a 
+                      href="mailto:info@orvionlearn.co.in"
+                      className="p-6 rounded-[18px] bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(201,106,0,0.1)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group cursor-pointer"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-[#C96A00] text-white flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">Email Address</span>
+                      <span className="text-sm font-bold text-[#0F172A] dark:text-white mt-1 group-hover:text-[#C96A00] transition-colors">info@orvionlearn.co.in</span>
+                    </a>
+
+                    {/* Card 3: Location */}
+                    <div 
+                      className="p-6 rounded-[18px] bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_12px_40px_rgba(201,106,0,0.1)] hover:-translate-y-1 transition-all duration-300 flex flex-col items-center text-center group"
+                    >
+                      <div className="w-12 h-12 rounded-full bg-[#C96A00] text-white flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110">
+                        <MapPin className="w-5 h-5" />
+                      </div>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">Location</span>
+                      <span className="text-sm font-bold text-[#0F172A] dark:text-white mt-1">Ongole, Andhra Pradesh</span>
                     </div>
-                  ) : (
-                    <form onSubmit={handleFinalRegister} className="max-w-sm mx-auto space-y-3.5">
-                      <div>
-                        <label className="block text-xs font-bold text-[#0F172A] dark:text-slate-300 mb-1">Full Name</label>
-                        <input
-                          type="text"
-                          required
-                          value={applicantName}
-                          onChange={(e) => setApplicantName(e.target.value)}
-                          placeholder="John Doe"
-                          className="w-full px-4 py-3 text-xs rounded-[14px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D47A00] transition"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[#0F172A] dark:text-slate-300 mb-1">Email Address</label>
-                        <input
-                          type="email"
-                          required
-                          value={applicantEmail}
-                          onChange={(e) => setApplicantEmail(e.target.value)}
-                          placeholder="john@example.com"
-                          className="w-full px-4 py-3 text-xs rounded-[14px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D47A00] transition"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-bold text-[#0F172A] dark:text-slate-300 mb-1">Phone Number</label>
-                        <input
-                          type="tel"
-                          required
-                          value={applicantPhone}
-                          onChange={(e) => setApplicantPhone(e.target.value)}
-                          placeholder="9876543210"
-                          className="w-full px-4 py-3 text-xs rounded-[14px] bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[#0F172A] dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#D47A00] transition"
-                        />
-                      </div>
-                      <button
-                        type="submit"
-                        className="w-full py-4 rounded-xl font-extrabold text-xs tracking-wide uppercase text-white bg-gradient-to-r from-[#A65800] to-[#D47A00] shadow-md hover:scale-[1.02] transition cursor-pointer"
-                      >
-                        Register Now
-                      </button>
-                    </form>
-                  )}
-                </div>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
           </div>
