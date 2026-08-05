@@ -16,7 +16,7 @@ export default function OfflineProgramsSection({ isFeaturedOnly = false, title =
       duration: '4 Months',
       mode: 'Ongole',
       meta: 'Placement & Training Guidance',
-      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+      image: '/sap-thumbnail.jpg',
       description: 'Master SAP fundamentals through hands-on enterprise workflows and business process simulations. Build practical ERP skills aligned with industry standards.',
       highlight: '✨ 3 Months Training + 1 Month Internship',
       overviewText: 'The SAP Career Accelerator is an intensive 4-month offline classroom cohort designed to bridge the gap between academic learning and enterprise ERP execution. During the first 3 months, students master SAP S/4HANA workflows, FICO financial accounting, and business process integration in hands-on computer labs. The final month concludes with a guaranteed 1-month industry internship working on live corporate project simulations.',
@@ -28,7 +28,7 @@ export default function OfflineProgramsSection({ isFeaturedOnly = false, title =
       duration: '4 Months',
       mode: 'Ongole',
       meta: 'Placement & Training Guidance',
-      image: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=800&auto=format&fit=crop',
+      image: '/cybersecurity-thumbnail.jpg',
       description: 'Learn ethical hacking, network security, penetration testing, vulnerability assessment, and modern cyber defense techniques.',
       highlight: '✨ 3 Months Training + 1 Month Internship',
       overviewText: 'The Cybersecurity Career Accelerator provides a comprehensive hands-on journey through ethical hacking, network packet analysis, vulnerability management, and cyber defense operations. Over 3 months of immersive classroom training in dedicated security labs, learners master Linux, Metasploit, and OWASP penetration testing tools. The program concludes with a 1-month hands-on security audit internship.',
@@ -40,7 +40,7 @@ export default function OfflineProgramsSection({ isFeaturedOnly = false, title =
       duration: '4 Months',
       mode: 'Ongole',
       meta: 'Placement & Training Guidance',
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop',
+      image: '/data-science-thumbnail.png',
       description: 'Learn data analysis, visualization, machine learning, statistics, and real-world business analytics using Python.',
       highlight: '✨ 3 Months Training + 1 Month Internship',
       overviewText: 'The Data Science Accelerator equips learners with production-grade data manipulation, machine learning modeling, and business intelligence dashboarding skills. Students spend 3 months mastering Python, Pandas, Scikit-Learn, and Power BI through real dataset projects, followed by a 1-month corporate analytics internship experience to build a verified portfolio.',
@@ -52,7 +52,7 @@ export default function OfflineProgramsSection({ isFeaturedOnly = false, title =
       duration: '4 Months',
       mode: 'Ongole',
       meta: 'Placement & Training Guidance',
-      image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop',
+      image: '/data-engineering-thumbnail.jpg',
       description: 'Build scalable data pipelines, ETL workflows, cloud-based architectures, and modern big data processing systems.',
       highlight: '✨ 3 Months Training + 1 Month Internship',
       overviewText: 'The Data Engineering Accelerator focuses on constructing scalable ETL pipelines, cloud data warehouses, and distributed big data workflows. Over 3 months of hands-on lab training, students master advanced SQL, Python pipelines, Apache Spark, and cloud data architecture, ending with a 1-month industry internship building enterprise data pipelines.',
@@ -64,7 +64,7 @@ export default function OfflineProgramsSection({ isFeaturedOnly = false, title =
       duration: '4 Months',
       mode: 'Ongole',
       meta: 'Placement & Training Guidance',
-      image: 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?q=80&w=800&auto=format&fit=crop',
+      image: '/devops-thumbnail.jpg',
       description: 'Master CI/CD pipelines, Docker, Kubernetes, Linux administration, cloud deployment, monitoring, and automation.',
       highlight: '✨ 3 Months Training + 1 Month Internship',
       overviewText: 'The DevOps Career Accelerator prepares students for cloud engineering and infrastructure automation roles. Across 3 months of intensive lab work, learners gain deep proficiency in Linux administration, Docker containerization, Kubernetes orchestration, AWS cloud, and CI/CD pipelines, culminating in a 1-month cloud deployment internship.',
@@ -168,22 +168,29 @@ export default function OfflineProgramsSection({ isFeaturedOnly = false, title =
               </div>
             </div>
 
-          {/* Premium Light Theme Pill Register Button */}
-          <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4 }}
-              className="flex justify-center mt-5 mb-1"
-            >
-              <button
-                onClick={() => handleRegisterClick(prog)}
-                className="w-[190px] h-[52px] rounded-full bg-white border-2 border-[#C96A00] text-[#C96A00] hover:bg-[#C96A00] hover:text-white hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-300 ease-in-out shadow-[0_8px_24px_rgba(201,106,0,0.08)] flex items-center justify-center gap-2 group/btn cursor-pointer font-semibold text-[18px] tracking-normal"
+            <div>
+              {/* Training Info Pill */}
+              <div className="w-full h-[42px] bg-[#FFF7EE] border border-[rgba(201,106,0,0.18)] text-[#B86A00] text-[15px] font-semibold flex items-center justify-center text-center rounded-[16px] shadow-[0_2px_8px_rgba(201,106,0,0.03)] mt-[20px] mb-[18px]">
+                ✨ 3 Months Training + 1 Month Internship
+              </div>
+
+              {/* Premium Light Theme Pill Register Button */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+                className="flex justify-center mb-1"
               >
-                <span>Register</span>
-                <ArrowRight className="w-[18px] h-[18px] text-[#C96A00] group-hover/btn:text-white transition-all duration-300 group-hover/btn:translate-x-1.5" />
-              </button>
-            </motion.div>
+                <button
+                  onClick={() => handleRegisterClick(prog)}
+                  className="w-[210px] h-[58px] rounded-full bg-white border-2 border-[#C96A00] text-[#C96A00] hover:bg-[#C96A00] hover:text-white hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-250 ease-in-out shadow-[0_8px_24px_rgba(201,106,0,0.08)] flex items-center justify-center gap-2 group/btn cursor-pointer font-bold text-[20px] tracking-normal"
+                >
+                  <span>Register</span>
+                  <ArrowRight className="w-[18px] h-[18px] text-[#C96A00] group-hover/btn:text-white transition-all duration-250 group-hover/btn:translate-x-[4px]" />
+                </button>
+              </motion.div>
+            </div>
           </motion.div>
         ))}
       </div>
