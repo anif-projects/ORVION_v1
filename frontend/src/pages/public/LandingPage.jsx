@@ -19,7 +19,7 @@ export default function LandingPage() {
       {/* 3. Featured Courses Section (Offline Classroom Programs) */}
       <section className="w-full py-[48px] sm:py-[64px] lg:py-[80px] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <OfflineProgramsSection />
+          <OfflineProgramsSection isFeaturedOnly={true} title="Featured offline courses" />
         </div>
       </section>
 

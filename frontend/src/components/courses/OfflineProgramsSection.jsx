@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { 
   Clock, MapPin, Target, ArrowRight, X, Check, Phone, Mail
 } from 'lucide-react';
 
-export default function OfflineProgramsSection() {
+export default function OfflineProgramsSection({ isFeaturedOnly = false, title = null }) {
   const [activeDetailProgram, setActiveDetailProgram] = useState(null);
 
   const programs = [
@@ -80,6 +81,9 @@ export default function OfflineProgramsSection() {
   const handleRegisterClick = (program) => {
     setActiveDetailProgram(program);
   };
+
+  const displayedPrograms = isFeaturedOnly ? programs.slice(0, 3) : programs;
+
   return (
     <section className="mt-[40px] pt-4 border-t border-[#F2E5D8] dark:border-slate-800">
       {/* Premium Redesigned Heading Section */}
@@ -91,17 +95,23 @@ export default function OfflineProgramsSection() {
         className="text-center mt-[40px] mb-[32px]"
       >
         <h2 className="text-[32px] sm:text-[42px] lg:text-[52px] font-extrabold text-[#111827] dark:text-white tracking-[-1px] leading-[1.1] text-center">
-          Offline{' '}
-          <span className="bg-gradient-to-r from-[#C96A00] to-[#F59E0B] bg-clip-text text-transparent">
-            Classroom
-          </span>{' '}
-          Programs
+          {title ? (
+            title
+          ) : (
+            <>
+              Offline{' '}
+              <span className="bg-gradient-to-r from-[#C96A00] to-[#F59E0B] bg-clip-text text-transparent">
+                Classroom
+              </span>{' '}
+              Programs
+            </>
+          )}
         </h2>
       </motion.div>
 
       {/* ULTRA-COMPACT PREVIEW CARDS GRID (Shifted Upwards cleanly) */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {programs.map((prog, index) => (
+        {displayedPrograms.map((prog, index) => (
           <motion.div
             key={prog.id}
             initial={{ opacity: 0, y: 35, scale: 0.98 }}
@@ -177,6 +187,24 @@ export default function OfflineProgramsSection() {
           </motion.div>
         ))}
       </div>
+
+      {isFeaturedOnly && (
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="flex justify-center mt-12"
+        >
+          <Link
+            to="/courses"
+            className="w-fit h-[54px] px-8 rounded-full bg-gradient-to-r from-[#C96A00] to-[#F59E0B] text-white hover:opacity-90 hover:-translate-y-[2px] active:scale-[0.98] transition-all duration-300 shadow-[0_8px_30px_rgba(201,106,0,0.15)] flex items-center justify-center gap-2 group/all cursor-pointer font-bold text-[18px]"
+          >
+            <span>View All Courses</span>
+            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover/all:translate-x-1.5" />
+          </Link>
+        </motion.div>
+      )}
 
       {/* DEDICATED COURSE DETAILS MODAL WITH PURE WHITE BACKGROUND OUTSIDE HERO CARD */}
       <AnimatePresence>
