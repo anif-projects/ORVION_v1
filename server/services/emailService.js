@@ -1,4 +1,5 @@
 const { createTransporter } = require('../config/smtp');
+const path = require('path');
 
 class EmailService {
   async sendOTP(toEmail, otpCode) {
@@ -11,14 +12,13 @@ class EmailService {
 
     try {
       const transporter = createTransporter();
-      
-      // Load logo using raw GitHub URL (avoids email paperclip file attachment)
-      const logoUrl = 'https://raw.githubusercontent.com/anif-projects/ORVION_v1/main/frontend/public/logo.png';
+      const logoPath = path.join(__dirname, '../../frontend/public/logo.png');
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || `"Orvion Edu Tech" <${process.env.SMTP_USER}>`,
+        from: process.env.EMAIL_FROM || `"Orvion Learn" <${process.env.SMTP_USER}>`,
         to: toEmail,
-        subject: 'Verify Your Email - Orvion Edu Tech',
+        subject: 'Verify Your Email - Orvion Learn',
+        text: `Welcome to Orvion! Please use the following 6-digit security code to verify your account and complete your registration: ${otpCode}. This code is valid for 10 minutes.`,
         html: `
           <div style="background-color: #f8fafc; padding: 40px 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 100%; margin: 0; text-align: center;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 550px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; margin: 0 auto; text-align: left; border-collapse: collapse;">
@@ -26,7 +26,7 @@ class EmailService {
               <!-- Header with Logo -->
               <tr>
                 <td align="center" style="background-color: #ffffff; padding: 32px 20px 20px 20px; border-bottom: 1px solid #f1f5f9; text-align: center;">
-                  <img src="${logoUrl}" alt="Orvion Logo" width="220" style="display: inline-block; border: 0; outline: none; text-decoration: none;" />
+                  <img src="cid:orvion-logo" alt="Orvion Logo" width="220" style="display: inline-block; border: 0; outline: none; text-decoration: none;" />
                 </td>
               </tr>
 
@@ -59,7 +59,7 @@ class EmailService {
               <tr>
                 <td style="background-color: #fafaf9; padding: 24px 40px; text-align: center; border-top: 1px solid #f1f5f9;">
                   <p style="color: #a8a29e; font-size: 11px; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">
-                    Orvion Edu Tech
+                    Orvion Learn
                   </p>
                   <p style="color: #d6d3d1; font-size: 11px; margin: 0;">
                     Unlock The Future • Secure Telemetry Enabled
@@ -69,7 +69,14 @@ class EmailService {
 
             </table>
           </div>
-        `
+        `,
+        attachments: [
+          {
+            filename: 'logo.png',
+            path: logoPath,
+            cid: 'orvion-logo'
+          }
+        ]
       };
 
       // Non-blocking mail attempt with 15s timeout
@@ -93,12 +100,13 @@ class EmailService {
 
     try {
       const transporter = createTransporter();
-      const logoUrl = 'https://raw.githubusercontent.com/anif-projects/ORVION_v1/main/frontend/public/logo.png';
+      const logoPath = path.join(__dirname, '../../frontend/public/logo.png');
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || `"Orvion Edu Tech" <${process.env.SMTP_USER}>`,
+        from: process.env.EMAIL_FROM || `"Orvion Learn" <${process.env.SMTP_USER}>`,
         to: toEmail,
-        subject: `Successful Purchase: ${itemTitle} - Orvion Edu Tech`,
+        subject: `Successful Purchase: ${itemTitle} - Orvion Learn`,
+        text: `Hello ${studentName},\n\nThank you for enrolling in/registering for ${itemTitle}. We have successfully processed your payment of INR ${amount} via Razorpay.\n\nYou can access your dashboard here: ${process.env.CLIENT_URL || 'http://localhost:5173'}/student/dashboard`,
         html: `
           <div style="background-color: #f8fafc; padding: 40px 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 100%; margin: 0; text-align: center;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 550px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; margin: 0 auto; text-align: left; border-collapse: collapse;">
@@ -106,7 +114,7 @@ class EmailService {
               <!-- Header with Logo -->
               <tr>
                 <td align="center" style="background-color: #ffffff; padding: 32px 20px 20px 20px; border-bottom: 1px solid #f1f5f9; text-align: center;">
-                  <img src="${logoUrl}" alt="Orvion Logo" width="220" style="display: inline-block; border: 0; outline: none; text-decoration: none;" />
+                  <img src="cid:orvion-logo" alt="Orvion Logo" width="220" style="display: inline-block; border: 0; outline: none; text-decoration: none;" />
                 </td>
               </tr>
 
@@ -133,7 +141,7 @@ class EmailService {
               <tr>
                 <td style="background-color: #fafaf9; padding: 24px 40px; text-align: center; border-top: 1px solid #f1f5f9;">
                   <p style="color: #a8a29e; font-size: 11px; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">
-                    Orvion Edu Tech
+                    Orvion Learn
                   </p>
                   <p style="color: #d6d3d1; font-size: 11px; margin: 0;">
                     Unlock The Future • Secure Telemetry Enabled
@@ -143,7 +151,14 @@ class EmailService {
 
             </table>
           </div>
-        `
+        `,
+        attachments: [
+          {
+            filename: 'logo.png',
+            path: logoPath,
+            cid: 'orvion-logo'
+          }
+        ]
       };
 
       await Promise.race([
@@ -166,12 +181,13 @@ class EmailService {
 
     try {
       const transporter = createTransporter();
-      const logoUrl = 'https://raw.githubusercontent.com/anif-projects/ORVION_v1/main/frontend/public/logo.png';
+      const logoPath = path.join(__dirname, '../../frontend/public/logo.png');
 
       const mailOptions = {
-        from: process.env.EMAIL_FROM || `"Orvion Edu Tech" <${process.env.SMTP_USER}>`,
+        from: process.env.EMAIL_FROM || `"Orvion Learn" <${process.env.SMTP_USER}>`,
         to: toEmail,
-        subject: 'Reset Your Password - Orvion Edu Tech',
+        subject: 'Reset Your Password - Orvion Learn',
+        text: `Please use the following 6-digit security code to verify your identity and reset your account password: ${otpCode}. This code is valid for 10 minutes.`,
         html: `
           <div style="background-color: #f8fafc; padding: 40px 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; width: 100%; margin: 0; text-align: center;">
             <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 550px; background-color: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); border: 1px solid #f1f5f9; margin: 0 auto; text-align: left; border-collapse: collapse;">
@@ -179,7 +195,7 @@ class EmailService {
               <!-- Header with Logo -->
               <tr>
                 <td align="center" style="background-color: #ffffff; padding: 32px 20px 20px 20px; border-bottom: 1px solid #f1f5f9; text-align: center;">
-                  <img src="${logoUrl}" alt="Orvion Logo" width="220" style="display: inline-block; border: 0; outline: none; text-decoration: none;" />
+                  <img src="cid:orvion-logo" alt="Orvion Logo" width="220" style="display: inline-block; border: 0; outline: none; text-decoration: none;" />
                 </td>
               </tr>
 
@@ -212,7 +228,7 @@ class EmailService {
               <tr>
                 <td style="background-color: #fafaf9; padding: 24px 40px; text-align: center; border-top: 1px solid #f1f5f9;">
                   <p style="color: #a8a29e; font-size: 11px; margin: 0 0 6px 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">
-                    Orvion Edu Tech
+                    Orvion Learn
                   </p>
                   <p style="color: #d6d3d1; font-size: 11px; margin: 0;">
                     Unlock The Future • Secure Telemetry Enabled
@@ -222,7 +238,14 @@ class EmailService {
 
             </table>
           </div>
-        `
+        `,
+        attachments: [
+          {
+            filename: 'logo.png',
+            path: logoPath,
+            cid: 'orvion-logo'
+          }
+        ]
       };
 
       await Promise.race([
