@@ -7,6 +7,11 @@ DROP TABLE IF EXISTS certificates;
 DROP TABLE IF EXISTS lesson_progress;
 DROP TABLE IF EXISTS event_enrollments;
 DROP TABLE IF EXISTS course_enrollments;
+DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS internship_applications;
+DROP TABLE IF EXISTS internships;
+DROP TABLE IF EXISTS contact_messages;
+DROP TABLE IF EXISTS gallery_images;
 DROP TABLE IF EXISTS events;
 DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS admins;
@@ -22,6 +27,19 @@ CREATE TABLE students (
     isVerified BOOLEAN DEFAULT FALSE,
     otp VARCHAR(6) DEFAULT NULL,
     otpExpiresAt DATETIME DEFAULT NULL,
+    study_mon DOUBLE DEFAULT 0.0,
+    study_tue DOUBLE DEFAULT 0.0,
+    study_wed DOUBLE DEFAULT 0.0,
+    study_thu DOUBLE DEFAULT 0.0,
+    study_fri DOUBLE DEFAULT 0.0,
+    study_sat DOUBLE DEFAULT 0.0,
+    study_sun DOUBLE DEFAULT 0.0,
+    study_week_start VARCHAR(20) DEFAULT '',
+    reset_otp VARCHAR(6) DEFAULT NULL,
+    reset_otp_expires DATETIME DEFAULT NULL,
+    reset_count INT DEFAULT 0,
+    last_reset_date VARCHAR(20) DEFAULT '',
+    token_version INT DEFAULT 1,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_student_email (email)
@@ -33,6 +51,7 @@ CREATE TABLE admins (
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    token_version INT DEFAULT 1,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_admin_email (email)
@@ -53,6 +72,7 @@ CREATE TABLE courses (
     totalDuration INT DEFAULT 480,
     totalLessons INT DEFAULT 12,
     previewVideo TEXT,
+    type VARCHAR(50) DEFAULT 'online',
     language VARCHAR(255) DEFAULT 'English (Subtitles available)',
     isCertificateIncluded BOOLEAN DEFAULT TRUE,
     modules TEXT,
@@ -158,7 +178,7 @@ CREATE TABLE IF NOT EXISTS internship_applications (
     FOREIGN KEY (internshipId) REFERENCES internships(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 10. Lesson Progress Table
+-- 11. Lesson Progress Table
 CREATE TABLE IF NOT EXISTS lesson_progress (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student INT NOT NULL,
@@ -176,7 +196,7 @@ CREATE TABLE IF NOT EXISTS lesson_progress (
     INDEX idx_progress_course (course)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 11. Contact Messages Table
+-- 12. Contact Messages Table
 CREATE TABLE IF NOT EXISTS contact_messages (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fullName VARCHAR(255) NOT NULL,
@@ -191,11 +211,29 @@ CREATE TABLE IF NOT EXISTS contact_messages (
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- 12. Gallery Images Table
+-- 13. Gallery Images Table
 CREATE TABLE IF NOT EXISTS gallery_images (
     id INT AUTO_INCREMENT PRIMARY KEY,
     url LONGTEXT NOT NULL,
     isHero BOOLEAN DEFAULT FALSE,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 14. Payments Table
+CREATE TABLE IF NOT EXISTS payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student INT NOT NULL,
+    course INT DEFAULT NULL,
+    event INT DEFAULT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    currency VARCHAR(10) DEFAULT 'INR',
+    provider VARCHAR(50) NOT NULL,
+    transactionId VARCHAR(255) NOT NULL UNIQUE,
+    status VARCHAR(50) DEFAULT 'pending',
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (student) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (course) REFERENCES courses(id) ON DELETE SET NULL,
+    FOREIGN KEY (event) REFERENCES events(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
